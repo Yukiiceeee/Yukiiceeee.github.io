@@ -4,8 +4,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="【机器学习】001_监督学习与非监督学习, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
-    <meta name="description" content="【学习打卡】机器学习_001：对机器学习关键的几个算法模型的区分与认识">
+    <meta name="keywords" content="标签: Typora, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="description" content="个人博客">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>【机器学习】001_监督学习与非监督学习 | Yuki&#39;s Blog</title>
+    <title>标签: Typora | Yuki&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -38,7 +38,9 @@
 
 
 
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
     <link rel="stylesheet" href="/css/post.css">
+
 
 
 
@@ -328,417 +330,134 @@
 
 </header>
 
-    
+    <div class="bg-cover pd-header about-cover">
+    <div class="container">
+    <div class="row">
+    <div class="col s10 offset-s1 m8 offset-m2 l8 offset-l2">
+        <div class="brand">
+            <div class="title center-align">
+                
+                All Of My Life.
+                
+            </div>
 
-
-
-<div class="bg-cover pd-header post-cover" style="background-image: url('https://thumbnail1.baidupcs.com/thumbnail/5921d4789g4066caf2afbac14ccc98fe?fid=1400589833-250528-107161977244742&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-Umy4MqFgi5sYDlhglpToVQSmrdQ%3d&expires=8h&chkbd=0&chkv=0&dp-logid=8855931915694995680&dp-callid=0&time=1696903200&size=c1552_u970&quality=90&vuk=1400589833&ft=image&autopolicy=1')">
-    <div class="container" style="right: 0px;left: 0px;">
-        <div class="row">
-            <div class="col s12 m12 l12">
-                <div class="brand">
-                    <h1 class="description center-align post-title">【机器学习】001_监督学习与非监督学习</h1>
-                </div>
+            <div class="description center-align">
+                
+                <span id="subtitle"></span>
+                <script src="/libs/typed/typed.js"></script>
+                <script>
+                    var typed = new Typed("#subtitle", {
+                        strings: [ 
+                            
+                                "从来没有真正的绝境, 只有心灵的迷途",
+                            
+                                "Never really desperate, only the lost of the soul",
+                            
+                        ],
+                        startDelay: 300,
+                        typeSpeed: 100,
+                        loop: true,
+                        backSpeed: 50,
+                        showCursor: true
+                    });
+                </script>
+                
             </div>
         </div>
     </div>
 </div>
 
-
-
-
-<main class="container content">
-
-    
-    <!-- 文章内容详情 -->
-<div id="artDetail">
-    <div class="card">
-        <div class="card-content article-info">
-            <div class="row tag-cate">
-                <div class="col s7">
-                    
-                    <div class="article-tag">
-                        
-                            <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">
-                                <span class="chip bg-color">机器学习</span>
-                            </a>
-                        
-                            <a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">
-                                <span class="chip bg-color">人工智能</span>
-                            </a>
-                        
-                    </div>
-                    
-                </div>
-                <div class="col s5 right-align">
-                    
-                    <div class="post-cate">
-                        <i class="fas fa-bookmark fa-fw icon-category"></i>
-                        
-                            <a href="/categories/%E5%AD%A6%E4%B9%A0%E6%89%93%E5%8D%A1/" class="post-category">
-                                学习打卡
-                            </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-
-            <div class="post-info">
-                
-                <div class="post-date info-break-policy">
-                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2023-10-07
-                </div>
-                
-
-                
-
-                
-                <div class="info-break-policy">
-                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    983
-                </div>
-                
-
-                
-
-                
-            </div>
-        </div>
-        <hr class="clearfix">
-
-        
-
-        
-
-        <div class="card-content article-card-content">
-            <div id="articleContent">
-                <h2 id="【机器学习】001-监督学习与非监督学习"><a href="#【机器学习】001-监督学习与非监督学习" class="headerlink" title="【机器学习】001_监督学习与非监督学习"></a>【机器学习】001_监督学习与非监督学习</h2><hr>
-<h2 id="一、定义与区别"><a href="#一、定义与区别" class="headerlink" title="一、定义与区别"></a>一、定义与区别</h2><h3 id="·-监督学习（Supervised-learning）-："><a href="#·-监督学习（Supervised-learning）-：" class="headerlink" title="· 监督学习（Supervised learning） ："></a>· 监督学习（Supervised learning） ：</h3><p>提供<strong>带有正确结果的训练集</strong>，基于训练集，算法将归纳（generalization）出“如何正确的响应所有可能的输入”，也就是对测试集有一个明确的输出。也称之为”示例学习（learning from examples）”</p>
-<h3 id="·-非监督学习（Unsupervised-learning）"><a href="#·-非监督学习（Unsupervised-learning）" class="headerlink" title="· 非监督学习（Unsupervised learning）:"></a>· 非监督学习（Unsupervised learning）:</h3><p>训练集<strong>没有提供正确结果</strong>，而是<strong>让算法尝试识别不同数据之间的相似性</strong>，从而让有共同特征的数据能够被归类在一起。以统计学的方式实现监督学习也称作”密度估计（density estimation）“</p>
-<h2 id="二、监督学习"><a href="#二、监督学习" class="headerlink" title="二、监督学习"></a>二、监督学习</h2><p>模型训练原理：输入(X) —&gt; 输出(Y)</p>
-<p>※ 通过X和Y对标签来训练模型，模型从这些输入输出学习后，可接受一个全新的X并尝试对应输出</p>
-<p><strong>应用领域举例：</strong></p>
-<ol>
-<li><p>垃圾邮件过滤：电子邮件 —&gt; 垃圾邮件?(0&#x2F;1)</p>
-</li>
-<li><p>语音识别：声音 —&gt; 文字记录</p>
-</li>
-<li><p>机器翻译：英语 —&gt; 中文</p>
-</li>
-<li><p>外观检验：手机图片 —&gt; 缺陷?(0&#x2F;1)</p>
-</li>
-<li><p>……</p>
-</li>
-</ol>
-<h3 id="回归模型："><a href="#回归模型：" class="headerlink" title="回归模型："></a><strong>回归模型：</strong></h3><p><strong>例：根据房子大小预测房价的AI模型</strong><img src="https://img-blog.csdnimg.cn/2326e122cb85458a835f4c23adb92aae.png" alt="img"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<p>——通过直线拟合、曲线拟合或函数拟合等，对预计的输入X（房子大小）做对应的输出Y（房子价格）的预测</p>
-<h3 id="分类模型："><a href="#分类模型：" class="headerlink" title="分类模型："></a><strong>分类模型：</strong></h3><p>预测事物所属的类别：如肿瘤是良性或恶性；图片显示的是猫还是狗等。</p>
-<p><strong>例：预测肿瘤是良性或是恶性</strong></p>
-<p><img src="https://img-blog.csdnimg.cn/a4b0ac7f70244ed5ad0978f2db791195.png" alt="img"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<p>——输入病人年龄与肿瘤大小、厚度等输入值，通过恰当的算法找到一条合理的分界线来对恶性与良性所属的区域进行区分，再用大量数据对模型进行训练，最终使模型获得根据这些输入得出预测结果的能力。</p>
-<blockquote>
-<p>常见的监督学习算法： k-近临算法，决策树，朴素贝叶斯等等。</p>
-</blockquote>
-<h2 id="三、非监督学习"><a href="#三、非监督学习" class="headerlink" title="三、非监督学习"></a>三、非监督学习</h2><p>※ 不试图监督算法：让模型自己读懂输入与输出对应的模式与关联，获取没有标签的数据并尝试将它们自动分组到集群之中。</p>
-<h3 id="聚类模型："><a href="#聚类模型：" class="headerlink" title="聚类模型："></a><strong>聚类模型：</strong></h3><p><strong>例：根据DNA表达性状对不同人群进行区分与聚类</strong></p>
-<p>并没有提前指明有哪些种类、不同群体有哪些特征——即没有事先让机器明白所应该做的聚类类型、目标有哪些。而最终为产出聚类结果所运用的归类方式是模型自己探寻出来的。</p>
-<p><img src="https://img-blog.csdnimg.cn/8110f512f1fe447f924dd57c383a838e.png" alt="img"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<p>——红色、灰色、绿色代表不同性状表达能力的强弱，机器根据这些颜色所反映出群体能力的不同来对整个人群的DNA序列做了聚类。</p>
-<p> <strong>非监督学习的其它模型：异常检测模型、降维等等</strong></p>
-<blockquote>
-<p>常见的非监督学习算法： k-均值聚类算法，谱聚类算法，EM算法，主成分分析。</p>
-</blockquote>
-<p><strong>例题：选择无监督学习的示例：</strong></p>
-<p><img src="https://img-blog.csdnimg.cn/c628d9c70c56419c9beaecef69471902.png" alt="img"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动"></p>
-<p>我的答案：BC</p>
-<p>B：使用聚类的模型算法将新闻文章分组到一起。</p>
-<p>C：给予算法一些数据让模型自动发现并细分市场，对其进行进一步的归类。</p>
-<h2 id="四、半监督学习"><a href="#四、半监督学习" class="headerlink" title="四、半监督学习"></a>四、半监督学习</h2><p>※ 训练数据集同时包含有标记样本数据和未标记样本数据。</p>
-<p>​            <img src="https://img-blog.csdnimg.cn/56e4ce39fc6a4981ba7bb59b13ff2bb5.png" alt="img"><img src="data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==" alt="点击并拖拽以移动">编辑</p>
-<p><strong>原理：</strong>用一小部分标记好的数据先进行初步的模型训练，再投入大量未标记数据来获得整体的模型结果。</p>
-<h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><p><strong>监督学习、非监督学习、半监督学习</strong>是机器学习的主要算法分支。后续还会学到<strong>强化学习</strong>，日后在系统地对机器学习的相关算法进行学习、实践的过程中，也应当对这几个算法分支的概念、区别等铭记于心。</p>
-
-                
-            </div>
-            <hr/>
-
-            
-
-    <div class="reprint" id="reprint-statement">
-        
-            <div class="reprint__author">
-                <span class="reprint-meta" style="font-weight: bold;">
-                    <i class="fas fa-user">
-                        文章作者:
-                    </i>
-                </span>
-                <span class="reprint-info">
-                    <a href="/about" rel="external nofollow noreferrer">Cyan.</a>
-                </span>
-            </div>
-            <div class="reprint__type">
-                <span class="reprint-meta" style="font-weight: bold;">
-                    <i class="fas fa-link">
-                        文章链接:
-                    </i>
-                </span>
-                <span class="reprint-info">
-                    <a href="https://yukiiceeee.github.io/2023/10/07/ji-qi-xue-xi-001-jian-du-xue-xi-yu-fei-jian-du-xue-xi/">https://yukiiceeee.github.io/2023/10/07/ji-qi-xue-xi-001-jian-du-xue-xi-yu-fei-jian-du-xue-xi/</a>
-                </span>
-            </div>
-            <div class="reprint__notice">
-                <span class="reprint-meta" style="font-weight: bold;">
-                    <i class="fas fa-copyright">
-                        版权声明:
-                    </i>
-                </span>
-                <span class="reprint-info">
-                    本博客所有文章除特別声明外，均采用
-                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
-                    许可协议。转载请注明来源
-                    <a href="/about" target="_blank">Cyan.</a>
-                    !
-                </span>
-            </div>
-        
-    </div>
-
-    <script async defer>
-      document.addEventListener("copy", function (e) {
-        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
-        M.toast({html: toastHTML})
-      });
-
-      function navToReprintStatement() {
-        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
-      }
-    </script>
-
-
-
-            <div class="tag_share" style="display: block;">
-                <div class="post-meta__tag-list" style="display: inline-block;">
-                    
-                        <div class="article-tag">
-                            
-                                <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">
-                                    <span class="chip bg-color">机器学习</span>
-                                </a>
-                            
-                                <a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">
-                                    <span class="chip bg-color">人工智能</span>
-                                </a>
-                            
-                        </div>
-                    
-                </div>
-                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
-                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
-<div id="article-share">
-
-    
-    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
-    <script src="/libs/share/js/social-share.min.js"></script>
-    
-
-    
-
-</div>
-
-                </div>
-            </div>
-            
-                <div id="reward">
-    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
-
-    <!-- Modal Structure -->
-    <div id="rewardModal" class="modal">
-        <div class="modal-content">
-            <a class="close modal-close"><i class="fas fa-times"></i></a>
-            <h4 class="reward-title">你的赏识是我前进的动力</h4>
-            <div class="reward-content">
-                <div class="reward-tabs">
-                    <ul class="tabs row">
-                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
-                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
-                    </ul>
-                    <div id="alipay">
-                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
-                    </div>
-                    <div id="wechat">
-                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
-    $(function () {
-        $('.tabs').tabs();
-    });
+    // 每天切换 banner 图.  Switch banner image every day.
+    var bannerUrl = "/medias/banner/" + new Date().getDay() + '.jpg';
+    $('.bg-cover').css('background-image', 'url(' + bannerUrl + ')');
+</script>
+<script>
+    
+      var bannerUrl = "/medias/featureimages/" + Math.floor(Math.random() * 24) + '.jpg';
+    
+    $('.bg-cover.about-cover').css('background-image', 'url(' + bannerUrl + ')');
+
 </script>
 
-            
-        </div>
+
     </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-<article id="prenext-posts" class="prev-next articles">
-    <div class="row article-row">
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
-            <div class="card">
-                <a href="/2023/10/09/ji-qi-xue-xi-002-xian-xing-hui-gui-mo-xing-part.1/">
-                    <div class="card-image">
-                        
-                        <img src="https://thumbnail1.baidupcs.com/thumbnail/8a2b0fc20v8aea0289bb70ec1c488b93?fid=1400589833-250528-1112611987437113&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-BwxXeNWmC%2bvsNNDR14%2fcHS2tkmo%3d&expires=8h&chkbd=0&chkv=0&dp-logid=8855931915694995680&dp-callid=0&time=1696903200&size=c1552_u970&quality=90&vuk=1400589833&ft=image&autopolicy=1" class="responsive-img" alt="【机器学习】002_线性回归模型Part.1">
-                        
-                        <span class="card-title">【机器学习】002_线性回归模型Part.1</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            【学习打卡】机器学习_002：对线性回归模型的整体理解，各个参数的认识，以及线性函数的相关概念学习
-                        
-                    </div>
-                    <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2023-10-09
-                        </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/%E5%AD%A6%E4%B9%A0%E6%89%93%E5%8D%A1/" class="post-category">
-                                    学习打卡
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">
-                        <span class="chip bg-color">机器学习</span>
-                    </a>
-                    
-                    <a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">
-                        <span class="chip bg-color">人工智能</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
-            </div>
-            <div class="card">
-                <a href="/2023/10/03/ji-qi-xue-xi-000-ji-qi-xue-xi-ji-ben-gai-nian/">
-                    <div class="card-image">
-                        
-                        <img src="https://thumbnail1.baidupcs.com/thumbnail/eecc6894br7fddc7f2287fc7bfc7577d?fid=1400589833-250528-875435843208427&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-5dakVgS6zKTy2wQIo4sNFAOcTp0%3d&expires=8h&chkbd=0&chkv=0&dp-logid=8855931915694995680&dp-callid=0&time=1696903200&size=c1552_u970&quality=90&vuk=1400589833&ft=image&autopolicy=1" class="responsive-img" alt="【机器学习】000_机器学习基本概念">
-                        
-                        <span class="card-title">【机器学习】000_机器学习基本概念</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            【学习打卡】机器学习_000：对机器学习的工作流程进行了解，对概念进行初步认识
-                        
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2023-10-03
-                            </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/%E5%AD%A6%E4%B9%A0%E6%89%93%E5%8D%A1/" class="post-category">
-                                    学习打卡
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">
-                        <span class="chip bg-color">机器学习</span>
-                    </a>
-                    
-                    <a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">
-                        <span class="chip bg-color">人工智能</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-    </div>
-</article>
-
 </div>
 
-
-
-<!-- 代码块功能依赖 -->
-<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
-
-
-
-<!-- 代码语言 -->
-
-<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
-
-
-<!-- 代码块复制 -->
-
-<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
-
-
-<!-- 代码块收缩 -->
-
-<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
-
-
+<main class="content">
 
     
 
+<div id="tags" class="container chip-container">
+    <div class="card">
+        <div class="card-content">
+            <div class="tag-title center-align">
+                <i class="fas fa-tags"></i>&nbsp;&nbsp;文章标签
+            </div>
+            <div class="tag-chips">
+                
+                
+                <a href="/tags/Typora/" title="Typora: 1">
+                    <span class="chip center-align waves-effect waves-light
+                             chip-active "
+                            data-tagname="Typora" style="background-color: #F9EBEA;">Typora
+                        <span class="tag-length">1</span>
+                    </span>
+                </a>
+                
+                
+                <a href="/tags/Markdown/" title="Markdown: 1">
+                    <span class="chip center-align waves-effect waves-light
+                             chip-default "
+                            data-tagname="Markdown" style="background-color: #F5EEF8;">Markdown
+                        <span class="tag-length">1</span>
+                    </span>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+    <article id="articles" class="container articles">
+        <div class="row tags-posts">
+            
+            
+            <div class="article tag-post col s12 m6 l4" data-tags="Typora, Markdown" data-aos="fade-up">
+                <div class="card">
+                    <a href="/2022/05/02/shou-ji-wu-lu/">
+                        <div class="card-image tag-image">
+                            
+                            <img src="/images/0.jpg" class="responsive-img" alt="【手记】雾旅">
+                            
+                            <span class="card-title">【手记】雾旅</span>
+                        </div>
+                    </a>
+                    <div class="card-content article-content">
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-02
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/Markdown/" class="post-category">
+                                Markdown
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </article>
 </main>
 
 
