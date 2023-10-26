@@ -38,7 +38,9 @@
 
 
 
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
     <link rel="stylesheet" href="/css/post.css">
+
 
 
 
@@ -332,7 +334,7 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/illust_110416076_20231017_000430.png?imageSlim')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/mmexport1698332851052.jpg?imageSlim')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
@@ -347,10 +349,12 @@
 
 
 
-<main class="container content">
+<main class="post-container content">
 
     
-    <!-- 文章内容详情 -->
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
 <div id="artDetail">
     <div class="card">
         <div class="card-content article-info">
@@ -358,10 +362,6 @@
                 <div class="col s7">
                     
                     <div class="article-tag">
-                        
-                            <a href="/tags/%E6%89%8B%E8%AE%B0/">
-                                <span class="chip bg-color">手记</span>
-                            </a>
                         
                             <a href="/tags/%E6%96%87%E9%9B%86/">
                                 <span class="chip bg-color">文集</span>
@@ -375,8 +375,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/Markdown/" class="post-category">
-                                Markdown
+                            <a href="/categories/%E6%89%8B%E8%AE%B0/" class="post-category">
+                                手记
                             </a>
                         
                     </div>
@@ -511,10 +511,6 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E6%89%8B%E8%AE%B0/">
-                                    <span class="chip bg-color">手记</span>
-                                </a>
-                            
                                 <a href="/tags/%E6%96%87%E9%9B%86/">
                                     <span class="chip bg-color">文集</span>
                                 </a>
@@ -603,7 +599,7 @@
                 <a href="/2023/10/26/shou-ji-xiao-jing/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/illust_110416076_20231017_000430.png?imageSlim" class="responsive-img" alt="【手记】小径">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/mmexport1698332851052.jpg?imageSlim" class="responsive-img" alt="【手记】小径">
                         
                         <span class="card-title">【手记】小径</span>
                     </div>
@@ -622,8 +618,8 @@
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/Markdown/" class="post-category">
-                                    Markdown
+                            <a href="/categories/%E6%89%8B%E8%AE%B0/" class="post-category">
+                                    手记
                                 </a>
                             
                             
@@ -633,10 +629,6 @@
 
                 
                 <div class="card-action article-tags">
-                    
-                    <a href="/tags/%E6%89%8B%E8%AE%B0/">
-                        <span class="chip bg-color">手记</span>
-                    </a>
                     
                     <a href="/tags/%E6%96%87%E9%9B%86/">
                         <span class="chip bg-color">文集</span>
@@ -726,6 +718,87 @@
 <script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
 
 
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
 
     
 
