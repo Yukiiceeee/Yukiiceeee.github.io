@@ -4,9 +4,86 @@
   
     
     <entry>
+      <title>【学习】NovelAI进行绘画创作</title>
+      <link href="/2024/04/14/xue-xi-novelai-shi-yong-xin-de/"/>
+      <url>/2024/04/14/xue-xi-novelai-shi-yong-xin-de/</url>
+      
+        <content type="html"><![CDATA[<h1 id="NovelAI进行绘画创作"><a href="#NovelAI进行绘画创作" class="headerlink" title="NovelAI进行绘画创作"></a>NovelAI进行绘画创作</h1><p>近期在尝试制作的Unity游戏项目需要一些CG素材，由于实在缺乏资金向画师约稿……所以这边就想着用NovelAI或者Midjourney这样的AI绘画工具来生成一些令人满意的素材~</p><p>试了一下，还是NovelAI的生成效果比较好。不过用起来也很麻烦呀，需要去调整很多东西，改一些参数，合理选择<code>Tag</code>才能保证产图的效果。</p><p>在这个过程中，也可以学到一些调参方面的经验吧，大概。</p><hr><blockquote><p><strong>登录已有的NovelAI网页资源</strong></p></blockquote><p>XianYun Web：<a href="https://nai3.xianyun.cool/main#/gen_img">https://nai3.xianyun.cool/main#/gen_img</a></p><p>不建议用NovelAI官网提供的版本……之前试着用过，效果并不如一些整合后的资源网所能提供的效果好。</p><h3 id="一、界面介绍"><a href="#一、界面介绍" class="headerlink" title="一、界面介绍"></a>一、界面介绍</h3><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/NovelAI%E7%95%8C%E9%9D%A2%E5%9B%BE.jpg?imageSlim"></p><p><strong>主绘图界面主要分为三部分：Prompts编辑、绘制次数设定、绘图参数调整。</strong></p><h4 id="Prompts编辑"><a href="#Prompts编辑" class="headerlink" title="Prompts编辑"></a>Prompts编辑</h4><p>在<code>Prompts</code>编辑界面，主要是<code>Tag</code>的选取。选取<code>Tag</code>对图像质量有着不可忽略的指导作用，一定要确保<code>Tag</code>符合自己的要求标准。</p><ol><li><code>Tag</code>必须是英文输入，以”,”为间隔。实际上输入语言文本也能够进行生成，不过不太建议这样做。（虽然不太清楚它的文本序列<code>Encoder-Decoder</code>怎么设置的，应该是从一串文本序列里识别到特定的标签然后拿标签进行指导生成？）可以用上面自带的内容翻译进行中英互译。</li><li><code>Tag</code>里的括号表示加权，对某一个提示词的指导权重进行加强，直白点就是围绕这个提示词的生成效果变得更重。</li><li>如果不知道该用哪些提示词比较好，可以在左侧的<code>Tag</code>编辑器里预选一些可参考的提示词。</li><li>可以在<code>Tag</code>里指导生成图像所选用的画师画风。格式为”artist: xxx”，只要是模型预训练过的画师数据都可以进行指导生成。</li><li>词条笔记本、上传词条、随机<code>Tag</code>这些，日常使用很少用到，不作详述。</li></ol><h4 id="绘图参数调整"><a href="#绘图参数调整" class="headerlink" title="绘图参数调整"></a>绘图参数调整</h4><p>在调参界面，可以设定模型绘制的一些参数。一般来说都不必刻意去进行更改。</p><p><strong>长宽设置：</strong><code>Width</code>和<code>Height</code>可以指定生成的图像大小比例，特定分辨率需要勾选启用分辨率才能应用生成。一般来说要增加图像的长宽像素的话，需要更多的显存。大尺度的图像一致性会随着分辨率的提高而变差（模型是在 512x512 的基础上训练的）。非常小的值（例如 256 像素）也会降低图像质量。</p><p><strong>采样器设置：</strong>目前好用的有 <code>Euler</code>，<code>Euler a</code>（更细腻），和 <code>DDIM</code>。推荐 <code>Euler a</code> 和 <code>DDIM</code>，**新手推荐使用 <code>Euler a</code>**。</p><p><code>Euler a</code> 富有创造力，不同步数可以生产出不同的图片。调太高步数 (&gt;30) 效果不会更好。</p><p><code>DDIM</code> 收敛快，但效率相对较低，因为需要很多 step 才能获得好的结果，<strong>适合在重绘时候使用</strong></p><p><code>LMS</code> 和 <code>PLMS</code> 是 <code>Euler</code> 的衍生，它们使用一种相关但稍有不同的方法（平均过去的几个步骤以提高准确性）。大概 30 step 可以得到稳定结果</p><p><code>PLMS</code> 是一种有效的 LMS（经典方法），可以更好地处理神经网络结构中的奇异性</p><p><code>DPM2</code> 是一种神奇的方法，它旨在改进 DDIM，减少步骤以获得良好的结果。它需要每一步运行两次去噪，它的速度大约是 DDIM 的两倍。但是如果你在进行调试提示词的实验，这个采样器效果不怎么样……</p><p><code>Euler</code> 是最简单的，因此也是最快的之一。（搬运自AiDraw的文档指导~）</p><p>※ <code>Steps</code>一般不要设置得太少，毕竟是基于Stable Diffusion降噪生成图像。但设置得太高也会徒增生成时间。一般来说拉到28就够了。</p><h4 id="绘制次数设定"><a href="#绘制次数设定" class="headerlink" title="绘制次数设定"></a>绘制次数设定</h4><p>简单易懂，设定一次绘制多少幅画。</p><h3 id="二、拓展功能"><a href="#二、拓展功能" class="headerlink" title="二、拓展功能"></a>二、拓展功能</h3><p>除了最重要的NovelAI绘图部分，网站还设定了许多额外的拓展功能可供使用。</p><h4 id="图像超分辨率"><a href="#图像超分辨率" class="headerlink" title="图像超分辨率"></a>图像超分辨率</h4><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/NovelAI-%E5%9B%BE%E5%83%8F%E8%B6%85%E5%88%86%E8%BE%A8%E7%8E%87.jpg?imageSlim"></p><p>如果对生成的图像清晰度要求比较高，可以在这里对图像进行清晰化缩放。</p><p>一般来说，选择<code>SwinIR_4x</code>放大算法就够用啦。</p><h4 id="Tag编辑器"><a href="#Tag编辑器" class="headerlink" title="Tag编辑器"></a>Tag编辑器</h4><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/NovelAI-Tag%E7%BC%96%E8%BE%91.jpg?imageSlim"></p><p>如果对绘画功能的提示词<code>Tag</code>设置不明晰的话，可以借助<code>Tag</code>编辑器辅助选择<code>Tag</code>。</p><p>预设提供的<code>Tag</code>标签有很多，随心所欲搭配直到生成令人满意的结果吧。</p><p>除此之外，还有<strong>图像反推Tag</strong>、<strong>图像Tag识别</strong>两项功能，从提供的图像中识别出对应的标签（可能是基于CLIP模型做的吧？之前读<code>Diffu Musk</code>论文的时候读到过类似功能的实现方法）。</p><hr><p>总的来说，差不多就是这样啦。之前看很多大佬通过NovelAI搭配出了非常好看的生成效果，现在自己也试着尝试一下吧。干什么都不容易哇，仅仅是利用AI进行一个生成，想要得到好的结果也需要很多学习和努力。</p><p>姑且自己设置提示词生成了一点素材，后续再挑拣一些后期修改放到Unity项目里吧：</p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/2bdb3aa480d5d437ac1a44f83ddd795.png?imageSlim"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 经验分享 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【绘画】近期的一些摸鱼练习</title>
+      <link href="/2024/03/15/hui-hua-jin-qi-de-yi-xie-mo-yu-lian-xi/"/>
+      <url>/2024/03/15/hui-hua-jin-qi-de-yi-xie-mo-yu-lian-xi/</url>
+      
+        <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 绘画 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 兴趣爱好 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【学习】LaTeX 入门笔记</title>
+      <link href="/2024/03/11/xue-xi-latex-ru-men-bi-ji/"/>
+      <url>/2024/03/11/xue-xi-latex-ru-men-bi-ji/</url>
+      
+        <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习记录 </tag>
+            
+            <tag> 知识整理 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【学习】Linux服务器上升级Python版本</title>
-      <link href="/2024/03/11/xue-xi-zai-linux-fu-wu-qi-shang-sheng-ji-python-ban-ben/"/>
-      <url>/2024/03/11/xue-xi-zai-linux-fu-wu-qi-shang-sheng-ji-python-ban-ben/</url>
+      <link href="/2024/03/11/xue-xi-linux-fu-wu-qi-shang-sheng-ji-python-ban-ben/"/>
+      <url>/2024/03/11/xue-xi-linux-fu-wu-qi-shang-sheng-ji-python-ban-ben/</url>
       
         <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
       
@@ -21,6 +98,193 @@
         <tags>
             
             <tag> 经验分享 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【活动记录】北邮游园会</title>
+      <link href="/2024/03/11/huo-dong-ji-lu-bei-you-you-yuan-hui/"/>
+      <url>/2024/03/11/huo-dong-ji-lu-bei-you-you-yuan-hui/</url>
+      
+        <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 活动记录 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 活动 </tag>
+            
+            <tag> 出行 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【活动记录】国家植物园</title>
+      <link href="/2024/03/11/huo-dong-ji-lu-guo-jia-zhi-wu-yuan/"/>
+      <url>/2024/03/11/huo-dong-ji-lu-guo-jia-zhi-wu-yuan/</url>
+      
+        <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 活动记录 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 活动 </tag>
+            
+            <tag> 出行 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【活动记录】开源春耕行</title>
+      <link href="/2024/03/11/huo-dong-ji-lu-kai-yuan-chun-geng-xing/"/>
+      <url>/2024/03/11/huo-dong-ji-lu-kai-yuan-chun-geng-xing/</url>
+      
+        <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 活动记录 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 活动 </tag>
+            
+            <tag> 学习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【活动记录】望京之行</title>
+      <link href="/2024/03/11/huo-dong-ji-lu-wang-jing-zhi-xing/"/>
+      <url>/2024/03/11/huo-dong-ji-lu-wang-jing-zhi-xing/</url>
+      
+        <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 活动记录 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 活动 </tag>
+            
+            <tag> 出行 </tag>
+            
+            <tag> 旅游 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【Unity】开发日志_Level.2</title>
+      <link href="/2024/03/01/unity-kai-fa-ri-zhi-level.2/"/>
+      <url>/2024/03/01/unity-kai-fa-ri-zhi-level.2/</url>
+      
+        <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Unity </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习记录 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【Unity】开发日志_Level.1</title>
+      <link href="/2024/02/26/unity-kai-fa-ri-zhi-level.1/"/>
+      <url>/2024/02/26/unity-kai-fa-ri-zhi-level.1/</url>
+      
+        <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Unity </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习记录 </tag>
+            
+            <tag> 知识整理 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【Unity】横版平台跳跃游戏~第一个Unity练习作品</title>
+      <link href="/2024/02/20/unity-heng-ban-ping-tai-tiao-yue-you-xi-di-yi-ge-unity-lian-xi-zuo-pin/"/>
+      <url>/2024/02/20/unity-heng-ban-ping-tai-tiao-yue-you-xi-di-yi-ge-unity-lian-xi-zuo-pin/</url>
+      
+        <content type="html"><![CDATA[<h1 id="在Linux服务器上升级Python版本"><a href="#在Linux服务器上升级Python版本" class="headerlink" title="在Linux服务器上升级Python版本"></a>在Linux服务器上升级Python版本</h1><p>近段时间在用导师给的服务器跑项目，所以升级了一下 Python 版本。这里分享下自己在升级 Python 时的流程和遇到的一些问题~</p><p>参考博客：<a href="https://blog.csdn.net/Jxq_IT/article/details/103971862">https://blog.csdn.net/Jxq_IT/article/details/103971862</a></p><hr><blockquote><p><strong>直接更新系统Python版本</strong></p></blockquote><h4 id="一、查看系统中的Python版本"><a href="#一、查看系统中的Python版本" class="headerlink" title="一、查看系统中的Python版本"></a>一、查看系统中的Python版本</h4><p>我的服务器是 Ubuntu 18.04.6 版本，之前预装的 Python 版本是 3.7.13，由于论文需要，故要升级到 3.10 版本。首先我们用如下指令查看当前系统的 Python 版本：</p><ol><li><p>使用<code>Python</code>或<code>Python3</code>命令：</p><pre class=" language-text"><code class="language-text">python --versionpython3 --version</code></pre></li><li><p>直接查看<code>bin</code>文件夹下安装的 Python 目录：</p><pre class=" language-text"><code class="language-text">ls /usr/bin/python*</code></pre></li></ol><h4 id="二、利用wget下载对应版本的Python包"><a href="#二、利用wget下载对应版本的Python包" class="headerlink" title="二、利用wget下载对应版本的Python包"></a>二、利用wget下载对应版本的Python包</h4><ol><li><p>在当前的目录下，安装 Python 包。指令如下：</p><pre class=" language-text"><code class="language-text">wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz</code></pre></li><li><p>上传服务器并解压缩：</p><pre class=" language-text"><code class="language-text">tar -xf Python-3.10.13.tgz</code></pre></li><li><p>进入解压缩后的文件夹，并编译：</p><pre class=" language-text"><code class="language-text">./configure && make && make install</code></pre></li></ol><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_1.jpg?imageSlim" alt="Python官网的相关版本"></p><p>网址：<a href="https://www.python.org/downloads/source/">https://www.python.org/downloads/source/</a></p><p><strong>编译结束后，正常情况下会装到&#x2F;usr&#x2F;local&#x2F;bin目录下，记得去看一下！</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E5%9B%BE_2.jpg?imageSlim"></p><h4 id="三、创建软连接"><a href="#三、创建软连接" class="headerlink" title="三、创建软连接"></a>三、创建软连接</h4><ol><li><p>首先检查系统是否已经有 <code>python3、python </code>的软链接，可以使用以下命令：</p><pre class=" language-text"><code class="language-text">ls -l /usr/bin/python3ls -l /usr/bin/python</code></pre></li><li><p>删除现有软连接，并创建新的软连接指向<code>Python 3.10</code>：</p><pre class=" language-text"><code class="language-text">sudo rm /usr/bin/python3sudo rm /usr/bin/pythonsudo ln -s /usr/local/bin/python3.10 /usr/bin/python3sudo ln -s /usr/local/bin/python3.10 /usr/bin/pythonsudo ln -sf /usr/local/bin/python3.10-config /usr/bin/python-config</code></pre></li></ol><p>​※注意，如果已经是root用户的话，不需要加sudo哦</p><h4 id="四、检查环境变量"><a href="#四、检查环境变量" class="headerlink" title="四、检查环境变量"></a>四、检查环境变量</h4><p>要运行一下 <code>echo $PATH</code> 来查看当前的 <code>PATH</code> 设置，确保 <code>/usr/bin</code>（或存放了 Python 3.10 软链接的目录）在任何可能包含旧 Python 版本的目录之前。否则的话，执行<code>python --version</code>仍然会显示之前的版本！</p><pre class=" language-text"><code class="language-text">export PATH=/usr/bin:$PATH</code></pre><p>执行这个命令，暂时将将 <code>/usr/bin</code> 移到 <code>PATH</code> 的前面。</p><p>最后，再运行一遍<code>python --version</code>来检查。如果还是不行，试试用<code>hash -r</code>清除一下bash的缓存，或重新打开 shell 会话。</p><blockquote><p><strong>使用Conda管理Python版本</strong></p></blockquote><p>使用Conda来进行管理的话，操作起来就方便多啦。当然你需要先保证系统里预装了Conda。</p><pre class=" language-text"><code class="language-text">conda create -n myenv python=3.10conda activate myenv</code></pre><p>这样会创建一个名为 <code>myenv</code> 的新环境，其中安装了 <code>Python 3.10</code>，然后激活这个环境。</p><p>如果 <code>conda activate</code> 命令提示不能正确使用，按它的提示来，初始化一下 Conda 对 shell 的支持：</p><pre class=" language-text"><code class="language-text">conda init bash</code></pre><hr><p>好的，以上就是我的解决过程啦！希望能够帮到你~⁽(◍˃̵͈̑ᴗ˂̵͈̑)⁽</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Unity </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习记录 </tag>
             
         </tags>
       
@@ -79,16 +343,116 @@
     
     
     <entry>
-      <title>【写在前面】</title>
-      <link href="/2023/10/11/xie-zai-qian-mian/"/>
-      <url>/2023/10/11/xie-zai-qian-mian/</url>
+      <title>【随笔】《关于地球的运动》</title>
+      <link href="/2023/10/26/sui-bi-guan-yu-di-qiu-de-yun-dong/"/>
+      <url>/2023/10/26/sui-bi-guan-yu-di-qiu-de-yun-dong/</url>
       
-        <content type="html"><![CDATA[<h1 id="【写在前面】前言"><a href="#【写在前面】前言" class="headerlink" title="【写在前面】前言"></a>【写在前面】前言</h1><hr><blockquote></blockquote><p>我不是一个经常记录自己生活的人。</p>]]></content>
+        <content type="html"><![CDATA[<h1 id="【手记】小径"><a href="#【手记】小径" class="headerlink" title="【手记】小径"></a>【手记】小径</h1><blockquote><p>トレイル（小径）——cover.mamenoi</p></blockquote><hr><p>xxx</p><p>掩埋在纯白细沙里的脚尖</p><p>海风在耳边轻轻诉说</p><p>眼前蔓延的青蓝色</p><p>睁开眼那是多么耀眼的光芒</p><p>至今只在书中领略过的光彩</p><p>无法估计的色温量</p><p>深深印在眼底的圆影</p><p>xxx</p><p>唯有海浪知晓那从未被翻过的扉页</p><p>我们不曾知晓尚未往复重现的历史</p><p>我们并肩仰望的星</p><p>繁星中的某一颗必定是我们的小船</p><p>触及到的这盏灯火</p><p>是多少年月前的产物呢</p><p>浅浅的记忆渐渐流逝</p><p>触及到的全部此刻化作证明</p><p>黑夜最终消散在天空</p><p>带来了全新的黎明</p><p>xxx</p><p>那并不是理所当然</p><p>聆听声音</p><p>停下脚步</p><p>世上竟有如此撼人心弦的景色</p><p>不如上前追问</p><p>即便明知就算询问也不会有答案</p><p>xxx</p><p>我们又能否找到呢</p><p>就像是掬起一片小小的希望般——</p>]]></content>
       
       
       <categories>
           
-          <category> 坦白说 </category>
+          <category> 随笔 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 漫画分享 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【随笔】《迷宫饭》</title>
+      <link href="/2023/10/26/sui-bi-mi-gong-fan/"/>
+      <url>/2023/10/26/sui-bi-mi-gong-fan/</url>
+      
+        <content type="html"><![CDATA[<h1 id="【手记】小径"><a href="#【手记】小径" class="headerlink" title="【手记】小径"></a>【手记】小径</h1><blockquote><p>トレイル（小径）——cover.mamenoi</p></blockquote><hr><p>xxx</p><p>掩埋在纯白细沙里的脚尖</p><p>海风在耳边轻轻诉说</p><p>眼前蔓延的青蓝色</p><p>睁开眼那是多么耀眼的光芒</p><p>至今只在书中领略过的光彩</p><p>无法估计的色温量</p><p>深深印在眼底的圆影</p><p>xxx</p><p>唯有海浪知晓那从未被翻过的扉页</p><p>我们不曾知晓尚未往复重现的历史</p><p>我们并肩仰望的星</p><p>繁星中的某一颗必定是我们的小船</p><p>触及到的这盏灯火</p><p>是多少年月前的产物呢</p><p>浅浅的记忆渐渐流逝</p><p>触及到的全部此刻化作证明</p><p>黑夜最终消散在天空</p><p>带来了全新的黎明</p><p>xxx</p><p>那并不是理所当然</p><p>聆听声音</p><p>停下脚步</p><p>世上竟有如此撼人心弦的景色</p><p>不如上前追问</p><p>即便明知就算询问也不会有答案</p><p>xxx</p><p>我们又能否找到呢</p><p>就像是掬起一片小小的希望般——</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 随笔 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 漫画分享 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【随笔】简议《巴别塔》</title>
+      <link href="/2023/10/26/sui-bi-jian-yi-ba-bie-ta/"/>
+      <url>/2023/10/26/sui-bi-jian-yi-ba-bie-ta/</url>
+      
+        <content type="html"><![CDATA[<h1 id="【手记】小径"><a href="#【手记】小径" class="headerlink" title="【手记】小径"></a>【手记】小径</h1><blockquote><p>トレイル（小径）——cover.mamenoi</p></blockquote><hr><p>xxx</p><p>掩埋在纯白细沙里的脚尖</p><p>海风在耳边轻轻诉说</p><p>眼前蔓延的青蓝色</p><p>睁开眼那是多么耀眼的光芒</p><p>至今只在书中领略过的光彩</p><p>无法估计的色温量</p><p>深深印在眼底的圆影</p><p>xxx</p><p>唯有海浪知晓那从未被翻过的扉页</p><p>我们不曾知晓尚未往复重现的历史</p><p>我们并肩仰望的星</p><p>繁星中的某一颗必定是我们的小船</p><p>触及到的这盏灯火</p><p>是多少年月前的产物呢</p><p>浅浅的记忆渐渐流逝</p><p>触及到的全部此刻化作证明</p><p>黑夜最终消散在天空</p><p>带来了全新的黎明</p><p>xxx</p><p>那并不是理所当然</p><p>聆听声音</p><p>停下脚步</p><p>世上竟有如此撼人心弦的景色</p><p>不如上前追问</p><p>即便明知就算询问也不会有答案</p><p>xxx</p><p>我们又能否找到呢</p><p>就像是掬起一片小小的希望般——</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 随笔 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 评议 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【随笔】浅聊生息演算</title>
+      <link href="/2023/10/26/sui-bi-qian-liao-sheng-xi-yan-suan/"/>
+      <url>/2023/10/26/sui-bi-qian-liao-sheng-xi-yan-suan/</url>
+      
+        <content type="html"><![CDATA[<h1 id="【手记】小径"><a href="#【手记】小径" class="headerlink" title="【手记】小径"></a>【手记】小径</h1><blockquote><p>トレイル（小径）——cover.mamenoi</p></blockquote><hr><p>xxx</p><p>掩埋在纯白细沙里的脚尖</p><p>海风在耳边轻轻诉说</p><p>眼前蔓延的青蓝色</p><p>睁开眼那是多么耀眼的光芒</p><p>至今只在书中领略过的光彩</p><p>无法估计的色温量</p><p>深深印在眼底的圆影</p><p>xxx</p><p>唯有海浪知晓那从未被翻过的扉页</p><p>我们不曾知晓尚未往复重现的历史</p><p>我们并肩仰望的星</p><p>繁星中的某一颗必定是我们的小船</p><p>触及到的这盏灯火</p><p>是多少年月前的产物呢</p><p>浅浅的记忆渐渐流逝</p><p>触及到的全部此刻化作证明</p><p>黑夜最终消散在天空</p><p>带来了全新的黎明</p><p>xxx</p><p>那并不是理所当然</p><p>聆听声音</p><p>停下脚步</p><p>世上竟有如此撼人心弦的景色</p><p>不如上前追问</p><p>即便明知就算询问也不会有答案</p><p>xxx</p><p>我们又能否找到呢</p><p>就像是掬起一片小小的希望般——</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 随笔 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 评议 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【写在前面】</title>
+      <link href="/2023/10/11/preface-my-daliy-life-xie-zai-qian-mian/"/>
+      <url>/2023/10/11/preface-my-daliy-life-xie-zai-qian-mian/</url>
+      
+        <content type="html"><![CDATA[<h1 id="【写在前面】前言"><a href="#【写在前面】前言" class="headerlink" title="【写在前面】前言"></a>【写在前面】前言</h1><hr><blockquote></blockquote>]]></content>
+      
+      
+      <categories>
+          
+          <category> 随笔 </category>
           
       </categories>
       
