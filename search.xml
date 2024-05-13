@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>【学习】MOE混合专家模型</title>
+      <link href="/2024/05/08/xue-xi-moe-hun-he-zhuan-jia-mo-xing/"/>
+      <url>/2024/05/08/xue-xi-moe-hun-he-zhuan-jia-mo-xing/</url>
+      
+        <content type="html"><![CDATA[<h2 id="【笔记】MOE混合专家模型"><a href="#【笔记】MOE混合专家模型" class="headerlink" title="【笔记】MOE混合专家模型"></a>【笔记】MOE混合专家模型</h2><ul><li>与稠密模型相比， <strong>预训练速度更快</strong></li><li>与具有相同参数数量的模型相比，具有更快的 <strong>推理速度</strong></li><li>需要 <strong>大量显存</strong>，因为所有专家系统都需要加载到内存中</li><li>在 <strong>微调方面存在诸多挑战</strong>，但对混合专家模型进行 <strong>指令调优具有很大的潜力</strong>。</li></ul><hr><h4 id="模型架构："><a href="#模型架构：" class="headerlink" title="模型架构："></a>模型架构：</h4><p>MOE是一种基于Transformer架构的模型，主要由两个部分组成：</p><ul><li><strong>稀疏 MoE 层</strong>: 取代传统 Transformer 模型中的前馈网络 (FFN) 层。MoE 层包含若干“专家模型”，每个专家本身是一个独立的神经网络。在实际应用中，这些专家通常是前馈网络 (FFN)，也可以是更复杂的网络结构，甚至可以是 MoE 层本身，从而形成层级式的 MoE 结构。</li><li><strong>门控网络单元</strong>: 决定哪些令牌 (token) 被发送到哪个专家。例如，在下图中，“More”这个 <code>token</code> 可能被发送到第二个专家，而“Parameters”这个 <code>token</code> 被发送到第一个专家。有时，一个 <code>token</code> 甚至可以被发送到多个专家。门控单元的设计是 MoE 使用中的一个关键点，与网络的其他部分一同进行预训练。</li></ul><p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508171027413.png" alt="image-20240508171027413"></p><p>其中，门控网络通常是一个带有Softmax的简单网络，学习将输入发送给哪一个专家的分类。</p><p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508171640190.png" alt="image-20240508171640190"></p><p>所有专家模型都会对所有输入进行运算，但通过门控网络的输出进行加权乘法操作。</p><p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508171722067.png" alt="image-20240508171722067"></p><h4 id="数据需求："><a href="#数据需求：" class="headerlink" title="数据需求："></a>数据需求：</h4><p>对于MOE模型，数据的质量比数据数量更重要。多个专家模型的训练需要确保有涵盖每一个领域的大量数据作为支撑，专家 gating network 也需要分配平衡。故而常需要一个分类器质检，确保数据的质量。</p><p>MOE的更多参数也意味着我们需要更多数据去训练。</p><h4 id="并行训练："><a href="#并行训练：" class="headerlink" title="并行训练："></a>并行训练：</h4><p>MOE在训练中可以采用数据并行或模型并行的训练方法。</p><p><strong>· 数据并行：</strong>多个显卡对同一个MOE（参数一致），每个显卡进行不同的专家模型训练。将数据并行地发送到MOE之中，实现数据并行训练。</p><p><strong>· 模型并行：</strong>将MOE的多个专家拆到多个显卡当中，依次输入相关参数，但每次可能会索引到其它卡的专家模型之中，故而需要卡间通信。</p><p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508172345121.png" alt="image-20240508172345121"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【学习】LoRA微调原理</title>
+      <link href="/2024/05/07/xue-xi-lora-wei-diao-yuan-li/"/>
+      <url>/2024/05/07/xue-xi-lora-wei-diao-yuan-li/</url>
+      
+        <content type="html"><![CDATA[<h2 id="【笔记】Lora微调原理"><a href="#【笔记】Lora微调原理" class="headerlink" title="【笔记】Lora微调原理"></a>【笔记】Lora微调原理</h2><blockquote><p>大语言模型微调算法</p></blockquote><hr><p><strong>基本原理：</strong>低秩矩阵相乘升维，与预训练权重矩阵叠加，实现模型微调</p><p><strong>原理简述：</strong>冻结预训练的模型参数，然后在Transfomer的每一层中加入一个可训练的旁路矩阵（低秩可分离矩阵），接着将旁路输出与初始路径输出相加输入到网络当中。在训练的时候，只训练这些新增的低秩矩阵的参数。其中低秩矩阵由两个矩阵组成，第一个矩阵负责降维，第二个矩阵负责升维，中间层维度为r，两个低秩矩阵能够大幅度减小参数量。</p><p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508103941588.png" alt="image-20240508103941588"></p><p><strong>原理解释：</strong></p><p>输入为<code>x</code>，输出为<code>h</code>，预训练模型：</p><p>$h&#x3D;W_{0}x$</p><p>在全参数量上微调（regular finetuning）：</p><p>$h&#x3D;W_{0}x+△Wx$</p><p>如果采用低秩可分离矩阵（LoRA），则：<br>$$h&#x3D;W_{0}x+△Wx&#x3D;W_{0}x+BAx $$</p><p>在这个过程中，最核心的步骤便是将 $△W$ 进行分解，将其分解为两个低秩矩阵。如果只使用单独的一个矩阵，那么参数量为 $$d<em>d$$，如果使用低秩可分离矩阵，此时原来的大矩阵可分解为两个秩为 $r$ 的大小为 $$d</em>r$$ 的小矩阵，参数量大小为 ，由于 $$r&lt;d$$ 所以可以大幅度减少参数量。</p><p>即：*<em>A矩阵采用一个 $$d</em>r$$ 矩阵，B矩阵采用一个 $$r<em>d$$ 矩阵，总参数量 $$2r</em>d$$ **</p><p><strong>公式推导：</strong></p><p>LoRA 作用形式：$W&#x3D;W_{plm}+aW_{lora}&#x3D;W_{plm}+aB_{lora_{zeros}}*A_{lora_{gaussian}}$</p><p>论文中，将 LoRA 作用在 Query 与 Value 权重矩阵上效果最好：</p><p><code>attention query</code> 映射矩阵：$W_{q}&#x3D;W_{q_{plm}}+aW_{q_{lora}}$</p><p><code>attention value</code> 映射矩阵：$W_{v}&#x3D;W_{v_{plm}}+aW_{v_{lora}}$</p><p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508141215200.png" alt="image-20240508141215200"></p><p><code>Attention</code> 计算结果：</p><p>$head&#x3D;softmax(Q,K)XW&#x3D;softmax(Q,K)X(W_{v_{plm}}+aX<em>W_{v_{lora}})&#x3D;softmax(Q,K)XW_{v_{plm}}+a</em>softmax(Q,K)XW_{v_{lora}}$</p><hr><p><strong>低秩分解：</strong></p><p>· 如何实现低秩分解？</p><p>低秩分解是一种将矩阵分解为低秩近似的技术。在LORA中，我们使用低秩矩阵来编码参数增量。假设我们有一个预训练的权重矩阵，它的维度是高的。我们可以将<strong>这个矩阵分解为两个低秩矩阵的乘积</strong>，例如：$$W&#x3D; UV^T$$其中U 和V是低秩矩阵。</p><pre class=" language-text"><code class="language-text">##矩阵中，row2 = row1 * 2，row3 = row1*3，也就是说，矩阵中的每一行，都可以通过第一行线性表示。A = [[1, 2, 3],[2, 4, 6],[3, 6, 9]]#任意一行，总可以用其他两行的线性组合来表示。B = [[1, 2, 3],   [7, 11, 5],[8, 13, 8]]#任意一行，都不能从其余行的线性组合中推导而来。C = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]#求解秩：A = np.array(A)B = np.array(B)C = np.array(C) print("Rank of A:", np.linalg.matrix_rank(A)) # 1print("Rank of B:", np.linalg.matrix_rank(B)) # 2print("Rank of C:", np.linalg.matrix_rank(C)) # 3# 对矩阵A来说，由于只要掌握其中的任意一行，其余行都可以由这一行线性推导而来，因此A的秩是1。# 对矩阵B来说，由于只要掌握其中的任意两行，其余行都可以由这两行线性组合推导而来，因此B的秩是2。# 对矩阵C来说，由于必须完全掌握三行，才能得到完整的C，因此C的秩是3。# 简单理解一下，秩表示的是矩阵的信息量。#如果矩阵中的某一维，总可以通过其余维度线性推导而来，那么对模型来说，#这一维的信息是冗余的，是重复表达的。#对A和B的情况，我们称为秩亏（rank deficient），#对C的情况，我们称为满秩（full rank）。</code></pre><p>· 对A矩阵，采用随机高斯初始化；对B矩阵，采用zero初始化。这样做的原因是要<strong>保证梯度更新有效。</strong></p><p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508142401355.png" alt="image-20240508142401355"></p><p>$ℎ_{𝑖}^{(2)}$ 是输出向量 $h$ 的第 $i$ 个元素，$B_{i,k}$ 是矩阵 $B$ 的元素，$A_{i,k}$ 是矩阵 $A$ 的元素，而 $x_{j}$ 是输入向量 $x$ 的第 $j$ 个元素。</p><p>计算权重 $B$ 中元素 $B_{i,k}$ 的偏导数来进行梯度下降。固定 $i$ 和 $k$，对所有的 $j$ 进行求和，将 $A$ 的对应元素与输入向量的元素相乘并累加。</p><p>$B_{i,k}$ 的每个更新都是由 $x$ 和 $A$ 的对应元素的乘积影响的，故而对A矩阵，采用随机高斯初始化；对B矩阵，采用zero初始化。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【Unity】《星律》作品开发心得</title>
       <link href="/2024/04/28/unity-xing-lu-zuo-pin-kai-fa-xin-de/"/>
       <url>/2024/04/28/unity-xing-lu-zuo-pin-kai-fa-xin-de/</url>
@@ -120,9 +170,9 @@
       
         <tags>
             
-            <tag> 学习记录 </tag>
-            
             <tag> 知识整理 </tag>
+            
+            <tag> 学习笔记 </tag>
             
         </tags>
       
