@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>【学习】MOELoRA：基于MOE应用LoRA微调</title>
+      <link href="/2024/05/18/xue-xi-moelora/"/>
+      <url>/2024/05/18/xue-xi-moelora/</url>
+      
+        <content type="html"><![CDATA[<h2 id="【笔记】MOELoRA-一种基于MOE多任务医疗应用下的高效参数微调方法"><a href="#【笔记】MOELoRA-一种基于MOE多任务医疗应用下的高效参数微调方法" class="headerlink" title="【笔记】MOELoRA: 一种基于MOE多任务医疗应用下的高效参数微调方法"></a>【笔记】MOELoRA: 一种基于MOE多任务医疗应用下的高效参数微调方法</h2><ul><li><strong>医疗领域的LLM微调困境：</strong>①任务多样性太大；②参数量大，微调成本太高</li><li><strong>解决思路：</strong>MOE与LoRA结合，针对特定领域任务进行微调</li><li><strong>突出问题：</strong>不同任务下的数据量在质量、规模上都存在差距（A任务有1000个数据，B任务有5000个数据，使得微调参数会倾向于样本量更大的任务，破坏少样本任务的处理性能。如何解决？）</li></ul><hr><h4 id="模型架构："><a href="#模型架构：" class="headerlink" title="模型架构："></a>模型架构：</h4><ul><li>多个专家作为可训练的参数，其中每个专家由一对低秩矩阵组成，以保持少量的可训练的参数。</li><li>为所有的MOELoRA层提出了一个任务动机的门函数，该函数可以调节每个专家的贡献，并为各种任务生成不同的参数。</li></ul><p><strong>使用MOELoRA对LLM的参数高效微调过程的可视化表示如下：</strong></p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519223632525.png?imageSlim" alt="image-20240519223632525"></p><ol><li><p><strong>Attention层</strong>：</p><ul><li>包含多头注意力机制的标准组件，其中Q（Query）、K（Key）、V（Value）各自通过LoRA适配器进行增强。</li><li>每个Q、K、V矩阵都通过MOE-LoRA增强，即每个矩阵都分别有专门的LoRA专家进行调整。</li><li>这些LoRA专家由底部的门控（Gate）单元动态选择，门控根据输入的任务ID决定激活哪些专家。</li></ul></li><li><p><strong>Layer Norm和Add层</strong>：</p><ul><li><p>Transformer架构中的每个子层输出后都会经过一个添加（Add）和层归一化（Layer Norm）操作。</p></li><li><p>在此架构中，W表示权重矩阵，包括由MoE-LoRA微调的参数。</p></li></ul></li><li><p><strong>Gate单元</strong>：</p><ul><li><p>根据输入的任务ID（如文档底部所示），决定哪些LoRA专家参与当前任务的计算。</p></li><li><p>确保每个特定任务都能调用最适合它的专家组合，从而实现高效的任务特定微调。</p></li></ul></li><li><p><strong>训练与固定权重</strong>：</p><ul><li>图中用火焰符号标注的权重（W）是可训练的，而用雪花符号标注的是固定的，表明在微调过程中这部分权重不会被更新。</li></ul></li></ol><hr><h4 id="MOELoRA层："><a href="#MOELoRA层：" class="headerlink" title="MOELoRA层："></a>MOELoRA层：</h4><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519225817161.png?imageSlim" alt="image-20240519225817161"></p><ul><li><p>每个专家都被替换为了一个低秩矩阵相乘的形式</p></li><li><p>任务 $T_{j}$ 样本的线性层与MOELoRA层配对的前向过程表示为：</p></li></ul><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519230406663.png?imageSlim" alt="image-20240519230406663"></p><hr><h4 id="任务驱动的门控单元："><a href="#任务驱动的门控单元：" class="headerlink" title="任务驱动的门控单元："></a>任务驱动的门控单元：</h4><p>权重计算公式：</p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519231110060.png?imageSlim" alt="image-20240519231110060"></p><ul><li>任务驱动的门函数为每个任务产生一组<strong>独特</strong>的贡献权值</li></ul><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519231241393.png?imageSlim" alt="image-20240519231241393"></p><p>如果门函数是由输入向量x驱动的，权向量将在样本之间有所不同。因此只将任务身份输入到门函数中，这意味着每个样本都将拥有其独特的ωj，从而导致一个特定于样本的微调参数矩阵。<em>（这个地方有点不太理解……？）</em></p><ol><li><strong>任务定制：</strong>每个任务都使用一组参数进行微调，这有助于学习更多特定于任务的信息，缓解数据不平衡的问题。</li><li><strong>推理效率：</strong>检索到的微调LLM显示出减少的推理延迟。这是由于消除了与LoRA层相关的额外正向计算的需要。</li></ol><hr><h4 id="算法实现过程："><a href="#算法实现过程：" class="headerlink" title="算法实现过程："></a>算法实现过程：</h4><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519231739537.png?imageSlim" alt="image-20240519231739537"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【学习】MOE混合专家模型</title>
       <link href="/2024/05/08/xue-xi-moe-hun-he-zhuan-jia-mo-xing/"/>
       <url>/2024/05/08/xue-xi-moe-hun-he-zhuan-jia-mo-xing/</url>
