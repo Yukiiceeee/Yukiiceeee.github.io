@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>【学习】Patch-level Routing in MOE：针对局部图像区域分配专家，提高样本效率</title>
+      <link href="/2024/05/28/xue-xi-patch-level-routing-in-moe/"/>
+      <url>/2024/05/28/xue-xi-patch-level-routing-in-moe/</url>
+      
+        <content type="html"><![CDATA[<h2 id="【笔记】Patch-level-Routing：针对局部图像区域分配专家，提高样本效率"><a href="#【笔记】Patch-level-Routing：针对局部图像区域分配专家，提高样本效率" class="headerlink" title="【笔记】Patch-level Routing：针对局部图像区域分配专家，提高样本效率"></a>【笔记】Patch-level Routing：针对局部图像区域分配专家，提高样本效率</h2><ul><li><strong>现代神经网络模型（CNNs）：</strong>在处理大规模数据集时表现出色，但训练这些模型所需的数据和计算资源非常庞大。</li><li><strong>MOE混合专家模型：</strong>通过将输入数据动态分配给一组专家（子模型）中的一个或多个，能够提高计算效率。</li><li><strong>解决思路：</strong>将输入图像分割成若干个patch，每个patch独立地分配给不同的专家。针对图像数据的局部特征进行专家分配，以提高样本效率。</li><li><strong>突出问题：</strong>pMoE证明了为减少所需数量的训练样本，多批次能够提升效果与效率，但其理论来源与实验支撑还不够充分。</li><li><strong>论文贡献：</strong>理论证明分析了pMOE的优势，实际进行实验验证，详细量化其计算复杂度、内存使用与训练时间等方面的优点。</li></ul><hr><h3 id="模型架构："><a href="#模型架构：" class="headerlink" title="模型架构："></a>模型架构：</h3><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529084952905.png?imageSlim"  width="500" /><h4 id="pMOE示例：卷积神经网络的专家模型"><a href="#pMOE示例：卷积神经网络的专家模型" class="headerlink" title="pMOE示例：卷积神经网络的专家模型"></a>pMOE示例：卷积神经网络的专家模型</h4><ol><li><p><strong>模型架构</strong></p><ul><li><p><strong>专家网络</strong>：pMOE 包含多个专家，每个专家是一个两层的卷积神经网络 (CNN)。每个专家负责处理输入样本的部分图像块。</p></li><li><p><strong>门控单元</strong>：每个专家对应一个可训练的路由门控，决定哪些图像块由哪个专家进行处理。</p></li></ul></li><li><p><strong>工作原理</strong></p><ul><li><strong>图像分块</strong>：先将输入图像（例如狐狸的图片）划分成若干个不重叠的图像块。</li><li><strong>路由选择</strong>：路由器根据图像块的特征值，生成一个评分分布，表示每个专家对每个图像块的适合程度。确保专家仅处理与其相关的图像块，过滤掉与分类无关的图像块。</li><li><strong>特征聚合：</strong>各个专家网络处理完图像块后，会生成相应的特征图。这些特征图会在模型的上层进行聚合，形成最终的特征表示。聚合后的特征用于最终的分类任务，图中展示了最终的分类结果为“狐狸 (Fox)”。</li></ul></li><li><p><strong>训练模式</strong></p><ul><li><strong>分离训练</strong>：首先训练路由器，然后固定路由器参数，训练专家网络。</li><li><strong>联合训练</strong>：同时训练路由器和专家网络，优化整体性能。</li></ul></li><li><p><strong>理论优势</strong></p><ul><li><strong>样本复杂度</strong>：pMOE 在达到相同泛化误差的情况下，所需的训练样本数量显著减少。本篇论文通过理论证明 pMOE 的样本复杂度和模型复杂度均较传统 CNN 模型降低。</li><li><strong>计算效率</strong>：在视觉任务中，pMOE 的训练和推理计算量分别比单一专家模型减少约 20% 和 50%，但仍保持相同的测试精度。</li></ul></li></ol><h4 id="论文贡献：三项主要研究成果"><a href="#论文贡献：三项主要研究成果" class="headerlink" title="论文贡献：三项主要研究成果"></a>论文贡献：三项主要研究成果</h4><ol><li><p>理论验证了只要路由门控向专家发送的补丁数 <code>l</code> 大于某个特定的阈值，pMOE便可降低模型复杂度与计算复杂度。</p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529090936527.png?imageSlim"  width="500" /></li><li><p>能够有效提升模型的抗干扰能力，与将图像整体输入的MOE模型相比能够更好地丢弃类无关部分，处理分类任务。由于干扰减少，专家能够更高效地学习，直接导致样本复杂性和模型复杂性的降低。</p></li><li><p>通过实验验证了理论证明。</p></li></ol><h4 id="pMOE模型原理："><a href="#pMOE模型原理：" class="headerlink" title="pMOE模型原理："></a>pMOE模型原理：</h4><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529092131288.png?imageSlim"  width="500" /><ol><li><strong>pMOE架构</strong>:<ul><li>pMOE模型包括 𝑘 个专家和相应的 𝑘  个路由器。</li><li>每个路由器为每个专家选择 𝑙 中的 𝑛 个patches（𝑙&lt;𝑛<em>l</em>&lt;<em>n</em>）。</li></ul></li><li><strong>路由门控</strong>：<ul><li>每个专家的路由器都包含一个可训练的门控向量 $w_{s}$ ∈ 𝑅𝑑。</li><li>给定一个样本 𝑥，路由器为每个patch 𝑗 计算一个路由值。</li></ul></li><li><strong>专家模型</strong>:<ul><li>每个专家是一个具有相同架构的两层卷积神经网络（CNN）。</li><li>设 𝑚 表示所有专家中的神经元总数。每个专家包含 𝑚&#x2F;𝑘 神经元。</li></ul></li><li><strong>模型定义</strong>:</li></ol><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529092628373.png?imageSlim"  width="600" /><h4 id="训练方法："><a href="#训练方法：" class="headerlink" title="训练方法："></a>训练方法：</h4><ul><li>三种模型训练方法：</li></ul><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529093413367.png?imageSlim"  width="500" /><hr><h3 id="理论方法："><a href="#理论方法：" class="headerlink" title="理论方法："></a>理论方法：</h3><hr><h3 id="实验效果："><a href="#实验效果：" class="headerlink" title="实验效果："></a>实验效果：</h3><hr><h3 id="思路拓展："><a href="#思路拓展：" class="headerlink" title="思路拓展："></a>思路拓展：</h3><ol><li><strong>文本片段分割分配专家：</strong>类似于图像的patch分割，可以将文本先分割成多个片段，如句子、段落或固定长度的n-grams。将这些文本片段分批独立地送入不同的门控单元，再分配给不同的专家，利用专家的多样性来处理不同类型的文本片段，是否能够提升计算效率和学习速度？</li><li><strong>层级结构专家分配：</strong>文本数据多数具有层级结构，如章节、段落、句子等。是否可以参照Patch-level Routing的方法，设计一种层级结构的专家分配策略，将标题、首段、尾段等分割出来再在不同层级上使用不同的专家？例如，顶层专家处理整体段落或章节，底层专家处理句子或词。</li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【学习】LoftQ：大语言模型的LoRA微调感知量化</title>
+      <link href="/2024/05/21/xue-xi-loftq/"/>
+      <url>/2024/05/21/xue-xi-loftq/</url>
+      
+        <content type="html"><![CDATA[<h2 id="【笔记】LoftQ：大语言模型的LoRA微调感知量化"><a href="#【笔记】LoftQ：大语言模型的LoRA微调感知量化" class="headerlink" title="【笔记】LoftQ：大语言模型的LoRA微调感知量化"></a>【笔记】LoftQ：大语言模型的LoRA微调感知量化</h2><ul><li><strong>模型量化：</strong>量化会带来精度损失，使量化模型与全精度模型效果间产生差异</li><li><strong>传统方法：</strong>以往的做法是对预训练模型量化后引入微调，适应下游任务</li><li><strong>突出问题：</strong>以往做法过多地关注量化本身，往往忽略了微调部分；事实上，量化引入的偏差也会影响微调性能；QLoRA方法将零初始化的低秩Adapters连到量化模型后适配下游任务，但在3位以下的量化水平，性能损失严重</li></ul><p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240522160042495.png" alt="image-20240522160042495"></p><hr><blockquote><p>论文提出一种新的量化框架算法：LoftQ——低秩近似与量化协同工作，共同逼近原始的高精度预训练权值</p></blockquote><h4 id="算法实现："><a href="#算法实现：" class="headerlink" title="算法实现："></a>算法实现：</h4>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【学习】MOELoRA：基于MOE应用LoRA微调</title>
       <link href="/2024/05/18/xue-xi-moelora/"/>
       <url>/2024/05/18/xue-xi-moelora/</url>
