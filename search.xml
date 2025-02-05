@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>【学习】DeepSeekMoE：我们需要更多Experts！</title>
+      <link href="/2025/02/05/xue-xi-deepseekmoe/"/>
+      <url>/2025/02/05/xue-xi-deepseekmoe/</url>
+      
+        <content type="html"><![CDATA[<h2 id="【笔记】DeepSeekMoE：迈向终极专家专业化"><a href="#【笔记】DeepSeekMoE：迈向终极专家专业化" class="headerlink" title="【笔记】DeepSeekMoE：迈向终极专家专业化"></a>【笔记】DeepSeekMoE：迈向终极专家专业化</h2><p>最近 DeepSeek 火爆整个2025年新春，趁着这波热度，想起来几个月前在 ACL 2024 上看过他们的论文，于是翻回来重新研究了一下。其实整篇论文的动机和故事都很直觉，但是不得不说人家的论文写得真的漂亮呀！</p><ul><li><strong>专家不够分化：</strong>以往的 MoE 模型一般也就是6个8个左右的 Expert 数量，但是任务量实际上要远远大于专家数，那么专家其实是不够“专”的。所以尽可能地把专家数拉高，然后寄希望于更多的专家分化知识能力。</li><li><strong>专家冗余：</strong>假设每个 Token 都需要常识知识，那么不管选哪个专家，这个专家都会保留常识知识能力，因而专家的“专业性”受到了影响，存在知识冗余，就浪费掉很多参数了。因此增设共享专家，所有 Token 来的时候都会选这个专家。</li></ul><hr><h4 id="模型架构："><a href="#模型架构：" class="headerlink" title="模型架构："></a>模型架构：</h4><p>所以方法也很直观了，论文里的 <strong>pipeline</strong> 也画得非常清楚：</p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738763285958.jpg?imageSlim" alt="image-20240519223632525"></p><ol><li><p><strong>专家数量增加实现</strong>：</p><ul><li>具体来说，是通过拆分专家——比如把一个拆成两个——来增加专家数量。</li><li>主流的专家实际上就是个 FFN，FFN 实际上就是两个矩阵。假设这两个矩阵的大小分别是：$dh$ 和 $hd$ 。如果要把这个专家拆分成两个专家，实际上就是把矩阵拆成两个 $d*(h&#x2F;2)$ 和 $(h&#x2F;2)*d$ 这样。</li><li>假如原本一个 token 选择 top-1 专家来处理，拆成两个后，就变成选择 top-2 专家来出来。这样计算量和参数量是没有变化的。</li></ul><blockquote><p>实际上门控的计算量还是有变化的，路由模块需要计算的专家数增多了，自然计算量会大一些。</p></blockquote></li><li><p><strong>共享专家增设</strong>：</p><ul><li>有的专家是必选的，除此以外，每个 token 按照自己的喜好，再来选择 top-k。比如有 64 个专家，那么第一个专家是所有 token 都要选的，除此以外，每个 token 还从剩下的 63 个里选择自己的 top-1 专家。</li></ul></li></ol><p><strong>但这样就有一个新的考虑：Expert 数增大的情况下，是不是对于 Router 的能力依赖会更强呢？因为直观上来讲，每个专家更加分化，肯定也希望我的 Router 能够选得更精确，才能最大程度发挥专家的知识能力。所以是不是能用一个更 Stronger 的路由模块去进行一个进一步的优化？</strong></p><hr><h4 id="Experiment："><a href="#Experiment：" class="headerlink" title="Experiment："></a>Experiment：</h4><blockquote><p>不得不说人家的 Experiment 是真的充分，而且特别详细……</p></blockquote><p><strong>验证实验（2B参数模型）：</strong>验证DeepSeekMoE架构在中小规模下的有效性。对比了Dense模型、Hash Layer、Switch Transformer、GShard等MoE架构，</p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738764304023.jpg?imageSlim" alt="image-20240519225817161"></p><p><strong>消融实验：</strong>主要验证了细粒度分割和共享专家的作用体现。</p><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738764486549.jpg?imageSlim" alt="image-20240519230406663"></p><p>当然论文还做了很多其它实验，在16B模型上的扩展实验、对齐实验（监督微调）、超大规模模型实验……这里就不一一列举了，感兴趣可以去读下原文~</p><p>这里突然想起来 ACL 2024 上还有一篇 Dynamic MoE，直观上感觉那篇的动态路由用到 DeepSeek 这样多专家的架构上提升应该更明显。因为其实 Top-K 这样固定选专家数量的策略，在专家数更多组合更多样的情况下，打分之后可能会有更大的差异性，所以按阈值来路由兴许有更好的效果。</p><hr>]]></content>
+      
+      
+      <categories>
+          
+          <category> 学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 学习笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【学习】Patch-level Routing in MOE：针对局部图像区域分配专家，提高样本效率</title>
       <link href="/2024/05/28/xue-xi-patch-level-routing-in-moe/"/>
       <url>/2024/05/28/xue-xi-patch-level-routing-in-moe/</url>
