@@ -490,8 +490,6 @@
 <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529093413367.png?imageSlim"  width="500" />
 
 <hr>
-<h3 id="理论方法："><a href="#理论方法：" class="headerlink" title="理论方法："></a>理论方法：</h3><hr>
-<h3 id="实验效果："><a href="#实验效果：" class="headerlink" title="实验效果："></a>实验效果：</h3><hr>
 <h3 id="思路拓展："><a href="#思路拓展：" class="headerlink" title="思路拓展："></a>思路拓展：</h3><ol>
 <li><strong>文本片段分割分配专家：</strong>类似于图像的patch分割，可以将文本先分割成多个片段，如句子、段落或固定长度的n-grams。将这些文本片段分批独立地送入不同的门控单元，再分配给不同的专家，利用专家的多样性来处理不同类型的文本片段，是否能够提升计算效率和学习速度？</li>
 <li><strong>层级结构专家分配：</strong>文本数据多数具有层级结构，如章节、段落、句子等。是否可以参照Patch-level Routing的方法，设计一种层级结构的专家分配策略，将标题、首段、尾段等分割出来再在不同层级上使用不同的专家？例如，顶层专家处理整体段落或章节，底层专家处理句子或词。</li>
