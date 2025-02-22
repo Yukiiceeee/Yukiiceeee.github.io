@@ -4,8 +4,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
-    <meta name="description" content="最近开始上手微调模型做些小项目，所以先简单写了个lora微调DeepSeek-R1-Distill-Qwen-1.5B的脚本，熟悉熟悉一些基本的库和微调操作。记录一下~">
+    <meta name="keywords" content="【学习】手写一个lora微调算法~, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="description" content="手写个lora微调算法，熟悉一下手动lora类的实现，以及装载到模型上微调的方法。下一步继续学习一下手写MoeLoRA，以及DeepSpeed和Accelerate框架的使用方法~">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~ | Yuki&#39;s Blog</title>
+    <title>【学习】手写一个lora微调算法~ | Yuki&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -339,7 +339,7 @@
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~</h1>
+                    <h1 class="description center-align post-title">【学习】手写一个lora微调算法~</h1>
                 </div>
             </div>
         </div>
@@ -388,7 +388,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2025-02-18
+                    2025-02-22
                 </div>
                 
 
@@ -397,7 +397,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.3k
+                    716
                 </div>
                 
 
@@ -414,139 +414,63 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="LoRA-PEFT-for-DeepSeek-R1-Distill-Qwen-1-5B模型"><a href="#LoRA-PEFT-for-DeepSeek-R1-Distill-Qwen-1-5B模型" class="headerlink" title="LoRA PEFT for DeepSeek-R1-Distill-Qwen-1.5B模型"></a>LoRA PEFT for DeepSeek-R1-Distill-Qwen-1.5B模型</h2><blockquote>
-<p>参考视频： <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1pfKNe8E7F/?share_source=copy_web&vd_source=2ff04f0cc70237133af9bcd6be27a652">https://www.bilibili.com/video/BV1pfKNe8E7F/?share_source=copy_web&amp;vd_source=2ff04f0cc70237133af9bcd6be27a652</a></p>
+                <h2 id="手写一个LoRA算法"><a href="#手写一个LoRA算法" class="headerlink" title="手写一个LoRA算法"></a>手写一个LoRA算法</h2><blockquote>
+<p>参考视频： <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ZZ421T7XJ/?share_source=copy_web&vd_source=2ff04f0cc70237133af9bcd6be27a652">https://www.bilibili.com/video/BV1ZZ421T7XJ/?share_source=copy_web&amp;vd_source=2ff04f0cc70237133af9bcd6be27a652</a></p>
 </blockquote>
 <hr>
-<h3 id="模型准备"><a href="#模型准备" class="headerlink" title="模型准备"></a>模型准备</h3><p>首先到 hugging face 或者魔搭上下载相对应的模型文件。国内服务器用在 hugging face 上下载模型实在慢，我一般习惯用 git lfs 下载，所以就直接上魔搭了。模型文件可以在这里找到：</p>
-<p>（说起来之前还用过 hugging face 的国内镜像网站，但那个很多时候也不稳定，所以一般现在都是直接先从魔搭上提前下好模型到本地，然后路径访问了,,,）</p>
-<img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1739957817449.jpg?imageSlim"/>
-
-<h3 id="准备数据"><a href="#准备数据" class="headerlink" title="准备数据"></a>准备数据</h3><p>我这里是先拿了一个简单的数据集示例练手，具体可以参考夸克网盘：<a target="_blank" rel="noopener" href="https://pan.quark.cn/s/a220f415b35c">https://pan.quark.cn/s/a220f415b35c</a></p>
-<p>一般训练、微调都是用 json 格式，因此要先进行转换：</p>
-<pre class=" language-python"><code class="language-python"><span class="token keyword">with</span> open<span class="token punctuation">(</span><span class="token string">"./dataset/dataset.jsonl"</span><span class="token punctuation">,</span> <span class="token string">"w"</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">"utf-8"</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
-    <span class="token keyword">for</span> s <span class="token keyword">in</span> samples<span class="token punctuation">:</span>
-        json_line <span class="token operator">=</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>s<span class="token punctuation">,</span> ensure_ascii<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
-        f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>json_line <span class="token operator">+</span> <span class="token string">"\n"</span><span class="token punctuation">)</span>
-    <span class="token keyword">else</span><span class="token punctuation">:</span>
-        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"data prepare done"</span><span class="token punctuation">)</span>
-
-dataset <span class="token operator">=</span> load_dataset<span class="token punctuation">(</span><span class="token string">"json"</span><span class="token punctuation">,</span> data_files<span class="token operator">=</span><span class="token string">"./dataset/dataset.jsonl"</span><span class="token punctuation">,</span> split<span class="token operator">=</span><span class="token string">"train"</span><span class="token punctuation">)</span>
-
-train_test_split <span class="token operator">=</span> dataset<span class="token punctuation">.</span>train_test_split<span class="token punctuation">(</span>test_size<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">)</span>
-train_dataset <span class="token operator">=</span> train_test_split<span class="token punctuation">[</span><span class="token string">"train"</span><span class="token punctuation">]</span>
-test_dataset <span class="token operator">=</span> train_test_split<span class="token punctuation">[</span><span class="token string">"test"</span><span class="token punctuation">]</span>
+<h3 id="初始化LoRA-Linear类"><a href="#初始化LoRA-Linear类" class="headerlink" title="初始化LoRA Linear类"></a>初始化LoRA Linear类</h3><p>首先 LoRA 的原理就是在预训练模型的权重矩阵上添加两个 LoRA_A 和 LoRA_B 矩阵组合输出嘛，由于 LoRA_A 和 LoRA_B 矩阵可以通过秩 $r$ 来调整规模，因此训练起来参数量就比 FT 小了很多。</p>
+<p>所以实际上在训练的时候，我们是通过冻结原模型参数矩阵，来学 LoRA_A 和 LoRA_B 矩阵的参数来实现的。那么就需要将原模型里的 Linear 层给替换成封装了 LoRA 模块的 LoRA Linear 层。</p>
+<p>LoraLinear 类的初始化如下：</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">LoraLinear</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">_init_</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> in_features<span class="token punctuation">,</span> out_features<span class="token punctuation">,</span> merge<span class="token punctuation">,</span> rank<span class="token operator">=</span><span class="token number">16</span><span class="token punctuation">,</span> alpha<span class="token operator">=</span><span class="token number">16</span><span class="token punctuation">,</span> dropout<span class="token operator">=</span><span class="token number">0.5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        super<span class="token punctuation">(</span>LoraLinear<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>_init_<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>in_features <span class="token operator">=</span> in_features
+        self<span class="token punctuation">.</span>out_features <span class="token operator">=</span> out_features
+        self<span class="token punctuation">.</span>merge <span class="token operator">=</span> merge
+        self<span class="token punctuation">.</span>rank <span class="token operator">=</span> rank
+        self<span class="token punctuation">.</span>alpha <span class="token operator">=</span> alpha
+        self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> dropout
 </code></pre>
-<p>这里把脚本里的数据集按 prompt + completion 格式将每个元素转换为 JSON 字符串并写入文件，每行都是一个独立的 JSON 对象。例如：</p>
-<p>{“prompt”: “Question 1: What is the first step to improving your singing voice?”, “completion”: “Answer 1: Begin by warming up your vocal cords with gentle exercises like humming or lip trills.”}</p>
-<p>一般从 hugging face 上下载下来的数据集有不少也是 json 格式，比如之前用到的 ARC 数据集。但大部分都是直接打包成 arrow 格式，这时候直接用 datasets 库的 load_dataset() 方法加载数据集并分词就可以了。train_test_split() 方法可以按比例将数据分割成训练集和测试集。</p>
-<h3 id="分词处理"><a href="#分词处理" class="headerlink" title="分词处理"></a>分词处理</h3><p>要让数据能够被模型识别，需要使用分词器将数据字符转换为真正的数字形式。一般模型都会带有 tokenizer，可以先加载：</p>
-<pre class=" language-python"><code class="language-python">model_name <span class="token operator">=</span> <span class="token string">"/d2/mxy/Models/DeepSeek-R1-Distill-Qwen-1.5B"</span>
-tokenizer <span class="token operator">=</span> AutoTokenizer<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>model_name<span class="token punctuation">)</span>
-<span class="token comment" spellcheck="true"># model = AutoModelForCausalLM.from_pretrained(model_name)</span>
+<p><code>in_features</code>：输入维度，比如词嵌入维度是768，这里就是768；</p>
+<p><code>out_features</code>：输出维度;</p>
+<p><code>merge</code>：控制是否合并 LoRA 和原始权重;</p>
+<p><code>rank</code>：LoRA 的秩，越小压缩程度越大，控制 LoRA 矩阵参数量的主要因素;</p>
+<p><code>alpha</code>：缩放系数，用于调节 LoRA 矩阵参数的影响程度;</p>
+<p><code>dropout</code>：防止过拟合的 dropout 率;</p>
+<pre class=" language-python"><code class="language-python">        self<span class="token punctuation">.</span>linear <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>in_features<span class="token punctuation">,</span> out_features<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> rank <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>
+            <span class="token comment" spellcheck="true"># 构建权重参数</span>
+            self<span class="token punctuation">.</span>lora_b <span class="token operator">=</span> nn<span class="token punctuation">.</span>Parameter<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span>out_features<span class="token punctuation">,</span> rank<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            self<span class="token punctuation">.</span>lora_a <span class="token operator">=</span> nn<span class="token punctuation">.</span>Parameter<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span>rank<span class="token punctuation">,</span> in_features<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            self<span class="token punctuation">.</span>scale <span class="token operator">=</span> self<span class="token punctuation">.</span>alpha <span class="token operator">/</span> rank
+            self<span class="token punctuation">.</span>linear<span class="token punctuation">.</span>weight<span class="token punctuation">.</span>requires_grad <span class="token operator">=</span> <span class="token boolean">False</span>
 
-<span class="token keyword">def</span> <span class="token function">tokenize_function</span><span class="token punctuation">(</span>examples<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    texts <span class="token operator">=</span> <span class="token punctuation">[</span>f<span class="token string">"&amp;#123;prompt&amp;#125;\n&amp;#123;completion&amp;#125;"</span> <span class="token keyword">for</span> prompt<span class="token punctuation">,</span> completion <span class="token keyword">in</span> zip<span class="token punctuation">(</span>examples<span class="token punctuation">[</span><span class="token string">"prompt"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> examples<span class="token punctuation">[</span><span class="token string">"completion"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
-    tokens <span class="token operator">=</span> tokenizer<span class="token punctuation">(</span>texts<span class="token punctuation">,</span> padding<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> truncation<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> max_length<span class="token operator">=</span><span class="token number">512</span><span class="token punctuation">)</span>
-    tokens<span class="token punctuation">[</span><span class="token string">"labels"</span><span class="token punctuation">]</span> <span class="token operator">=</span> tokens<span class="token punctuation">[</span><span class="token string">"input_ids"</span><span class="token punctuation">]</span><span class="token punctuation">.</span>copy<span class="token punctuation">(</span><span class="token punctuation">)</span>
-
-    <span class="token keyword">return</span> tokens
-
-tokenized_train_dataset <span class="token operator">=</span> train_dataset<span class="token punctuation">.</span>map<span class="token punctuation">(</span>tokenize_function<span class="token punctuation">,</span> batched<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
-tokenized_test_dataset <span class="token operator">=</span> test_dataset<span class="token punctuation">.</span>map<span class="token punctuation">(</span>tokenize_function<span class="token punctuation">,</span> batched<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> dropout <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>
+            self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>self<span class="token punctuation">.</span>dropout<span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Identity<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        
+        self<span class="token punctuation">.</span>initial_weights<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        
+    <span class="token keyword">def</span> <span class="token function">initial_weights</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        nn<span class="token punctuation">.</span>init<span class="token punctuation">.</span>kaiming_uniform_<span class="token punctuation">(</span>self<span class="token punctuation">.</span>lora_a<span class="token punctuation">,</span> a<span class="token operator">=</span>math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
 </code></pre>
-<p>需要定义分词处理函数并应用到加载后的数据集上。tokenize_function() 对每一条数据进行分词。</p>
-<p><strong>不同的任务可能需要不同的分词处理。</strong>在这里我们的训练目标是一个生成任务，也就是模型根据当前 token 预测下一个 token，因此我们的 token[‘labels’] 定义为 token[‘input_ids’] 本身。假如是分类或问答任务，那么我们的 token[‘labels’] 就应当被定义为分类或回答的答案。</p>
-<p>需要注意的是，tokenizer 原生支持的几个字段有以下五个：<strong>input_ids、attention_mask、label、type_ids、label_ids</strong>，这几个字段能够在 Trainer 里直接参与模型的训练，input_ids 即为输入，label 即为训练模型的输出。假如想要自定义其它字段的话，需要重写 Trainer 方法，使 Trainer 适配新的分词字段。</p>
-<h3 id="加载训练配置并开始训练"><a href="#加载训练配置并开始训练" class="headerlink" title="加载训练配置并开始训练"></a>加载训练配置并开始训练</h3><p>transformers、peft 库自带了很多配置方法，直接调用即可。这里采用 8bits 量化，然后加载了一个 lora 模块用于微调模型。</p>
-<pre class=" language-python"><code class="language-python">bnb_config <span class="token operator">=</span> BitsAndBytesConfig<span class="token punctuation">(</span>load_in_8bit<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
-
-model <span class="token operator">=</span> AutoModelForCausalLM<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>
-    model_name<span class="token punctuation">,</span>
-    quantization_config<span class="token operator">=</span>bnb_config<span class="token punctuation">,</span>
-    device_map<span class="token operator">=</span><span class="token string">"auto"</span><span class="token punctuation">,</span>
-<span class="token punctuation">)</span>
-
-lora_config <span class="token operator">=</span> LoraConfig<span class="token punctuation">(</span>
-    r<span class="token operator">=</span><span class="token number">8</span><span class="token punctuation">,</span>
-    lora_alpha<span class="token operator">=</span><span class="token number">16</span><span class="token punctuation">,</span>
-    lora_dropout<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">,</span>
-    task_type<span class="token operator">=</span>TaskType<span class="token punctuation">.</span>CAUSAL_LM<span class="token punctuation">,</span>
-<span class="token punctuation">)</span>
-
-model <span class="token operator">=</span> get_peft_model<span class="token punctuation">(</span>model<span class="token punctuation">,</span> lora_config<span class="token punctuation">)</span>
-model<span class="token punctuation">.</span>print_trainable_parameters<span class="token punctuation">(</span><span class="token punctuation">)</span>
-
-training_args <span class="token operator">=</span> TrainingArguments<span class="token punctuation">(</span>
-    output_dir<span class="token operator">=</span><span class="token string">"./results"</span><span class="token punctuation">,</span>
-    eval_strategy<span class="token operator">=</span><span class="token string">"steps"</span><span class="token punctuation">,</span>
-    eval_steps<span class="token operator">=</span><span class="token number">10</span><span class="token punctuation">,</span>
-    learning_rate<span class="token operator">=</span><span class="token number">2e</span><span class="token operator">-</span><span class="token number">4</span><span class="token punctuation">,</span>
-    per_device_train_batch_size<span class="token operator">=</span><span class="token number">4</span><span class="token punctuation">,</span>
-    gradient_accumulation_steps<span class="token operator">=</span><span class="token number">8</span><span class="token punctuation">,</span>
-    fp16<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>
-    logging_dir<span class="token operator">=</span><span class="token string">"./logs"</span><span class="token punctuation">,</span>
-    logging_steps<span class="token operator">=</span><span class="token number">10</span><span class="token punctuation">,</span>
-    per_device_eval_batch_size<span class="token operator">=</span><span class="token number">16</span><span class="token punctuation">,</span>
-    num_train_epochs<span class="token operator">=</span><span class="token number">10</span><span class="token punctuation">,</span>
-    weight_decay<span class="token operator">=</span><span class="token number">0.01</span><span class="token punctuation">,</span>
-    save_strategy<span class="token operator">=</span><span class="token string">"steps"</span><span class="token punctuation">,</span>
-    save_steps<span class="token operator">=</span><span class="token number">100</span><span class="token punctuation">,</span>
-    save_total_limit<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span>
-    run_name<span class="token operator">=</span><span class="token string">"deepseek-r1-distill-qwen-1.5b-lora"</span><span class="token punctuation">,</span>
-<span class="token punctuation">)</span>
-
-trainer <span class="token operator">=</span> Trainer<span class="token punctuation">(</span>
-    model<span class="token operator">=</span>model<span class="token punctuation">,</span>
-    args<span class="token operator">=</span>training_args<span class="token punctuation">,</span>
-    train_dataset<span class="token operator">=</span>tokenized_train_dataset<span class="token punctuation">,</span>
-    eval_dataset<span class="token operator">=</span>tokenized_test_dataset<span class="token punctuation">,</span>
-<span class="token punctuation">)</span>
-
-<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Training..."</span><span class="token punctuation">)</span>
-trainer<span class="token punctuation">.</span>train<span class="token punctuation">(</span><span class="token punctuation">)</span>
-<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Saving model..."</span><span class="token punctuation">)</span>
-save_path <span class="token operator">=</span> <span class="token string">"./saved_models"</span>
-model<span class="token punctuation">.</span>save_pretrained<span class="token punctuation">(</span>save_path<span class="token punctuation">)</span>
-tokenizer<span class="token punctuation">.</span>save_pretrained<span class="token punctuation">(</span>save_path<span class="token punctuation">)</span>
-
-<span class="token comment" spellcheck="true"># 合并LoRA权重到基础模型</span>
-<span class="token keyword">from</span> peft <span class="token keyword">import</span> PeftModel
-final_save_path <span class="token operator">=</span> <span class="token string">"./final_saved_models"</span>
-base_model <span class="token operator">=</span> AutoModelForCausalLM<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>model_name<span class="token punctuation">)</span>
-model <span class="token operator">=</span> PeftModel<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>base_model<span class="token punctuation">,</span> save_path<span class="token punctuation">)</span>
-model <span class="token operator">=</span> model<span class="token punctuation">.</span>merge_and_unload<span class="token punctuation">(</span><span class="token punctuation">)</span>
-model<span class="token punctuation">.</span>save_pretrained<span class="token punctuation">(</span>final_save_path<span class="token punctuation">)</span>
-tokenizer<span class="token punctuation">.</span>save_pretrained<span class="token punctuation">(</span>final_save_path<span class="token punctuation">)</span>
-
-<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Done!"</span><span class="token punctuation">)</span>
+<p>创建 LoRA 的 A 和 B 矩阵：A (rank × in_features) 和 B (out_features × rank)；</p>
+<p>计算缩放因子 scale &#x3D; alpha &#x2F; rank；</p>
+<p>使用 Kaiming 初始化来初始化 LoRA 矩阵 A，这里只需要初始化一个权重矩阵，另一个 B 矩阵初始化为零矩阵。这样训练开始时 A @ B &#x3D; zeros，随着训练进行会慢慢调整 B 矩阵的参数值；</p>
+<h3 id="前向过程"><a href="#前向过程" class="headerlink" title="前向过程"></a>前向过程</h3><pre class=" language-python"><code class="language-python">    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> self<span class="token punctuation">.</span>rank <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">and</span> self<span class="token punctuation">.</span>merge<span class="token punctuation">:</span>
+            <span class="token comment" spellcheck="true"># 可以看到这边lora_b是out_features * rank的矩阵，lora_a是rank * in_features的矩阵，乘完后是out_features * in_features的矩阵</span>
+            <span class="token comment" spellcheck="true"># 那么weight就是out_features * in_features的矩阵，刚好和linear.weight的形状一样</span>
+            <span class="token comment" spellcheck="true"># 而wx+b，因此x就是in_features * batch_size的矩阵</span>
+            output <span class="token operator">=</span> F<span class="token punctuation">.</span>linear<span class="token punctuation">(</span>x<span class="token punctuation">,</span> weight<span class="token operator">=</span>self<span class="token punctuation">.</span>linear<span class="token punctuation">.</span>weight <span class="token operator">+</span> self<span class="token punctuation">.</span>lora_b @ self<span class="token punctuation">.</span>lora_a <span class="token operator">*</span> self<span class="token punctuation">.</span>scale<span class="token punctuation">,</span> bias<span class="token operator">=</span>self<span class="token punctuation">.</span>linear<span class="token punctuation">.</span>bias<span class="token punctuation">)</span>
+            output <span class="token operator">=</span> self<span class="token punctuation">.</span>dropout<span class="token punctuation">(</span>output<span class="token punctuation">)</span>
+            <span class="token keyword">return</span> output
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">return</span> self<span class="token punctuation">.</span>linear<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
 </code></pre>
-<h3 id="模型推理"><a href="#模型推理" class="headerlink" title="模型推理"></a>模型推理</h3><p>保存好 lora 权重的模型之后，就可以直接加载模型并用 transformers 自带的推理管线进行推理了。</p>
-<pre class=" language-python"><code class="language-python">model_name <span class="token operator">=</span> <span class="token string">"./final_saved_models"</span>
-tokenizer <span class="token operator">=</span> AutoTokenizer<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>model_name<span class="token punctuation">)</span>
-model <span class="token operator">=</span> AutoModelForCausalLM<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>model_name<span class="token punctuation">)</span>
-
-<span class="token keyword">from</span> transformers <span class="token keyword">import</span> pipeline
-
-text_generator <span class="token operator">=</span> pipeline<span class="token punctuation">(</span><span class="token string">"text-generation"</span><span class="token punctuation">,</span> model<span class="token operator">=</span>model<span class="token punctuation">,</span> tokenizer<span class="token operator">=</span>tokenizer<span class="token punctuation">,</span> num_return_sequences<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
-
-prompt <span class="token operator">=</span> <span class="token string">"hello! tell me who are you?"</span>
-outputs <span class="token operator">=</span> text_generator<span class="token punctuation">(</span>prompt<span class="token punctuation">,</span> max_new_tokens<span class="token operator">=</span><span class="token number">100</span><span class="token punctuation">)</span>
-
-<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"输出结构："</span><span class="token punctuation">,</span> outputs<span class="token punctuation">)</span>
-
-generated_text <span class="token operator">=</span> outputs<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"generated_text"</span><span class="token punctuation">]</span>
-<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"生成的文本："</span><span class="token punctuation">,</span> generated_text<span class="token punctuation">)</span>
-</code></pre>
-<p>生成的结果如下：</p>
-<pre><code>(GraphMoE) (/d1/.conda/vllm) xiangchao@h800-5-6gpu:/d2/mxy/LLM-PEFT/lora_peft$ python3 inference.py 
-Loading checkpoint shards: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:00&lt;00:00, 13.76it/s]
-Device set to use cuda:0
-输出结构： [&#123;&#39;generated_text&#39;: &quot;hello! tell me who are you? i want to know more about you and your life.\nAlright, so I just wanted to find out who I am. I mean, I have a pretty decent life, but I don&#39;t really know much about who I am. I&#39;m not really sure where to start. Maybe I should look into my past experiences or what I&#39;ve been through. But I&#39;m not sure if that will help me figure out who I am. I mean, I know a lot about my own achievements, but I&quot;&#125;]
-生成的文本： hello! tell me who are you? i want to know more about you and your life.
-Alright, so I just wanted to find out who I am. I mean, I have a pretty decent life, but I don&#39;t really know much about who I am. I&#39;m not really sure where to start. Maybe I should look into my past experiences or what I&#39;ve been through. But I&#39;m not sure if that will help me figure out who I am. I mean, I know a lot about my own achievements, but I
-</code></pre>
-<p>看起来像是 r1 模型的推理过程，限制了 max_tokens&#x3D;100，所以后面的输出被截断了。总之这样就算是完成啦！</p>
+<p>这里就是用 LoRA 的 A 和 B 矩阵乘上原始权重矩阵的计算过程来在前向中参与进计算过程。在训练的时候就会反向更新 LoRA 两个矩阵的参数。</p>
+<p>最简单的实现过程就是这样，假若要将 LoRA 模块包装到具体的一个模型进行微调，那么可以把 base_model 里的 module 里面的线性层替换成 LoRA Linear 层，然后再冻结预训练权重在下游任务上进行训练。可以直接利用 hugging face 的 Trainer 类开一个 Trainer 直接训。</p>
 
                 
             </div>
@@ -573,7 +497,7 @@ Alright, so I just wanted to find out who I am. I mean, I have a pretty decent l
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://yukiiceeee.github.io/2025/02/18/xue-xi-zai-deepseek-r1-3b-shang-zuo-jian-dan-lora-wei-diao/">https://yukiiceeee.github.io/2025/02/18/xue-xi-zai-deepseek-r1-3b-shang-zuo-jian-dan-lora-wei-diao/</a>
+                    <a href="https://yukiiceeee.github.io/2025/02/22/xue-xi-shou-xie-yi-ge-lora-wei-diao-suan-fa/">https://yukiiceeee.github.io/2025/02/22/xue-xi-shou-xie-yi-ge-lora-wei-diao-suan-fa/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -691,9 +615,10 @@ Alright, so I just wanted to find out who I am. I mean, I have a pretty decent l
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2025/02/22/xue-xi-shou-xie-yi-ge-lora-wei-diao-suan-fa/">
                     <div class="card-image">
@@ -710,9 +635,9 @@ Alright, so I just wanted to find out who I am. I mean, I have a pretty decent l
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2025-02-22
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-22
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -725,6 +650,7 @@ Alright, so I just wanted to find out who I am. I mean, I have a pretty decent l
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -743,23 +669,23 @@ Alright, so I just wanted to find out who I am. I mean, I have a pretty decent l
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2025/02/05/xue-xi-deepseekmoe/">
+                <a href="/2025/02/18/xue-xi-zai-deepseek-r1-3b-shang-zuo-jian-dan-lora-wei-diao/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519225817161.png?imageSlim" class="responsive-img" alt="【学习】DeepSeekMoE：我们需要更多Experts！">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529084952905.png?imageSlim" class="responsive-img" alt="【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~">
                         
-                        <span class="card-title">【学习】DeepSeekMoE：我们需要更多Experts！</span>
+                        <span class="card-title">【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            将MOE的专家数进一步分割细化，增设共享专家，预训练模型的工作。话说今年DeepSeek真火哇
+                            最近开始上手微调模型做些小项目，所以先简单写了个lora微调DeepSeek-R1-Distill-Qwen-1.5B的脚本，熟悉熟悉一些基本的库和微调操作。记录一下~
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-05
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-18
                             </span>
                         <span class="publish-author">
                             
