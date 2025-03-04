@@ -4,8 +4,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="【学习】手写一个lora微调算法~, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
-    <meta name="description" content="手写个lora微调算法，熟悉一下手动lora类的实现，以及装载到模型上微调的方法。下一步继续学习一下手写MoeLoRA，以及DeepSpeed和Accelerate框架的使用方法~">
+    <meta name="keywords" content="【学习】手搓Transformer：Embedding, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="description" content="回想起上次仔细看transformer还是上次，现在遗忘得又有点多了，干脆从原理到代码重新过一遍，于是就有了这篇博客~">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>【学习】手写一个lora微调算法~ | Yuki&#39;s Blog</title>
+    <title>【学习】手搓Transformer：Embedding | Yuki&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -339,7 +339,7 @@
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">【学习】手写一个lora微调算法~</h1>
+                    <h1 class="description center-align post-title">【学习】手搓Transformer：Embedding</h1>
                 </div>
             </div>
         </div>
@@ -388,7 +388,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2025-02-22
+                    2025-02-23
                 </div>
                 
 
@@ -397,7 +397,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    716
+                    1.4k
                 </div>
                 
 
@@ -414,63 +414,96 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="手写一个LoRA算法"><a href="#手写一个LoRA算法" class="headerlink" title="手写一个LoRA算法"></a>手写一个LoRA算法</h2><blockquote>
-<p>参考视频： <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ZZ421T7XJ/?share_source=copy_web&vd_source=2ff04f0cc70237133af9bcd6be27a652">https://www.bilibili.com/video/BV1ZZ421T7XJ/?share_source=copy_web&amp;vd_source=2ff04f0cc70237133af9bcd6be27a652</a></p>
+                <h2 id="手搓Transformer：Embedding"><a href="#手搓Transformer：Embedding" class="headerlink" title="手搓Transformer：Embedding"></a>手搓Transformer：Embedding</h2><hr>
+<blockquote>
+<p>《Attention Is All You Need》里的Transformer架构</p>
 </blockquote>
-<hr>
-<h3 id="初始化LoRA-Linear类"><a href="#初始化LoRA-Linear类" class="headerlink" title="初始化LoRA Linear类"></a>初始化LoRA Linear类</h3><p>首先 LoRA 的原理就是在预训练模型的权重矩阵上添加两个 LoRA_A 和 LoRA_B 矩阵组合输出嘛，由于 LoRA_A 和 LoRA_B 矩阵可以通过秩 $r$ 来调整规模，因此训练起来参数量就比 FT 小了很多。</p>
-<p>所以实际上在训练的时候，我们是通过冻结原模型参数矩阵，来学 LoRA_A 和 LoRA_B 矩阵的参数来实现的。那么就需要将原模型里的 Linear 层给替换成封装了 LoRA 模块的 LoRA Linear 层。</p>
-<p>LoraLinear 类的初始化如下：</p>
-<pre class=" language-python"><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">LoraLinear</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">_init_</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> in_features<span class="token punctuation">,</span> out_features<span class="token punctuation">,</span> merge<span class="token punctuation">,</span> rank<span class="token operator">=</span><span class="token number">16</span><span class="token punctuation">,</span> alpha<span class="token operator">=</span><span class="token number">16</span><span class="token punctuation">,</span> dropout<span class="token operator">=</span><span class="token number">0.5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-        super<span class="token punctuation">(</span>LoraLinear<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>_init_<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>in_features <span class="token operator">=</span> in_features
-        self<span class="token punctuation">.</span>out_features <span class="token operator">=</span> out_features
-        self<span class="token punctuation">.</span>merge <span class="token operator">=</span> merge
-        self<span class="token punctuation">.</span>rank <span class="token operator">=</span> rank
-        self<span class="token punctuation">.</span>alpha <span class="token operator">=</span> alpha
-        self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> dropout
-</code></pre>
-<p><code>in_features</code>：输入维度，比如词嵌入维度是768，这里就是768；</p>
-<p><code>out_features</code>：输出维度;</p>
-<p><code>merge</code>：控制是否合并 LoRA 和原始权重;</p>
-<p><code>rank</code>：LoRA 的秩，越小压缩程度越大，控制 LoRA 矩阵参数量的主要因素;</p>
-<p><code>alpha</code>：缩放系数，用于调节 LoRA 矩阵参数的影响程度;</p>
-<p><code>dropout</code>：防止过拟合的 dropout 率;</p>
-<pre class=" language-python"><code class="language-python">        self<span class="token punctuation">.</span>linear <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>in_features<span class="token punctuation">,</span> out_features<span class="token punctuation">)</span>
-        <span class="token keyword">if</span> rank <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>
-            <span class="token comment" spellcheck="true"># 构建权重参数</span>
-            self<span class="token punctuation">.</span>lora_b <span class="token operator">=</span> nn<span class="token punctuation">.</span>Parameter<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span>out_features<span class="token punctuation">,</span> rank<span class="token punctuation">)</span><span class="token punctuation">)</span>
-            self<span class="token punctuation">.</span>lora_a <span class="token operator">=</span> nn<span class="token punctuation">.</span>Parameter<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span>rank<span class="token punctuation">,</span> in_features<span class="token punctuation">)</span><span class="token punctuation">)</span>
-            self<span class="token punctuation">.</span>scale <span class="token operator">=</span> self<span class="token punctuation">.</span>alpha <span class="token operator">/</span> rank
-            self<span class="token punctuation">.</span>linear<span class="token punctuation">.</span>weight<span class="token punctuation">.</span>requires_grad <span class="token operator">=</span> <span class="token boolean">False</span>
+<img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1741076487595.jpg?imageSlim" alt="Transformer" style="zoom:55%;" />
 
-        <span class="token keyword">if</span> dropout <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">:</span>
-            self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>self<span class="token punctuation">.</span>dropout<span class="token punctuation">)</span>
-        <span class="token keyword">else</span><span class="token punctuation">:</span>
-            self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Identity<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        
-        self<span class="token punctuation">.</span>initial_weights<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        
-    <span class="token keyword">def</span> <span class="token function">initial_weights</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        nn<span class="token punctuation">.</span>init<span class="token punctuation">.</span>kaiming_uniform_<span class="token punctuation">(</span>self<span class="token punctuation">.</span>lora_a<span class="token punctuation">,</span> a<span class="token operator">=</span>math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<p>先从 Transformer 的 Embedding 部分写起。当我们输入文本到 Transformer 网络中时，模型接收的是存储着数值的向量而不是文字，因而第一步要做的事就是将这个 text 转化为词向量。</p>
+<h4 id="1-Tokenizer-处理得到词索引"><a href="#1-Tokenizer-处理得到词索引" class="headerlink" title="1. Tokenizer 处理得到词索引"></a>1. Tokenizer 处理得到词索引</h4><p>假定我们输入的 text 文本是一个包含许多单词的句子，我们需要想办法用数值表达这个句子，一种做法就是对每一个单词取一个唯一的索引值，用这个数值来表示这个句子。这些索引映射关系存起来就是<strong>词表。</strong></p>
+<ul>
+<li>当然分词粒度也不一定就是一个单词。只是说单词分词法（word base）最直观。<strong>单词分词法</strong>将一个word作为最小元，也就是根据空格或者标点分词。最详尽的分词是<strong>单字分词法</strong>（character-base）。单字分词法会穷举所有出现的字符，所以是最完整的。另外还有一种最常用的、介于两种方法之间的分词法叫<strong>子词分词法</strong>，会把一个句子分成最小可分的子词例如[‘To’, ‘day’, ‘is’, ‘S’, ‘un’, ‘day’]。</li>
+</ul>
+<p>比如 text &#x3D; “Today is a nice day!”，token &#x3D; tokenizer(text)，那么处理后得到的 tokens 就是一个字典，其中包含了 “input_ids” 词索引序列：’input_ids’: [[101, 2769, 3221, …, 102, 0, 0]]。0 是 padding 的填充项（补全 seq length 长度）</p>
+<h4 id="2-Token-Embedding-词嵌入处理"><a href="#2-Token-Embedding-词嵌入处理" class="headerlink" title="2. Token_Embedding 词嵌入处理"></a>2. Token_Embedding 词嵌入处理</h4><p>经过 tokenizer 分词处理后，我们的输入 x 就变为一个形状 <strong>[batch_size, seq_len]</strong> 的向量，例如 [[101, 2054, 2003, 2026, 3793, 102], [101, 2054, 2064, 2017, 102, 0]] 表示输入 batch_size &#x3D; 2 两个句子。</p>
+<p>那么 embedding 操作就是把输入向量升维。我们输入的 x 对一个单词的表示现在相当于是一个索引值，而我们要把每一个单词都变成一个唯一的向量模型才能学习到其空间嵌入特征。具体而言，假设我们有以下配置：</p>
+<ul>
+<li><p>批次大小 (batch_size) &#x3D; 2</p>
+</li>
+<li><p>序列长度 (seq_len) &#x3D; 4</p>
+</li>
+<li><p>嵌入维度 (d_model) &#x3D; 6</p>
+</li>
+<li><p>词汇表大小 (vocab_size) &#x3D; 10000</p>
+</li>
+</ul>
+<pre class=" language-python"><code class="language-python">x <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">[</span><span class="token number">101</span><span class="token punctuation">,</span> <span class="token number">2054</span><span class="token punctuation">,</span> <span class="token number">2003</span><span class="token punctuation">,</span> <span class="token number">102</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 第一个句子的词索引</span>
+    <span class="token punctuation">[</span><span class="token number">101</span><span class="token punctuation">,</span> <span class="token number">5243</span><span class="token punctuation">,</span> <span class="token number">3122</span><span class="token punctuation">,</span> <span class="token number">102</span><span class="token punctuation">]</span>   <span class="token comment" spellcheck="true"># 第二个句子的词索引</span>
+<span class="token punctuation">]</span>
 </code></pre>
-<p>创建 LoRA 的 A 和 B 矩阵：A (rank × in_features) 和 B (out_features × rank)；</p>
-<p>计算缩放因子 scale &#x3D; alpha &#x2F; rank；</p>
-<p>使用 Kaiming 初始化来初始化 LoRA 矩阵 A，这里只需要初始化一个权重矩阵，另一个 B 矩阵初始化为零矩阵。这样训练开始时 A @ B &#x3D; zeros，随着训练进行会慢慢调整 B 矩阵的参数值；</p>
-<h3 id="前向过程"><a href="#前向过程" class="headerlink" title="前向过程"></a>前向过程</h3><pre class=" language-python"><code class="language-python">    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        <span class="token keyword">if</span> self<span class="token punctuation">.</span>rank <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">and</span> self<span class="token punctuation">.</span>merge<span class="token punctuation">:</span>
-            <span class="token comment" spellcheck="true"># 可以看到这边lora_b是out_features * rank的矩阵，lora_a是rank * in_features的矩阵，乘完后是out_features * in_features的矩阵</span>
-            <span class="token comment" spellcheck="true"># 那么weight就是out_features * in_features的矩阵，刚好和linear.weight的形状一样</span>
-            <span class="token comment" spellcheck="true"># 而wx+b，因此x就是in_features * batch_size的矩阵</span>
-            output <span class="token operator">=</span> F<span class="token punctuation">.</span>linear<span class="token punctuation">(</span>x<span class="token punctuation">,</span> weight<span class="token operator">=</span>self<span class="token punctuation">.</span>linear<span class="token punctuation">.</span>weight <span class="token operator">+</span> self<span class="token punctuation">.</span>lora_b @ self<span class="token punctuation">.</span>lora_a <span class="token operator">*</span> self<span class="token punctuation">.</span>scale<span class="token punctuation">,</span> bias<span class="token operator">=</span>self<span class="token punctuation">.</span>linear<span class="token punctuation">.</span>bias<span class="token punctuation">)</span>
-            output <span class="token operator">=</span> self<span class="token punctuation">.</span>dropout<span class="token punctuation">(</span>output<span class="token punctuation">)</span>
-            <span class="token keyword">return</span> output
-        <span class="token keyword">else</span><span class="token punctuation">:</span>
-            <span class="token keyword">return</span> self<span class="token punctuation">.</span>linear<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+<p>嵌入后的张量可能就是这样，形状变为 [2,4,6] <strong>(batch_size, seq_len, d_model)</strong></p>
+<pre class=" language-python"><code class="language-python">token_embedding <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">[</span>  <span class="token comment" spellcheck="true"># 第一个句子</span>
+        <span class="token punctuation">[</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.7</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引101的嵌入向量</span>
+        <span class="token punctuation">[</span><span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引2054的嵌入向量</span>
+        <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引2003的嵌入向量</span>
+        <span class="token punctuation">[</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">]</span>   <span class="token comment" spellcheck="true"># 词索引102的嵌入向量</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span>  <span class="token comment" spellcheck="true"># 第二个句子</span>
+        <span class="token punctuation">[</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.7</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引101的嵌入向量</span>
+        <span class="token punctuation">[</span><span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引5243的嵌入向量</span>
+        <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引3122的嵌入向量</span>
+        <span class="token punctuation">[</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">]</span>   <span class="token comment" spellcheck="true"># 词索引102的嵌入向量</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">]</span>
 </code></pre>
-<p>这里就是用 LoRA 的 A 和 B 矩阵乘上原始权重矩阵的计算过程来在前向中参与进计算过程。在训练的时候就会反向更新 LoRA 两个矩阵的参数。</p>
-<p>最简单的实现过程就是这样，假若要将 LoRA 模块包装到具体的一个模型进行微调，那么可以把 base_model 里的 module 里面的线性层替换成 LoRA Linear 层，然后再冻结预训练权重在下游任务上进行训练。可以直接利用 hugging face 的 Trainer 类开一个 Trainer 直接训。</p>
+<p>嵌入转化的原理实际就是一个查找表。我们首先把每个单词的词索引转化成 one-hot 向量，那么可以想象这个向量维数应该很大，因此再降维。从每个单词的 one-hot 向量经过 <strong>Embedding 矩阵</strong>得到降维后的结果。比如有三个单词， one-hot 处理后的结果是 $3<em>6$ 大小的向量，那么经过一个 $6</em>4$ 大小的权重矩阵就可以乘出 $3*4$ 大小的结果从而降维（d_model &#x3D; 4）。因此这个嵌入矩阵的形状就应该是[vocab_size, d_model] 大小。</p>
+<p>继承 torch 里的 Embedding 类，forward 的时候把输入 x 转换为嵌入向量。具体实现：</p>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># 将输入的词汇表索引转换为指定维度的Embedding</span>
+<span class="token comment" spellcheck="true"># 每个token的词索引升维到d_model维，padding_idx=1表示填充词的索引为1</span>
+<span class="token comment" spellcheck="true"># 继承nn.Embedding在训练中前向传播，反向传播，更新参数</span>
+<span class="token keyword">class</span> <span class="token class-name">TokenEmbedding</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Embedding<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> vocab_size<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        super<span class="token punctuation">(</span>TokenEmbedding<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>vocab_size<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> padding_idx<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="2-Position-Embedding-位置编码"><a href="#2-Position-Embedding-位置编码" class="headerlink" title="2. Position_Embedding 位置编码"></a>2. Position_Embedding 位置编码</h4><p>Transformer 架构引入了位置编码，为每个单词向量生成一个固定的位置向量，来表达其位置相对关系。</p>
+<p>这部分是固定计算的，对于每个 seq_len 长度的句子输入，会返回一个 <strong>[seq_len, d_model]</strong> 形状即符合当前序列长度的位置编码。把词嵌入和位置编码相加才是最终的词向量。</p>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># 通过位置编码计算输入每个词生成的正弦余弦位置编码</span>
+<span class="token comment" spellcheck="true"># 创建的是固定不变的位置编码，在训练中不更新，直接基于公式计算这个序列长度的位置编码矩阵</span>
+<span class="token keyword">class</span> <span class="token class-name">PositionalEmbedding</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> device<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        super<span class="token punctuation">(</span>PositionalEmbedding<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 初始化一个大小为(max_len, d_model)的零矩阵</span>
+        self<span class="token punctuation">.</span>encoding <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span>max_len<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>encoding<span class="token punctuation">.</span>requires_grad <span class="token operator">=</span> <span class="token boolean">False</span>
+        pos <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+        pos <span class="token operator">=</span> pos<span class="token punctuation">.</span>float<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+        _2i <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> step<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span><span class="token punctuation">.</span>float<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>encoding<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> torch<span class="token punctuation">.</span>sin<span class="token punctuation">(</span>pos <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token number">10000</span> <span class="token operator">**</span> <span class="token punctuation">(</span>_2i <span class="token operator">/</span> d_model<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>encoding<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> torch<span class="token punctuation">.</span>cos<span class="token punctuation">(</span>pos <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token number">10000</span> <span class="token operator">**</span> <span class="token punctuation">(</span>_2i <span class="token operator">/</span> d_model<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token comment" spellcheck="true"># x 形状: [batch_size, seq_len]，也就是词索引</span>
+        batch_size<span class="token punctuation">,</span> seq_len <span class="token operator">=</span> x<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 返回适合当前序列长度的位置编码</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>encoding<span class="token punctuation">[</span><span class="token punctuation">:</span>seq_len<span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">]</span>
+</code></pre>
+<h4 id="3-Transformer-Embedding"><a href="#3-Transformer-Embedding" class="headerlink" title="3. Transformer_Embedding"></a>3. Transformer_Embedding</h4><p>最后把词嵌入和位置编码合并，即直接相加。（这里在嵌入层神经网络应用一个 dropout 防止过拟合）</p>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># 嵌入层的输入是经过tokenizer处理后的词索引，输出是词的Embedding和位置编码</span>
+<span class="token keyword">class</span> <span class="token class-name">TransformerEmbedding</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> vocab_size<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> drop_prob<span class="token punctuation">,</span> device<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        super<span class="token punctuation">(</span>TransformerEmbedding<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>token_embedding <span class="token operator">=</span> TokenEmbedding<span class="token punctuation">(</span>vocab_size<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>positional_embedding <span class="token operator">=</span> PositionalEmbedding<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> device<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>p<span class="token operator">=</span>drop_prob<span class="token punctuation">)</span>
+    
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        token_embedding <span class="token operator">=</span> self<span class="token punctuation">.</span>token_embedding<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+        positional_embedding <span class="token operator">=</span> self<span class="token punctuation">.</span>positional_embedding<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> self<span class="token punctuation">.</span>dropout<span class="token punctuation">(</span>token_embedding <span class="token operator">+</span> positional_embedding<span class="token punctuation">)</span>
+</code></pre>
 
                 
             </div>
@@ -497,7 +530,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://yukiiceeee.github.io/2025/02/22/xue-xi-shou-xie-yi-ge-lora-wei-diao-suan-fa/">https://yukiiceeee.github.io/2025/02/22/xue-xi-shou-xie-yi-ge-lora-wei-diao-suan-fa/</a>
+                    <a href="https://yukiiceeee.github.io/2025/02/23/xue-xi-transformer-yuan-li/">https://yukiiceeee.github.io/2025/02/23/xue-xi-transformer-yuan-li/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -615,9 +648,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2025/02/23/xue-xi-transformer-yuan-li/">
                     <div class="card-image">
@@ -634,9 +668,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2025-02-23
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-23
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -649,6 +683,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -667,23 +702,23 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2025/02/18/xue-xi-zai-deepseek-r1-3b-shang-zuo-jian-dan-lora-wei-diao/">
+                <a href="/2025/02/22/xue-xi-shou-xie-yi-ge-lora-wei-diao-suan-fa/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1739957817449.jpg?imageSlim" class="responsive-img" alt="【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1740239069670.jpg?imageSlim" class="responsive-img" alt="【学习】手写一个lora微调算法~">
                         
-                        <span class="card-title">【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~</span>
+                        <span class="card-title">【学习】手写一个lora微调算法~</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            最近开始上手微调模型做些小项目，所以先简单写了个lora微调DeepSeek-R1-Distill-Qwen-1.5B的脚本，熟悉熟悉一些基本的库和微调操作。记录一下~
+                            手写个lora微调算法，熟悉一下手动lora类的实现，以及装载到模型上微调的方法。下一步继续学习一下手写MoeLoRA，以及DeepSpeed和Accelerate框架的使用方法~
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-18
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-22
                             </span>
                         <span class="publish-author">
                             
