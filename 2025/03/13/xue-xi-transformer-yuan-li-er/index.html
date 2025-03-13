@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="【学习】手搓Transformer：Embedding, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="keywords" content="【学习】手搓Transformer：Multi-Attention, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
     <meta name="description" content="回想起上次仔细看transformer还是上次，现在遗忘得又有点多了，干脆从原理到代码重新过一遍，于是就有了这篇博客~">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>【学习】手搓Transformer：Embedding | Yuki&#39;s Blog</title>
+    <title>【学习】手搓Transformer：Multi-Attention | Yuki&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -339,7 +339,7 @@
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">【学习】手搓Transformer：Embedding</h1>
+                    <h1 class="description center-align post-title">【学习】手搓Transformer：Multi-Attention</h1>
                 </div>
             </div>
         </div>
@@ -388,7 +388,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2025-02-23
+                    2025-03-13
                 </div>
                 
 
@@ -397,7 +397,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.4k
+                    1.5k
                 </div>
                 
 
@@ -414,95 +414,91 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="手搓Transformer：Embedding"><a href="#手搓Transformer：Embedding" class="headerlink" title="手搓Transformer：Embedding"></a>手搓Transformer：Embedding</h2><hr>
+                <h2 id="手搓Transformer：Multi-Attention"><a href="#手搓Transformer：Multi-Attention" class="headerlink" title="手搓Transformer：Multi-Attention"></a>手搓Transformer：Multi-Attention</h2><hr>
 <blockquote>
 <p>《Attention Is All You Need》里的Transformer架构</p>
 </blockquote>
 <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1741076487595.jpg?imageSlim" alt="Transformer" style="zoom:55%;" />
 
-<p>先从 Transformer 的 Embedding 部分写起。当我们输入文本到 Transformer 网络中时，模型接收的是存储着数值的向量而不是文字，因而第一步要做的事就是将这个 text 转化为词向量。</p>
-<h4 id="1-Tokenizer-处理得到词索引"><a href="#1-Tokenizer-处理得到词索引" class="headerlink" title="1. Tokenizer 处理得到词索引"></a>1. Tokenizer 处理得到词索引</h4><p>假定我们输入的 text 文本是一个包含许多单词的句子，我们需要想办法用数值表达这个句子，一种做法就是对每一个单词取一个唯一的索引值，用这个数值来表示这个句子。这些索引映射关系存起来就是<strong>词表。</strong></p>
-<ul>
-<li>当然分词粒度也不一定就是一个单词。只是说单词分词法（word base）最直观。<strong>单词分词法</strong>将一个word作为最小元，也就是根据空格或者标点分词。最详尽的分词是<strong>单字分词法</strong>（character-base）。单字分词法会穷举所有出现的字符，所以是最完整的。另外还有一种最常用的、介于两种方法之间的分词法叫<strong>子词分词法</strong>，会把一个句子分成最小可分的子词例如[‘To’, ‘day’, ‘is’, ‘S’, ‘un’, ‘day’]。</li>
-</ul>
-<p>比如 text &#x3D; “Today is a nice day!”，token &#x3D; tokenizer(text)，那么处理后得到的 tokens 就是一个字典，其中包含了 “input_ids” 词索引序列：’input_ids’: [[101, 2769, 3221, …, 102, 0, 0]]。0 是 padding 的填充项（补全 seq length 长度）</p>
-<h4 id="2-Token-Embedding-词嵌入处理"><a href="#2-Token-Embedding-词嵌入处理" class="headerlink" title="2. Token_Embedding 词嵌入处理"></a>2. Token_Embedding 词嵌入处理</h4><p>经过 tokenizer 分词处理后，我们的输入 x 就变为一个形状 <strong>[batch_size, seq_len]</strong> 的向量，例如 [[101, 2054, 2003, 2026, 3793, 102], [101, 2054, 2064, 2017, 102, 0]] 表示输入 batch_size &#x3D; 2 两个句子。</p>
-<p>那么 embedding 操作就是把输入向量升维。我们输入的 x 对一个单词的表示现在相当于是一个索引值，而我们要把每一个单词都变成一个唯一的向量模型才能学习到其空间嵌入特征。具体而言，假设我们有以下配置：</p>
-<ul>
-<li><p>批次大小 (batch_size) &#x3D; 2</p>
-</li>
-<li><p>序列长度 (seq_len) &#x3D; 4</p>
-</li>
-<li><p>嵌入维度 (d_model) &#x3D; 6</p>
-</li>
-<li><p>词汇表大小 (vocab_size) &#x3D; 10000</p>
-</li>
-</ul>
-<pre class=" language-python"><code class="language-python">x <span class="token operator">=</span> <span class="token punctuation">[</span>
-    <span class="token punctuation">[</span><span class="token number">101</span><span class="token punctuation">,</span> <span class="token number">2054</span><span class="token punctuation">,</span> <span class="token number">2003</span><span class="token punctuation">,</span> <span class="token number">102</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 第一个句子的词索引</span>
-    <span class="token punctuation">[</span><span class="token number">101</span><span class="token punctuation">,</span> <span class="token number">5243</span><span class="token punctuation">,</span> <span class="token number">3122</span><span class="token punctuation">,</span> <span class="token number">102</span><span class="token punctuation">]</span>   <span class="token comment" spellcheck="true"># 第二个句子的词索引</span>
-<span class="token punctuation">]</span>
-</code></pre>
-<p>嵌入后的张量可能就是这样，形状变为 [2,4,6] <strong>(batch_size, seq_len, d_model)</strong></p>
-<pre class=" language-python"><code class="language-python">token_embedding <span class="token operator">=</span> <span class="token punctuation">[</span>
-    <span class="token punctuation">[</span>  <span class="token comment" spellcheck="true"># 第一个句子</span>
-        <span class="token punctuation">[</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.7</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引101的嵌入向量</span>
-        <span class="token punctuation">[</span><span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引2054的嵌入向量</span>
-        <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引2003的嵌入向量</span>
-        <span class="token punctuation">[</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">]</span>   <span class="token comment" spellcheck="true"># 词索引102的嵌入向量</span>
-    <span class="token punctuation">]</span><span class="token punctuation">,</span>
-    <span class="token punctuation">[</span>  <span class="token comment" spellcheck="true"># 第二个句子</span>
-        <span class="token punctuation">[</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.7</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引101的嵌入向量</span>
-        <span class="token punctuation">[</span><span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引5243的嵌入向量</span>
-        <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token number">0.2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 词索引3122的嵌入向量</span>
-        <span class="token punctuation">[</span><span class="token number">0.2</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.4</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">0.1</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">]</span>   <span class="token comment" spellcheck="true"># 词索引102的嵌入向量</span>
-    <span class="token punctuation">]</span>
-<span class="token punctuation">]</span>
-</code></pre>
-<p>嵌入转化的原理实际就是一个查找表。我们首先把每个单词的词索引转化成 one-hot 向量，那么可以想象这个向量维数应该很大，因此再降维。从每个单词的 one-hot 向量经过 <strong>Embedding 矩阵</strong>得到降维后的结果。比如有三个单词， one-hot 处理后的结果是 $3<em>6$ 大小的向量，那么经过一个 $6</em>4$ 大小的权重矩阵就可以乘出 $3*4$ 大小的结果从而降维（d_model &#x3D; 4）。因此这个嵌入矩阵的形状就应该是[vocab_size, d_model] 大小。</p>
-<p>继承 torch 里的 Embedding 类，forward 的时候把输入 x 转换为嵌入向量。具体实现：</p>
-<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># 将输入的词汇表索引转换为指定维度的Embedding</span>
-<span class="token comment" spellcheck="true"># 每个token的词索引升维到d_model维，padding_idx=1表示填充词的索引为1</span>
-<span class="token comment" spellcheck="true"># 继承nn.Embedding在训练中前向传播，反向传播，更新参数</span>
-<span class="token keyword">class</span> <span class="token class-name">TokenEmbedding</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Embedding<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> vocab_size<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        super<span class="token punctuation">(</span>TokenEmbedding<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>vocab_size<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> padding_idx<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
-</code></pre>
-<h4 id="2-Position-Embedding-位置编码"><a href="#2-Position-Embedding-位置编码" class="headerlink" title="2. Position_Embedding 位置编码"></a>2. Position_Embedding 位置编码</h4><p>Transformer 架构引入了位置编码，为每个单词向量生成一个固定的位置向量，来表达其位置相对关系。</p>
-<p>这部分是固定计算的，对于每个 seq_len 长度的句子输入，会返回一个 <strong>[seq_len, d_model]</strong> 形状即符合当前序列长度的位置编码。把词嵌入和位置编码相加才是最终的词向量。</p>
-<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># 通过位置编码计算输入每个词生成的正弦余弦位置编码</span>
-<span class="token comment" spellcheck="true"># 创建的是固定不变的位置编码，在训练中不更新，直接基于公式计算这个序列长度的位置编码矩阵</span>
-<span class="token keyword">class</span> <span class="token class-name">PositionalEmbedding</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> device<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        super<span class="token punctuation">(</span>PositionalEmbedding<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        <span class="token comment" spellcheck="true"># 初始化一个大小为(max_len, d_model)的零矩阵</span>
-        self<span class="token punctuation">.</span>encoding <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span>max_len<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>encoding<span class="token punctuation">.</span>requires_grad <span class="token operator">=</span> <span class="token boolean">False</span>
-        pos <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
-        pos <span class="token operator">=</span> pos<span class="token punctuation">.</span>float<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
-        _2i <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> step<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span><span class="token punctuation">.</span>float<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>encoding<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> torch<span class="token punctuation">.</span>sin<span class="token punctuation">(</span>pos <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token number">10000</span> <span class="token operator">**</span> <span class="token punctuation">(</span>_2i <span class="token operator">/</span> d_model<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>encoding<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> torch<span class="token punctuation">.</span>cos<span class="token punctuation">(</span>pos <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token number">10000</span> <span class="token operator">**</span> <span class="token punctuation">(</span>_2i <span class="token operator">/</span> d_model<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<h4 id="1-Self-Attention"><a href="#1-Self-Attention" class="headerlink" title="1. Self-Attention"></a>1. Self-Attention</h4><p>自注意力的作用：随着模型处理输入序列的每个单词，自注意力会关注整个输入序列的所有单词，帮助模型对本单词更好地进行编码。在处理过程中，自注意力机制会将对所有相关单词的理解融入到我们正在处理的单词中。更具体的功能如下：</p>
+<p><strong>序列建模：</strong>自注意力可以用于序列数据（例如文本、时间序列、音频等）的建模。它可以捕捉序列中不同位置的依赖关系，从而更好地理解上下文。这对于机器翻译、文本生成、情感分析等任务非常有用。<br><strong>并行计算：</strong>自注意力可以并行计算，这意味着可以有效地在现代硬件上进行加速。相比于RNN和CNN等序列模型，它更容易在GPU和TPU等硬件上进行高效的训练和推理。（因为在自注意力中可以并行的计算得分）<br><strong>长距离依赖捕捉：</strong>传统的循环神经网络（RNN）在处理长序列时可能面临梯度消失或梯度爆炸的问题。自注意力可以更好地处理长距离依赖关系，因为它不需要按顺序处理输入序列。</p>
+<p><strong>自注意力的计算：</strong></p>
+<p>Self-Attention 是通过输入本身的序列作为 Q 和 K 计算注意力分数的。从每个编码器的输入向量（每个单词的词向量，即Embedding，可以是任意形式的词向量，比如说word2vec，GloVe，one-hot编码）中生成三个向量，即查询向量、键向量和一个值向量。（这三个向量是通过词嵌入与三个权重矩阵相乘后创建出来的）</p>
+<blockquote>
+<p>参考 CSDN @告白气球 的这张图：</p>
+</blockquote>
+<img src= "https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/cc00beb97c344a486d07e3d9e8a58f06.png?imageSlim">
 
-    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        <span class="token comment" spellcheck="true"># x 形状: [batch_size, seq_len]，也就是词索引</span>
-        batch_size<span class="token punctuation">,</span> seq_len <span class="token operator">=</span> x<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        <span class="token comment" spellcheck="true"># 返回适合当前序列长度的位置编码</span>
-        <span class="token keyword">return</span> self<span class="token punctuation">.</span>encoding<span class="token punctuation">[</span><span class="token punctuation">:</span>seq_len<span class="token punctuation">,</span> <span class="token punctuation">:</span><span class="token punctuation">]</span>
-</code></pre>
-<h4 id="3-Transformer-Embedding"><a href="#3-Transformer-Embedding" class="headerlink" title="3. Transformer_Embedding"></a>3. Transformer_Embedding</h4><p>最后把词嵌入和位置编码合并，即直接相加。（这里在嵌入层神经网络应用一个 dropout 防止过拟合）</p>
-<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># 嵌入层的输入是经过tokenizer处理后的词索引，输出是词的Embedding和位置编码</span>
-<span class="token keyword">class</span> <span class="token class-name">TransformerEmbedding</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> vocab_size<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> drop_prob<span class="token punctuation">,</span> device<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        super<span class="token punctuation">(</span>TransformerEmbedding<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>token_embedding <span class="token operator">=</span> TokenEmbedding<span class="token punctuation">(</span>vocab_size<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>positional_embedding <span class="token operator">=</span> PositionalEmbedding<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> device<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>p<span class="token operator">=</span>drop_prob<span class="token punctuation">)</span>
-    
-    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        token_embedding <span class="token operator">=</span> self<span class="token punctuation">.</span>token_embedding<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        positional_embedding <span class="token operator">=</span> self<span class="token punctuation">.</span>positional_embedding<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        <span class="token keyword">return</span> self<span class="token punctuation">.</span>dropout<span class="token punctuation">(</span>token_embedding <span class="token operator">+</span> positional_embedding<span class="token punctuation">)</span>
+<p>经过上一节 Embedding 层后的嵌入输出维度为 <strong>(batch_size, seq_len, d_model)，</strong>通过 nn.Linear 线性变换为 k, q, v 向量。然后经过注意力分数计算的公式即可得到注意力 score：q 和 k 先相乘，得到 (batch_size, num_heads, seq_len, seq_len) 的score矩阵，矩阵表示序列中每个位置对所有其他位置的注意力权重；softmax 之后与 v 相乘，score 的形状变为 **[batch_size, num_heads, seq_len, n_d]**。</p>
+<h4 id="2-Multi-Head"><a href="#2-Multi-Head" class="headerlink" title="2. Multi-Head"></a>2. Multi-Head</h4><p><strong>self-attention</strong>只是使用了一组 WQ、WK、WV 来进行变换得到查询、键、值矩阵，而 Multi-Head Attention 使用多组WQ，WK，WV得到多组查询、键、值矩阵，然后每组分别计算得到一个 Z 矩阵。</p>
+<p>将所有注意力头 Z 矩阵拼接起来，得到的就是合并了所有头的注意力信息。展平 num_heads 维度，得到 <strong>[batch_size, seq_len, d_model]</strong> 形状的 score。</p>
+<p>最后用一个附加的权重矩阵 W^O 乘以 score，将展平的score通过线性层投影回 d_model 维度，并加上偏置。这个线性变换将合并后的表示投影到一个更有意义的空间。</p>
+<p>总结整个流程就是：</p>
+<img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/0b8dacfc201e24ef7dc0e690b41b998c.png?imageSlim">
+
+<p>最后附上带有详细注释的代码，流程应该很清楚：</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">import</span> torch
+<span class="token keyword">import</span> torch<span class="token punctuation">.</span>nn <span class="token keyword">as</span> nn
+<span class="token keyword">import</span> torch<span class="token punctuation">.</span>optim <span class="token keyword">as</span> optim
+<span class="token keyword">import</span> torch<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>data <span class="token keyword">as</span> data
+<span class="token keyword">import</span> torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>functional <span class="token keyword">as</span> F
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token keyword">import</span> random
+<span class="token keyword">import</span> math
+<span class="token keyword">from</span> torch <span class="token keyword">import</span> Tensor
+
+<span class="token comment" spellcheck="true"># batch_size, seq_len, d_model</span>
+x <span class="token operator">=</span> torch<span class="token punctuation">.</span>rand<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">512</span><span class="token punctuation">)</span>
+
+<span class="token keyword">class</span> <span class="token class-name">MultiHeadAttention</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> d_model<span class="token punctuation">:</span> int<span class="token punctuation">,</span> num_heads<span class="token punctuation">:</span> int<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        super<span class="token punctuation">(</span>MultiHeadAttention<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>d_model <span class="token operator">=</span> d_model
+        self<span class="token punctuation">.</span>num_heads <span class="token operator">=</span> num_heads
+        <span class="token comment" spellcheck="true"># 线性层的权重矩阵形状为(d_model, d_model)</span>
+        <span class="token comment" spellcheck="true"># 输入的形状为(batch_size, seq_len, d_model)，线性变换(wx+b)后得到k,q,v</span>
+        <span class="token comment" spellcheck="true"># 不过一般新向量在维度上往往比词嵌入向量更低</span>
+        <span class="token comment" spellcheck="true"># W_q：学习"我应该关注什么"的特征表示</span>
+        <span class="token comment" spellcheck="true"># W_k：学习"我能提供什么信息"的特征表示</span>
+        <span class="token comment" spellcheck="true"># W_v：学习"我的实际内容是什么"的特征表示</span>
+        self<span class="token punctuation">.</span>w_q <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>w_k <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>w_v <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>w_o <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>softmax <span class="token operator">=</span> nn<span class="token punctuation">.</span>Softmax<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> q<span class="token punctuation">,</span> k<span class="token punctuation">,</span> v<span class="token punctuation">,</span> mask<span class="token operator">=</span>None<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> d_model <span class="token operator">=</span> q<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        n_d <span class="token operator">=</span> self<span class="token punctuation">.</span>d_model <span class="token operator">//</span> self<span class="token punctuation">.</span>num_heads
+        <span class="token comment" spellcheck="true"># 将输入向量x线性变换为q,k,v</span>
+        q<span class="token punctuation">,</span>k<span class="token punctuation">,</span>v <span class="token operator">=</span> self<span class="token punctuation">.</span>w_q<span class="token punctuation">(</span>q<span class="token punctuation">)</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>w_k<span class="token punctuation">(</span>k<span class="token punctuation">)</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>w_v<span class="token punctuation">(</span>v<span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 这里通过view操作将d_model维度拆分为num_heads个头，每个头的大小为n_d</span>
+        <span class="token comment" spellcheck="true"># 然后通过permute操作将头维度移到前面，变成(batch_size, num_heads, seq_len, n_d)</span>
+        <span class="token comment" spellcheck="true"># 目的：1.减少计算量，并行计算；2.每个头可以关注不同特征子空间</span>
+        q <span class="token operator">=</span> q<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> self<span class="token punctuation">.</span>num_heads<span class="token punctuation">,</span> n_d<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>
+        k <span class="token operator">=</span> k<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> self<span class="token punctuation">.</span>num_heads<span class="token punctuation">,</span> n_d<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>
+        v <span class="token operator">=</span> v<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> self<span class="token punctuation">.</span>num_heads<span class="token punctuation">,</span> n_d<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 这里k.transpose(2,3)将k的维度从(batch_size, num_heads, seq_len, n_d)变为(batch_size, num_heads, n_d, seq_len)</span>
+        <span class="token comment" spellcheck="true"># 这样q和k相乘后，得到(batch_size, num_heads, seq_len, seq_len)的score矩阵</span>
+        <span class="token comment" spellcheck="true"># 矩阵表示序列中每个位置对所有其他位置的注意力权重</span>
+        <span class="token comment" spellcheck="true"># score[b, h, i, j] 表示在批次 b 的第 h 个头中，位置 i 对位置 j 的注意力分数</span>
+        score <span class="token operator">=</span> q@k<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">/</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>n_d<span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 将 mask 中值为0的位置在 score 中填充为一个很大的负数 -1e9</span>
+        <span class="token comment" spellcheck="true"># 在编码器自注意力中，通常不使用掩码，允许每个位置关注所有位置</span>
+        <span class="token comment" spellcheck="true"># 在解码器自注意力中，使用掩码确保每个位置只能关注其前面的位置</span>
+        <span class="token comment" spellcheck="true"># 在填充掩码中，用于忽略填充标记的影响</span>
+        <span class="token keyword">if</span> mask <span class="token keyword">is</span> <span class="token operator">not</span> None<span class="token punctuation">:</span>
+            score <span class="token operator">=</span> score<span class="token punctuation">.</span>masked_fill<span class="token punctuation">(</span>mask <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1e9</span><span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># self.softmax(score) 将注意力分数转换为概率分布（每行和为1）</span>
+        <span class="token comment" spellcheck="true"># score 的形状变为 [batch_size, num_heads, seq_len, n_d]</span>
+        score <span class="token operator">=</span> self<span class="token punctuation">.</span>softmax<span class="token punctuation">(</span>score<span class="token punctuation">)</span>@v
+        <span class="token comment" spellcheck="true"># 将 score 的维度转换为 [batch_size, seq_len, num_heads, n_d]</span>
+        <span class="token comment" spellcheck="true"># 然后展平 num_heads 维度，得到 [batch_size, seq_len, d_model]</span>
+        score <span class="token operator">=</span> score<span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 将展平的score通过线性层投影回d_model维度，并加上偏置</span>
+        <span class="token comment" spellcheck="true"># 这个线性变换将合并后的表示投影到一个更有意义的空间</span>
+        out <span class="token operator">=</span> self<span class="token punctuation">.</span>w_o<span class="token punctuation">(</span>score<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> out
 </code></pre>
 
                 
@@ -530,7 +526,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://yukiiceeee.github.io/2025/02/23/xue-xi-transformer-yuan-li-yi/">https://yukiiceeee.github.io/2025/02/23/xue-xi-transformer-yuan-li-yi/</a>
+                    <a href="https://yukiiceeee.github.io/2025/03/13/xue-xi-transformer-yuan-li-er/">https://yukiiceeee.github.io/2025/03/13/xue-xi-transformer-yuan-li-er/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -648,9 +644,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2025/03/13/xue-xi-transformer-yuan-li-er/">
                     <div class="card-image">
@@ -667,9 +664,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2025-03-13
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-03-13
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -682,6 +679,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -700,23 +698,23 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2025/02/22/xue-xi-shou-xie-yi-ge-lora-wei-diao-suan-fa/">
+                <a href="/2025/02/23/xue-xi-transformer-yuan-li-yi/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1740239069670.jpg?imageSlim" class="responsive-img" alt="【学习】手写一个lora微调算法~">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/112178373_p0.jpg?imageSlim" class="responsive-img" alt="【学习】手搓Transformer：Embedding">
                         
-                        <span class="card-title">【学习】手写一个lora微调算法~</span>
+                        <span class="card-title">【学习】手搓Transformer：Embedding</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            手写个lora微调算法，熟悉一下手动lora类的实现，以及装载到模型上微调的方法。下一步继续学习一下手写MoeLoRA，以及DeepSpeed和Accelerate框架的使用方法~
+                            回想起上次仔细看transformer还是上次，现在遗忘得又有点多了，干脆从原理到代码重新过一遍，于是就有了这篇博客~
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-22
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-23
                             </span>
                         <span class="publish-author">
                             
