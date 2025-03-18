@@ -4,8 +4,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="【学习】DeepSeekMoE：我们需要更多Experts！, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
-    <meta name="description" content="将MOE的专家数进一步分割细化，增设共享专家，预训练模型的工作。话说今年DeepSeek真火哇">
+    <meta name="keywords" content="【学习】手搓Transformer：Multi-Attention, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="description" content="回想起上次仔细看transformer还是上次，现在遗忘得又有点多了，干脆从原理到代码重新过一遍，于是就有了这篇博客~">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>【学习】DeepSeekMoE：我们需要更多Experts！ | Yuki&#39;s Blog</title>
+    <title>【学习】手搓Transformer：Multi-Attention | Yuki&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -334,12 +334,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1740238897859.jpg?imageSlim')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/128135299_p5.jpg?imageSlim')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">【学习】DeepSeekMoE：我们需要更多Experts！</h1>
+                    <h1 class="description center-align post-title">【学习】手搓Transformer：Multi-Attention</h1>
                 </div>
             </div>
         </div>
@@ -388,7 +388,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2025-02-05
+                    2025-12-25
                 </div>
                 
 
@@ -397,7 +397,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    923
+                    1.5k
                 </div>
                 
 
@@ -414,43 +414,92 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="【笔记】DeepSeekMoE：迈向终极专家专业化"><a href="#【笔记】DeepSeekMoE：迈向终极专家专业化" class="headerlink" title="【笔记】DeepSeekMoE：迈向终极专家专业化"></a>【笔记】DeepSeekMoE：迈向终极专家专业化</h2><p>最近 DeepSeek 火爆整个2025年新春，趁着这波热度，想起来几个月前在 ACL 2024 上看过他们的论文，于是翻回来重新研究了一下。其实整篇论文的动机和故事都很直觉，但是不得不说人家的论文写得真的漂亮呀！</p>
-<ul>
-<li><strong>专家不够分化：</strong>以往的 MoE 模型一般也就是6个8个左右的 Expert 数量，但是任务量实际上要远远大于专家数，那么专家其实是不够“专”的。所以尽可能地把专家数拉高，然后寄希望于更多的专家分化知识能力。</li>
-<li><strong>专家冗余：</strong>假设每个 Token 都需要常识知识，那么不管选哪个专家，这个专家都会保留常识知识能力，因而专家的“专业性”受到了影响，存在知识冗余，就浪费掉很多参数了。因此增设共享专家，所有 Token 来的时候都会选这个专家。</li>
-</ul>
-<hr>
-<h4 id="模型架构："><a href="#模型架构：" class="headerlink" title="模型架构："></a>模型架构：</h4><p>所以方法也很直观了，论文里的 <strong>pipeline</strong> 也画得非常清楚：</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738763285958.jpg?imageSlim" alt="image-20240519223632525"></p>
-<ol>
-<li><p><strong>专家数量增加实现</strong>：</p>
-<ul>
-<li>具体来说，是通过拆分专家——比如把一个拆成两个——来增加专家数量。</li>
-<li>主流的专家实际上就是个 FFN，FFN 实际上就是两个矩阵。假设这两个矩阵的大小分别是：$dh$ 和 $hd$ 。如果要把这个专家拆分成两个专家，实际上就是把矩阵拆成两个 $d*(h&#x2F;2)$ 和 $(h&#x2F;2)*d$ 这样。</li>
-<li>假如原本一个 token 选择 top-1 专家来处理，拆成两个后，就变成选择 top-2 专家来出来。这样计算量和参数量是没有变化的。</li>
-</ul>
+                <h2 id="手搓Transformer：Multi-Attention"><a href="#手搓Transformer：Multi-Attention" class="headerlink" title="手搓Transformer：Multi-Attention"></a>手搓Transformer：Multi-Attention</h2><hr>
 <blockquote>
-<p>实际上门控的计算量还是有变化的，路由模块需要计算的专家数增多了，自然计算量会大一些。</p>
+<p>《Attention Is All You Need》里的Transformer架构</p>
 </blockquote>
-</li>
-<li><p><strong>共享专家增设</strong>：</p>
-<ul>
-<li>有的专家是必选的，除此以外，每个 token 按照自己的喜好，再来选择 top-k。比如有 64 个专家，那么第一个专家是所有 token 都要选的，除此以外，每个 token 还从剩下的 63 个里选择自己的 top-1 专家。</li>
-</ul>
-</li>
-</ol>
-<p><strong>但这样就有一个新的考虑：Expert 数增大的情况下，是不是对于 Router 的能力依赖会更强呢？因为直观上来讲，每个专家更加分化，肯定也希望我的 Router 能够选得更精确，才能最大程度发挥专家的知识能力。所以是不是能用一个更 Stronger 的路由模块去进行一个进一步的优化？</strong></p>
-<hr>
-<h4 id="Experiment："><a href="#Experiment：" class="headerlink" title="Experiment："></a>Experiment：</h4><blockquote>
-<p>不得不说人家的 Experiment 是真的充分，而且特别详细……</p>
+<img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1741076487595.jpg?imageSlim" alt="Transformer" style="zoom:55%;" />
+
+<h4 id="1-Self-Attention"><a href="#1-Self-Attention" class="headerlink" title="1. Self-Attention"></a>1. Self-Attention</h4><p>自注意力的作用：随着模型处理输入序列的每个单词，自注意力会关注整个输入序列的所有单词，帮助模型对本单词更好地进行编码。在处理过程中，自注意力机制会将对所有相关单词的理解融入到我们正在处理的单词中。更具体的功能如下：</p>
+<p><strong>序列建模：</strong>自注意力可以用于序列数据（例如文本、时间序列、音频等）的建模。它可以捕捉序列中不同位置的依赖关系，从而更好地理解上下文。这对于机器翻译、文本生成、情感分析等任务非常有用。<br><strong>并行计算：</strong>自注意力可以并行计算，这意味着可以有效地在现代硬件上进行加速。相比于RNN和CNN等序列模型，它更容易在GPU和TPU等硬件上进行高效的训练和推理。（因为在自注意力中可以并行的计算得分）<br><strong>长距离依赖捕捉：</strong>传统的循环神经网络（RNN）在处理长序列时可能面临梯度消失或梯度爆炸的问题。自注意力可以更好地处理长距离依赖关系，因为它不需要按顺序处理输入序列。</p>
+<p><strong>自注意力的计算：</strong></p>
+<p>Self-Attention 是通过输入本身的序列作为 Q 和 K 计算注意力分数的。从每个编码器的输入向量（每个单词的词向量，即Embedding，可以是任意形式的词向量，比如说word2vec，GloVe，one-hot编码）中生成三个向量，即查询向量、键向量和一个值向量。（这三个向量是通过词嵌入与三个权重矩阵相乘后创建出来的）</p>
+<blockquote>
+<p>参考 CSDN @告白气球 的这张图：</p>
 </blockquote>
-<p><strong>验证实验（2B参数模型）：</strong>验证DeepSeekMoE架构在中小规模下的有效性。对比了Dense模型、Hash Layer、Switch Transformer、GShard等MoE架构，</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738764304023.jpg?imageSlim" alt="image-20240519225817161"></p>
-<p><strong>消融实验：</strong>主要验证了细粒度分割和共享专家的作用体现。</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738764486549.jpg?imageSlim" alt="image-20240519230406663"></p>
-<p>当然论文还做了很多其它实验，在16B模型上的扩展实验、对齐实验（监督微调）、超大规模模型实验……这里就不一一列举了，感兴趣可以去读下原文~</p>
-<p>这里突然想起来 ACL 2024 上还有一篇 Dynamic MoE，直观上感觉那篇的动态路由用到 DeepSeek 这样多专家的架构上提升应该更明显。因为其实 Top-K 这样固定选专家数量的策略，在专家数更多组合更多样的情况下，打分之后可能会有更大的差异性，所以按阈值来路由兴许有更好的效果。</p>
-<hr>
+<img src= "https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/cc00beb97c344a486d07e3d9e8a58f06.png?imageSlim">
+
+<p>经过上一节 Embedding 层后的嵌入输出维度为 <strong>(batch_size, seq_len, d_model)，</strong>通过 nn.Linear 线性变换为 k, q, v 向量。然后经过注意力分数计算的公式即可得到注意力 score：q 和 k 先相乘，得到 (batch_size, num_heads, seq_len, seq_len) 的score矩阵，矩阵表示序列中每个位置对所有其他位置的注意力权重；softmax 之后与 v 相乘，score 的形状变为 **[batch_size, num_heads, seq_len, n_d]**。</p>
+<h4 id="2-Multi-Head"><a href="#2-Multi-Head" class="headerlink" title="2. Multi-Head"></a>2. Multi-Head</h4><p><strong>self-attention</strong>只是使用了一组 WQ、WK、WV 来进行变换得到查询、键、值矩阵，而 Multi-Head Attention 使用多组WQ，WK，WV得到多组查询、键、值矩阵，然后每组分别计算得到一个 Z 矩阵。</p>
+<p>将所有注意力头 Z 矩阵拼接起来，得到的就是合并了所有头的注意力信息。展平 num_heads 维度，得到 <strong>[batch_size, seq_len, d_model]</strong> 形状的 score。</p>
+<p>最后用一个附加的权重矩阵 W^O 乘以 score，将展平的score通过线性层投影回 d_model 维度，并加上偏置。这个线性变换将合并后的表示投影到一个更有意义的空间。</p>
+<p>总结整个流程就是：</p>
+<img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/0b8dacfc201e24ef7dc0e690b41b998c.png?imageSlim">
+
+<p>最后附上带有详细注释的代码，流程应该很清楚：</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">import</span> torch
+<span class="token keyword">import</span> torch<span class="token punctuation">.</span>nn <span class="token keyword">as</span> nn
+<span class="token keyword">import</span> torch<span class="token punctuation">.</span>optim <span class="token keyword">as</span> optim
+<span class="token keyword">import</span> torch<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>data <span class="token keyword">as</span> data
+<span class="token keyword">import</span> torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>functional <span class="token keyword">as</span> F
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token keyword">import</span> random
+<span class="token keyword">import</span> math
+<span class="token keyword">from</span> torch <span class="token keyword">import</span> Tensor
+
+<span class="token comment" spellcheck="true"># batch_size, seq_len, d_model</span>
+x <span class="token operator">=</span> torch<span class="token punctuation">.</span>rand<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">,</span> <span class="token number">32</span><span class="token punctuation">,</span> <span class="token number">512</span><span class="token punctuation">)</span>
+
+<span class="token keyword">class</span> <span class="token class-name">MultiHeadAttention</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> d_model<span class="token punctuation">:</span> int<span class="token punctuation">,</span> num_heads<span class="token punctuation">:</span> int<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        super<span class="token punctuation">(</span>MultiHeadAttention<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>d_model <span class="token operator">=</span> d_model
+        self<span class="token punctuation">.</span>num_heads <span class="token operator">=</span> num_heads
+        <span class="token comment" spellcheck="true"># 线性层的权重矩阵形状为(d_model, d_model)</span>
+        <span class="token comment" spellcheck="true"># 输入的形状为(batch_size, seq_len, d_model)，线性变换(wx+b)后得到k,q,v</span>
+        <span class="token comment" spellcheck="true"># 不过一般新向量在维度上往往比词嵌入向量更低</span>
+        <span class="token comment" spellcheck="true"># W_q：学习"我应该关注什么"的特征表示</span>
+        <span class="token comment" spellcheck="true"># W_k：学习"我能提供什么信息"的特征表示</span>
+        <span class="token comment" spellcheck="true"># W_v：学习"我的实际内容是什么"的特征表示</span>
+        self<span class="token punctuation">.</span>w_q <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>w_k <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>w_v <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>w_o <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>softmax <span class="token operator">=</span> nn<span class="token punctuation">.</span>Softmax<span class="token punctuation">(</span>dim<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> q<span class="token punctuation">,</span> k<span class="token punctuation">,</span> v<span class="token punctuation">,</span> mask<span class="token operator">=</span>None<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> d_model <span class="token operator">=</span> q<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        n_d <span class="token operator">=</span> self<span class="token punctuation">.</span>d_model <span class="token operator">//</span> self<span class="token punctuation">.</span>num_heads
+        <span class="token comment" spellcheck="true"># 将输入向量x线性变换为q,k,v</span>
+        q<span class="token punctuation">,</span>k<span class="token punctuation">,</span>v <span class="token operator">=</span> self<span class="token punctuation">.</span>w_q<span class="token punctuation">(</span>q<span class="token punctuation">)</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>w_k<span class="token punctuation">(</span>k<span class="token punctuation">)</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>w_v<span class="token punctuation">(</span>v<span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 这里通过view操作将d_model维度拆分为num_heads个头，每个头的大小为n_d</span>
+        <span class="token comment" spellcheck="true"># 然后通过permute操作将头维度移到前面，变成(batch_size, num_heads, seq_len, n_d)</span>
+        <span class="token comment" spellcheck="true"># 目的：1.减少计算量，并行计算；2.每个头可以关注不同特征子空间</span>
+        q <span class="token operator">=</span> q<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> self<span class="token punctuation">.</span>num_heads<span class="token punctuation">,</span> n_d<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>
+        k <span class="token operator">=</span> k<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> self<span class="token punctuation">.</span>num_heads<span class="token punctuation">,</span> n_d<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>
+        v <span class="token operator">=</span> v<span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> self<span class="token punctuation">.</span>num_heads<span class="token punctuation">,</span> n_d<span class="token punctuation">)</span><span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 这里k.transpose(2,3)将k的维度从(batch_size, num_heads, seq_len, n_d)变为(batch_size, num_heads, n_d, seq_len)</span>
+        <span class="token comment" spellcheck="true"># 这样q和k相乘后，得到(batch_size, num_heads, seq_len, seq_len)的score矩阵</span>
+        <span class="token comment" spellcheck="true"># 矩阵表示序列中每个位置对所有其他位置的注意力权重</span>
+        <span class="token comment" spellcheck="true"># score[b, h, i, j] 表示在批次 b 的第 h 个头中，位置 i 对位置 j 的注意力分数</span>
+        score <span class="token operator">=</span> q@k<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">/</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>n_d<span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 将 mask 中值为0的位置在 score 中填充为一个很大的负数 -1e9</span>
+        <span class="token comment" spellcheck="true"># 在编码器自注意力中，通常不使用掩码，允许每个位置关注所有位置</span>
+        <span class="token comment" spellcheck="true"># 在解码器自注意力中，使用掩码确保每个位置只能关注其前面的位置</span>
+        <span class="token comment" spellcheck="true"># 在填充掩码中，用于忽略填充标记的影响</span>
+        <span class="token keyword">if</span> mask <span class="token keyword">is</span> <span class="token operator">not</span> None<span class="token punctuation">:</span>
+            score <span class="token operator">=</span> score<span class="token punctuation">.</span>masked_fill<span class="token punctuation">(</span>mask <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1e9</span><span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># self.softmax(score) 将注意力分数转换为概率分布（每行和为1）</span>
+        <span class="token comment" spellcheck="true"># score 的形状变为 [batch_size, num_heads, seq_len, n_d]</span>
+        score <span class="token operator">=</span> self<span class="token punctuation">.</span>softmax<span class="token punctuation">(</span>score<span class="token punctuation">)</span>@v
+        <span class="token comment" spellcheck="true"># 将 score 的维度转换为 [batch_size, seq_len, num_heads, n_d]</span>
+        <span class="token comment" spellcheck="true"># 然后展平 num_heads 维度，得到 [batch_size, seq_len, d_model]</span>
+        score <span class="token operator">=</span> score<span class="token punctuation">.</span>permute<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">.</span>contiguous<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>view<span class="token punctuation">(</span>batch_size<span class="token punctuation">,</span> seq_len<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 将展平的score通过线性层投影回d_model维度，并加上偏置</span>
+        <span class="token comment" spellcheck="true"># 这个线性变换将合并后的表示投影到一个更有意义的空间</span>
+        out <span class="token operator">=</span> self<span class="token punctuation">.</span>w_o<span class="token punctuation">(</span>score<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> out
+</code></pre>
 
                 
             </div>
@@ -477,7 +526,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://yukiiceeee.github.io/2025/02/05/xue-xi-deepseekmoe/">https://yukiiceeee.github.io/2025/02/05/xue-xi-deepseekmoe/</a>
+                    <a href="https://yukiiceeee.github.io/2025/12/25/xue-xi-transformer-yuan-li-er/">https://yukiiceeee.github.io/2025/12/25/xue-xi-transformer-yuan-li-er/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -595,28 +644,29 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2025/02/18/xue-xi-zai-deepseek-r1-3b-shang-zuo-jian-dan-lora-wei-diao/">
+                <a href="/2025/12/25/xue-xi-transformer-yuan-li-er/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1739957817449.jpg?imageSlim" class="responsive-img" alt="【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/128135299_p5.jpg?imageSlim" class="responsive-img" alt="【学习】手搓Transformer：Multi-Attention">
                         
-                        <span class="card-title">【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~</span>
+                        <span class="card-title">【学习】手搓Transformer：Multi-Attention</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            最近开始上手微调模型做些小项目，所以先简单写了个lora微调DeepSeek-R1-Distill-Qwen-1.5B的脚本，熟悉熟悉一些基本的库和微调操作。记录一下~
+                            回想起上次仔细看transformer还是上次，现在遗忘得又有点多了，干脆从原理到代码重新过一遍，于是就有了这篇博客~
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2025-02-18
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-12-25
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -629,6 +679,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -647,23 +698,23 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2024/05/28/xue-xi-patch-level-routing-in-moe/">
+                <a href="/2025/02/18/xue-xi-zai-deepseek-r1-3b-shang-zuo-jian-dan-lora-wei-diao/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529084952905.png?imageSlim" class="responsive-img" alt="【学习】Patch-level Routing in MOE：针对局部图像区域分配专家，提高样本效率">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1739957817449.jpg?imageSlim" class="responsive-img" alt="【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~">
                         
-                        <span class="card-title">【学习】Patch-level Routing in MOE：针对局部图像区域分配专家，提高样本效率</span>
+                        <span class="card-title">【学习】在DeepSeek-R1-1.5b模型上做一个简单的lora微调~</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            论文提出了一种基于图像局部区域（patch）的专家分配策略，而不是对整个图像进行分配；这种方法利用CNNs的结构特点，将输入图像分割成若干个patch，每个patch独立地分配给不同的专家，从而提高效率。
+                            最近开始上手微调模型做些小项目，所以先简单写了个lora微调DeepSeek-R1-Distill-Qwen-1.5B的脚本，熟悉熟悉一些基本的库和微调操作。记录一下~
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2024-05-28
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-18
                             </span>
                         <span class="publish-author">
                             
