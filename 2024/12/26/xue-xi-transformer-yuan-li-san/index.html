@@ -334,7 +334,7 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/128135299_p5.jpg?imageSlim')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/128135299_p6.jpg?imageSlim')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
@@ -397,7 +397,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    823
+                    1.2k
                 </div>
                 
 
@@ -507,7 +507,12 @@
             x <span class="token operator">=</span> layer<span class="token punctuation">(</span>x<span class="token punctuation">,</span> mask<span class="token punctuation">)</span>
         <span class="token keyword">return</span> x
 </code></pre>
-<h4 id="2-Decoder"><a href="#2-Decoder" class="headerlink" title="2. Decoder"></a>2. Decoder</h4><p>解码器包含自注意力与交叉注意力两部分。</p>
+<h4 id="2-Decoder"><a href="#2-Decoder" class="headerlink" title="2. Decoder"></a>2. Decoder</h4><p>解码器包含<strong>自注意力与交叉注意力两部分。</strong></p>
+<p>编码器的输出被用作交叉注意力部分的 K 和 V 矩阵（键值向量），Q 矩阵（查询向量）则是自注意力层的输出。交叉注意力层会对编码结果进行注意力调整，计算编码结果与解码输入间的注意关系，以获得与当前解码位置相关的编码器信息。</p>
+<p>在 Multi-Attention 里我们可以看到注意力分数可以应用对应的 mask，mask 矩阵对应值为0的部分，在注意力矩阵将其值设定为无穷小。这样在 Softmax 操作后，这些部分对应的注意力分数就变为0，不被注意到。</p>
+<p>在 Encoder 里面我们只有 **padding mask (s_mask)**，用来标识输入序列的最大长度，不够最大长度的部分补0。而在 Decoder 里还存在一种 mask，也就是 **sequence mask (t_mask)**，用于解码器的自注意力层，确保预测第 i 个位置的token时只能看到位置 i 之前的信息。</p>
+<p>前馈网络层和编码器实现一致。每一层后面都添加一层 Add&amp;Norm 与 dropout。</p>
+<p>最终输出经过一层线性变换，然后Softmax得到输出的概率分布（softmax层会把向量变成概率），然后通过词典，<strong>输出概率最大的对应的单词作为我们的预测输出。</strong></p>
 <p>借助 pytorch 的代码实现：</p>
 <pre class=" language-python"><code class="language-python"><span class="token keyword">import</span> torch
 <span class="token keyword">import</span> torch<span class="token punctuation">.</span>nn <span class="token keyword">as</span> nn
