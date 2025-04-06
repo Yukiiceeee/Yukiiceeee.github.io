@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="【学习】手搓Transformer：Encoder &amp; Dencoder, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="keywords" content="【学习】手搓Transformer：Conbination, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
     <meta name="description" content="回想起上次仔细看transformer还是上次，现在遗忘得又有点多了，干脆从原理到代码重新过一遍，于是就有了这篇博客~">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>【学习】手搓Transformer：Encoder &amp; Dencoder | Yuki&#39;s Blog</title>
+    <title>【学习】手搓Transformer：Conbination | Yuki&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -339,7 +339,7 @@
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">【学习】手搓Transformer：Encoder &amp; Dencoder</h1>
+                    <h1 class="description center-align post-title">【学习】手搓Transformer：Conbination</h1>
                 </div>
             </div>
         </div>
@@ -388,7 +388,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2024-12-26
+                    2024-12-27
                 </div>
                 
 
@@ -397,7 +397,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.2k
+                    1.1k
                 </div>
                 
 
@@ -414,37 +414,37 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="手搓Transformer：Encoder-Decoder"><a href="#手搓Transformer：Encoder-Decoder" class="headerlink" title="手搓Transformer：Encoder &amp; Decoder"></a>手搓Transformer：Encoder &amp; Decoder</h2><hr>
+                <h2 id="手搓Transformer：Conbination-Transformer-Layers"><a href="#手搓Transformer：Conbination-Transformer-Layers" class="headerlink" title="手搓Transformer：Conbination Transformer Layers"></a>手搓Transformer：Conbination Transformer Layers</h2><hr>
 <blockquote>
 <p>《Attention Is All You Need》里的Transformer架构</p>
 </blockquote>
 <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1741076487595.jpg?imageSlim" alt="Transformer" style="zoom:55%;" />
 
-<h4 id="1-Encoder"><a href="#1-Encoder" class="headerlink" title="1. Encoder"></a>1. Encoder</h4><p>Encoder Layer 由一个多头注意力层和一个前馈网络层组成。输入的嵌入向量经过多头注意力机制捕获语义特征长距离依赖，然后经过一层残差连接+归一化，通过前馈网络层映射到高维空间捕获多维特征，最后再次残差连接+归一化输出。</p>
-<p>分析一下 Encoder 部分的张量变化：</p>
-<p><strong>【Embedding】</strong></p>
-<ul>
-<li>输入张量形状：[batch_size, seq_length]</li>
-<li>Embedding 变换后：[batch_size, seq_length, d_model]</li>
+<p>之前已经写好了 transformer 的各个模块，这里最后合并一下各个组件，组合成最后的 transformer layer！</p>
+<h4 id="init-参数说明"><a href="#init-参数说明" class="headerlink" title="__init__() 参数说明"></a>__init__() 参数说明</h4><ul>
+<li>src_pad_idx：源序列表示 padding 的 idx</li>
+<li>tgt_pad_idx：目标序列表示 padding 的 idx</li>
+<li>src_voc_size：源语言词汇表大小</li>
+<li>tgt_voc_size：目标语言词汇表大小</li>
+<li>max_len：序列最大长度</li>
+<li>d_model：词嵌入维度</li>
+<li>hidden_dim：前馈神经网络隐藏层维度</li>
+<li>num_heads：多头注意力的头数</li>
+<li>num_layers：编码器和解码器的层数</li>
+<li>dropout&#x3D;0.1：dropout比率</li>
+<li>device&#x3D;None：使用设备</li>
 </ul>
-<p><strong>【Multi-Attention】</strong></p>
-<ul>
-<li>将输入分为 num_heads 个头，Q、K、V 矩阵形状：[batch_size, seq_length, d_model &#x2F; num_heads]</li>
-<li>注意力计算后合并注意力：[batch_size, seq_length, d_model]</li>
-</ul>
-<p><strong>【Add &amp; Norm】</strong></p>
-<ul>
-<li><p>将注意力输出与原始输入相加通过归一化层，计算残差损失</p>
-</li>
-<li><p>输出形状保持：[batch_size, seq_length, d_model]</p>
-</li>
-</ul>
-<p><strong>【FFN】</strong></p>
-<ul>
-<li>线性映射到高维(hidden_dim) + ReLU激活 + 线性映射回低维(d_model)</li>
-</ul>
-<p>最终输出：[batch_size, seq_length, d_model]，也就是和 Embedding 变换后的维度对齐。</p>
-<p>借助 pytorch 的代码实现：</p>
+<h4 id="掩码mask预处理"><a href="#掩码mask预处理" class="headerlink" title="掩码mask预处理"></a>掩码mask预处理</h4><p>我们知道，在 Encoder 和 Decoder 里，mask 操作是必须的一环。mask 种类有两种，一种是处理填充序列的 padding mask，一种是处理因果序列的 casual mask，其中 padding mask 在编码器-解码器的 self-attention 和 cross-attention 里都会用到，而 casual mask 则用于解码器的 self-attention 部分。</p>
+<p>casual mask 的定义：对于每个序列，我们通过定义一个对应的下三角矩阵作为 mask。在计算序列第n个词的 attention score 的时候，只有前 n-1 个 token 参与计算。</p>
+<p>padding mask 的定义：二值矩阵，等于 pad_idx 的部分记为 0，不等于的部分记为 1.</p>
+<p>需要注意的是，mask 的掩码操作在注意力矩阵应用 softmax 操作之前。这个流程是：</p>
+<ol>
+<li>Q 查询矩阵与 K 键矩阵转置相乘，[batch_size, num_heads, seq_q, d_k] 与 [batch_size, num_heads, d_k, seq_k] 相乘，得到的矩阵形状为 [batch_size, num_heads, seq_q, seq_k]</li>
+<li>除以根号 d 进行缩放操作</li>
+<li>接下来在注意力分数矩阵上应用掩码，因此 mask 的形状须是一个四维矩阵。在生成 pad_mask 的时候，我们首先用源序列和目标序列创建基础 mask，q_mask &#x3D; (q !&#x3D; pad_idx)，k_mask &#x3D; (k !&#x3D; pad_idx)，shape 为 [batch_size, seq_q &#x2F; seq_k]，接下来拓展维度使其与查询矩阵与键矩阵相匹配，最后将 q_mask &amp; k_mask，得到的最终 mask 为 [batch_size, 1, seq_q, seq_k]，最后应用掩码时通过广播机制匹配到所有注意力头上。对于 casual_mask，创建 [seq_q, seq_k] 形状的下三角矩阵，然后拓展维度与 pad_mask 按元素乘，得到最终的 mask</li>
+<li>softmax 操作</li>
+</ol>
+<h4 id="forward"><a href="#forward" class="headerlink" title="forward"></a>forward</h4><p>Encoder 只需要传递源序列，Decoder 需要传递 encoder 计算的结果与目的序列（做 cross-attention），在前向过程中，先通过 encoder 计算出每一层 Encoder Layer 对于源序列的输出，然后将每一层的编码器输出传递给每一层的解码器，解码器在进行计算，得到最终的解码输出。</p>
 <pre class=" language-python"><code class="language-python"><span class="token keyword">import</span> torch
 <span class="token keyword">import</span> torch<span class="token punctuation">.</span>nn <span class="token keyword">as</span> nn
 <span class="token keyword">import</span> torch<span class="token punctuation">.</span>optim <span class="token keyword">as</span> optim
@@ -458,118 +458,49 @@
 <span class="token keyword">import</span> multi_attention
 <span class="token keyword">import</span> layernorm
 <span class="token keyword">import</span> embedding
+<span class="token keyword">import</span> encoder
+<span class="token keyword">import</span> decoder
 
-<span class="token keyword">class</span> <span class="token class-name">PositionwiseFeedForward</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> dropout<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-        super<span class="token punctuation">(</span>PositionwiseFeedForward<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>fc1 <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>fc2 <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>hidden_dim<span class="token punctuation">,</span> d_model<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>dropout <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>dropout<span class="token punctuation">)</span>
+<span class="token keyword">class</span> <span class="token class-name">Transformer</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment" spellcheck="true"># src_pad_idx: 源序列的填充索引</span>
+    <span class="token comment" spellcheck="true"># tgt_pad_idx: 目标序列的填充索引</span>
+    <span class="token comment" spellcheck="true"># 填充索引是单个数值，在词表中用来表示填充符号padding token的索引值，通常设为0或-1</span>
+    <span class="token comment" spellcheck="true"># src_voc_size: 源序列的词汇表大小</span>
+    <span class="token comment" spellcheck="true"># tgt_voc_size: 目标序列的词汇表大小</span>
+    <span class="token comment" spellcheck="true"># max_len: 序列的最大长度</span>
+    <span class="token comment" spellcheck="true"># d_model: 词嵌入的维度</span>
 
-    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>fc1<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> F<span class="token punctuation">.</span>relu<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>dropout<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>fc2<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        <span class="token keyword">return</span> x
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> src_pad_idx<span class="token punctuation">,</span> tgt_pad_idx<span class="token punctuation">,</span> src_voc_size<span class="token punctuation">,</span> tgt_voc_size<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> num_layers<span class="token punctuation">,</span> dropout<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">,</span> device<span class="token operator">=</span>None<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        super<span class="token punctuation">(</span>Transformer<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>encoder <span class="token operator">=</span> encoder<span class="token punctuation">.</span>Encoder<span class="token punctuation">(</span>src_voc_size<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> num_layers<span class="token punctuation">,</span> dropout<span class="token punctuation">,</span> device<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>decoder <span class="token operator">=</span> decoder<span class="token punctuation">.</span>Decoder<span class="token punctuation">(</span>tgt_voc_size<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> num_layers<span class="token punctuation">,</span> dropout<span class="token punctuation">,</span> device<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>src_pad_idx <span class="token operator">=</span> src_pad_idx
+        self<span class="token punctuation">.</span>tgt_pad_idx <span class="token operator">=</span> tgt_pad_idx
+        self<span class="token punctuation">.</span>device <span class="token operator">=</span> device
+
+    <span class="token keyword">def</span> <span class="token function">make_pad_mask</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> q<span class="token punctuation">,</span> k<span class="token punctuation">,</span> pad_idx_q<span class="token punctuation">,</span> pad_idx_k<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        len_q<span class="token punctuation">,</span> len_k <span class="token operator">=</span> q<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> k<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 先用ne()操作转换为二值矩阵，然后通过unsqueeze()操作在q的维度上扩展维度</span>
+        <span class="token comment" spellcheck="true"># 最后通过repeat()操作将q的维度扩展为(batch_size, 1, len_q, len_k)</span>
+        <span class="token comment" spellcheck="true"># 这个操作是为了将mask矩阵的维度和score分数矩阵的维度对齐</span>
+        q <span class="token operator">=</span> q<span class="token punctuation">.</span>ne<span class="token punctuation">(</span>pad_idx_q<span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span>
+        q <span class="token operator">=</span> q<span class="token punctuation">.</span>repeat<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> len_k<span class="token punctuation">)</span>
+        k <span class="token operator">=</span> k<span class="token punctuation">.</span>ne<span class="token punctuation">(</span>pad_idx_k<span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>unsqueeze<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span>
+        k <span class="token operator">=</span> k<span class="token punctuation">.</span>repeat<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> len_q<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+        mask <span class="token operator">=</span> q <span class="token operator">&amp;</span> k
+        <span class="token keyword">return</span> mask
     
-<span class="token keyword">class</span> <span class="token class-name">EncoderLayer</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> dropout<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-        super<span class="token punctuation">(</span>EncoderLayer<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>attn <span class="token operator">=</span> multi_attention<span class="token punctuation">.</span>MultiHeadAttention<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> num_heads<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>norm1 <span class="token operator">=</span> layernorm<span class="token punctuation">.</span>LayerNorm<span class="token punctuation">(</span>d_model<span class="token punctuation">)</span>
-        self<span class="token punctuation">,</span>dropout1 <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>dropout<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>ffn <span class="token operator">=</span> PositionwiseFeedForward<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> dropout<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>norm2 <span class="token operator">=</span> layernorm<span class="token punctuation">.</span>LayerNorm<span class="token punctuation">(</span>d_model<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>dropout2 <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>dropout<span class="token punctuation">)</span>
-
-    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">,</span> mask<span class="token operator">=</span>None<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        _x <span class="token operator">=</span> x
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>attn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> x<span class="token punctuation">,</span> x<span class="token punctuation">,</span> mask<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>dropout1<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        <span class="token comment" spellcheck="true"># 残差连接</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>norm1<span class="token punctuation">(</span>x <span class="token operator">+</span> _x<span class="token punctuation">)</span>
-        _x <span class="token operator">=</span> x
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>ffn<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>dropout2<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>norm2<span class="token punctuation">(</span>x <span class="token operator">+</span> _x<span class="token punctuation">)</span>
-        <span class="token keyword">return</span> x
+    <span class="token keyword">def</span> <span class="token function">make_casual_mask</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> q<span class="token punctuation">,</span> k<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        mask <span class="token operator">=</span> torch<span class="token punctuation">.</span>tril<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span>q<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> k<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>type<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>BoolTensor<span class="token punctuation">)</span><span class="token punctuation">.</span>to<span class="token punctuation">(</span>self<span class="token punctuation">.</span>device<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> mask
     
-<span class="token keyword">class</span> <span class="token class-name">Encoder</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> voc_size<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> num_layers<span class="token punctuation">,</span> dropout<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">,</span> device<span class="token operator">=</span>None<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        super<span class="token punctuation">(</span>Encoder<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>embed <span class="token operator">=</span> embedding<span class="token punctuation">.</span>Embedding<span class="token punctuation">(</span>voc_size<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> dropout<span class="token punctuation">,</span> device<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>layers <span class="token operator">=</span> nn<span class="token punctuation">.</span>ModuleList<span class="token punctuation">(</span><span class="token punctuation">[</span>EncoderLayer<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> dropout<span class="token punctuation">)</span> <span class="token keyword">for</span> _ <span class="token keyword">in</span> range<span class="token punctuation">(</span>num_layers<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
-
-    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">,</span> mask<span class="token operator">=</span>None<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>embed<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        <span class="token keyword">for</span> layer <span class="token keyword">in</span> self<span class="token punctuation">.</span>layers<span class="token punctuation">:</span>
-            x <span class="token operator">=</span> layer<span class="token punctuation">(</span>x<span class="token punctuation">,</span> mask<span class="token punctuation">)</span>
-        <span class="token keyword">return</span> x
-</code></pre>
-<h4 id="2-Decoder"><a href="#2-Decoder" class="headerlink" title="2. Decoder"></a>2. Decoder</h4><p>解码器包含<strong>自注意力与交叉注意力两部分。</strong></p>
-<p>编码器的输出被用作交叉注意力部分的 K 和 V 矩阵（键值向量），Q 矩阵（查询向量）则是自注意力层的输出。交叉注意力层会对编码结果进行注意力调整，计算编码结果与解码输入间的注意关系，以获得与当前解码位置相关的编码器信息。</p>
-<p>在 Multi-Attention 里我们可以看到注意力分数可以应用对应的 mask，mask 矩阵对应值为0的部分，在注意力矩阵将其值设定为无穷小。这样在 Softmax 操作后，这些部分对应的注意力分数就变为0，不被注意到。</p>
-<p>在 Encoder 里面我们只有 **padding mask (s_mask)**，用来标识输入序列的最大长度，不够最大长度的部分补0。而在 Decoder 里还存在一种 mask，也就是 **sequence mask (t_mask)**，用于解码器的自注意力层，确保预测第 i 个位置的token时只能看到位置 i 之前的信息。</p>
-<p>前馈网络层和编码器实现一致。每一层后面都添加一层 Add&amp;Norm 与 dropout。</p>
-<p>最终输出经过一层线性变换，然后Softmax得到输出的概率分布（softmax层会把向量变成概率），然后通过词典，<strong>输出概率最大的对应的单词作为我们的预测输出。</strong></p>
-<p>借助 pytorch 的代码实现：</p>
-<pre class=" language-python"><code class="language-python"><span class="token keyword">import</span> torch
-<span class="token keyword">import</span> torch<span class="token punctuation">.</span>nn <span class="token keyword">as</span> nn
-<span class="token keyword">import</span> torch<span class="token punctuation">.</span>optim <span class="token keyword">as</span> optim
-<span class="token keyword">import</span> torch<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>data <span class="token keyword">as</span> data
-<span class="token keyword">import</span> torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>functional <span class="token keyword">as</span> F
-<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
-<span class="token keyword">import</span> random
-<span class="token keyword">import</span> math
-<span class="token keyword">from</span> torch <span class="token keyword">import</span> Tensor
-<span class="token keyword">import</span> os
-<span class="token keyword">import</span> multi_attention
-<span class="token keyword">import</span> layernorm
-<span class="token keyword">import</span> embedding
-
-<span class="token keyword">class</span> <span class="token class-name">DecoderLayer</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> ffn_hidden<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> dropout<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-        super<span class="token punctuation">(</span>DecoderLayer<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>attn1 <span class="token operator">=</span> multi_attention<span class="token punctuation">.</span>MultiHeadAttention<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> num_heads<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>norm1 <span class="token operator">=</span> layernorm<span class="token punctuation">.</span>LayerNorm<span class="token punctuation">(</span>d_model<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>dropout1 <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>dropout<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>cross_attn <span class="token operator">=</span> multi_attention<span class="token punctuation">.</span>MultiHeadAttention<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> num_heads<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>norm2 <span class="token operator">=</span> layernorm<span class="token punctuation">.</span>LayerNorm<span class="token punctuation">(</span>d_model<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>dropout2 <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>dropout<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>ffn <span class="token operator">=</span> embedding<span class="token punctuation">.</span>PositionwiseFeedForward<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> ffn_hidden<span class="token punctuation">,</span> dropout<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>norm3 <span class="token operator">=</span> layernorm<span class="token punctuation">.</span>LayerNorm<span class="token punctuation">(</span>d_model<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>dropout3 <span class="token operator">=</span> nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span>dropout<span class="token punctuation">)</span>
-
-    <span class="token comment" spellcheck="true"># t_mask是目标序列的掩码，s_mask是源序列的掩码</span>
-    <span class="token comment" spellcheck="true"># enc是编码器输出，dec是解码器输出</span>
-    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> dec<span class="token punctuation">,</span> enc<span class="token punctuation">,</span> t_mask<span class="token punctuation">,</span> s_mask<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        _x <span class="token operator">=</span> dec
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>attn1<span class="token punctuation">(</span>_x<span class="token punctuation">,</span> _x<span class="token punctuation">,</span> _x<span class="token punctuation">,</span> t_mask<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>dropout1<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>norm1<span class="token punctuation">(</span>x <span class="token operator">+</span> _x<span class="token punctuation">)</span>
-        _x <span class="token operator">=</span> x
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>cross_attn<span class="token punctuation">(</span>x<span class="token punctuation">,</span> enc<span class="token punctuation">,</span> enc<span class="token punctuation">,</span> s_mask<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>dropout2<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>norm2<span class="token punctuation">(</span>x <span class="token operator">+</span> _x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>ffn<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>dropout3<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
-        x <span class="token operator">=</span> self<span class="token punctuation">.</span>norm3<span class="token punctuation">(</span>x <span class="token operator">+</span> _x<span class="token punctuation">)</span>
-        <span class="token keyword">return</span> x
-    
-<span class="token keyword">class</span> <span class="token class-name">Decoder</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> dec_voc_size<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> num_layers<span class="token punctuation">,</span> dropout<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">,</span> device<span class="token operator">=</span>None<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        super<span class="token punctuation">(</span>Decoder<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>embed <span class="token operator">=</span> embedding<span class="token punctuation">.</span>TransformerEmbedding<span class="token punctuation">(</span>dec_voc_size<span class="token punctuation">,</span> d_model<span class="token punctuation">,</span> max_len<span class="token punctuation">,</span> dropout<span class="token punctuation">,</span> device<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>layers <span class="token operator">=</span> nn<span class="token punctuation">.</span>ModuleList<span class="token punctuation">(</span><span class="token punctuation">[</span>DecoderLayer<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> hidden_dim<span class="token punctuation">,</span> num_heads<span class="token punctuation">,</span> dropout<span class="token punctuation">)</span> <span class="token keyword">for</span> _ <span class="token keyword">in</span> range<span class="token punctuation">(</span>num_layers<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>fc <span class="token operator">=</span> nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span>d_model<span class="token punctuation">,</span> dec_voc_size<span class="token punctuation">)</span>
-    
-    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> dec<span class="token punctuation">,</span> enc<span class="token punctuation">,</span> t_mask<span class="token punctuation">,</span> s_mask<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        dec <span class="token operator">=</span> self<span class="token punctuation">.</span>embed<span class="token punctuation">(</span>dec<span class="token punctuation">)</span>
-        <span class="token keyword">for</span> layer <span class="token keyword">in</span> self<span class="token punctuation">.</span>layers<span class="token punctuation">:</span>
-            dec <span class="token operator">=</span> layer<span class="token punctuation">(</span>dec<span class="token punctuation">,</span> enc<span class="token punctuation">,</span> t_mask<span class="token punctuation">,</span> s_mask<span class="token punctuation">)</span>
-        <span class="token keyword">return</span> self<span class="token punctuation">.</span>fc<span class="token punctuation">(</span>dec<span class="token punctuation">)</span>
-        
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> src<span class="token punctuation">,</span> tgt<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        src_mask <span class="token operator">=</span> self<span class="token punctuation">.</span>make_pad_mask<span class="token punctuation">(</span>src<span class="token punctuation">,</span> src<span class="token punctuation">,</span> self<span class="token punctuation">.</span>src_pad_idx<span class="token punctuation">,</span> self<span class="token punctuation">.</span>src_pad_idx<span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true"># 注意*是按元素乘，相当于把两种mask的作用效果叠加了</span>
+        tgt_mask <span class="token operator">=</span> self<span class="token punctuation">.</span>make_pad_mask<span class="token punctuation">(</span>tgt<span class="token punctuation">,</span> tgt<span class="token punctuation">,</span> self<span class="token punctuation">.</span>tgt_pad_idx<span class="token punctuation">,</span> self<span class="token punctuation">.</span>tgt_pad_idx<span class="token punctuation">)</span><span class="token operator">*</span>self<span class="token punctuation">.</span>make_casual_mask<span class="token punctuation">(</span>tgt<span class="token punctuation">,</span> tgt<span class="token punctuation">)</span>
+        enc <span class="token operator">=</span> self<span class="token punctuation">.</span>encoder<span class="token punctuation">(</span>src<span class="token punctuation">,</span> src_mask<span class="token punctuation">)</span>
+        dec <span class="token operator">=</span> self<span class="token punctuation">.</span>decoder<span class="token punctuation">(</span>tgt<span class="token punctuation">,</span> enc<span class="token punctuation">,</span> tgt_mask<span class="token punctuation">,</span> src_mask<span class="token punctuation">)</span>
+        <span class="token keyword">return</span> dec
 </code></pre>
 
                 
@@ -597,7 +528,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://yukiiceeee.github.io/2024/12/26/xue-xi-transformer-yuan-li-san/">https://yukiiceeee.github.io/2024/12/26/xue-xi-transformer-yuan-li-san/</a>
+                    <a href="https://yukiiceeee.github.io/2024/12/27/xue-xi-transformer-yuan-li-si/">https://yukiiceeee.github.io/2024/12/27/xue-xi-transformer-yuan-li-si/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -719,23 +650,23 @@
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2024/12/27/xue-xi-transformer-yuan-li-si/">
+                <a href="/2025/01/05/xue-xi-deepseekmoe/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/128135299_p6.jpg?imageSlim" class="responsive-img" alt="【学习】手搓Transformer：Conbination">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1740238897859.jpg?imageSlim" class="responsive-img" alt="【学习】DeepSeekMoE：我们需要更多Experts！">
                         
-                        <span class="card-title">【学习】手搓Transformer：Conbination</span>
+                        <span class="card-title">【学习】DeepSeekMoE：我们需要更多Experts！</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            回想起上次仔细看transformer还是上次，现在遗忘得又有点多了，干脆从原理到代码重新过一遍，于是就有了这篇博客~
+                            将MOE的专家数进一步分割细化，增设共享专家，预训练模型的工作。话说今年DeepSeek真火哇
                         
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2024-12-27
+                            <i class="far fa-clock fa-fw icon-date"></i>2025-01-05
                         </span>
                         <span class="publish-author">
                             
@@ -767,12 +698,12 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2024/12/25/xue-xi-transformer-yuan-li-er/">
+                <a href="/2024/12/26/xue-xi-transformer-yuan-li-san/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/128135299_p5.jpg?imageSlim" class="responsive-img" alt="【学习】手搓Transformer：Multi-Attention">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/128135299_p6.jpg?imageSlim" class="responsive-img" alt="【学习】手搓Transformer：Encoder &amp; Dencoder">
                         
-                        <span class="card-title">【学习】手搓Transformer：Multi-Attention</span>
+                        <span class="card-title">【学习】手搓Transformer：Encoder &amp; Dencoder</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -783,7 +714,7 @@
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2024-12-25
+                                <i class="far fa-clock fa-fw icon-date"></i>2024-12-26
                             </span>
                         <span class="publish-author">
                             
