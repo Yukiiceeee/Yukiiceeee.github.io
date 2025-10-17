@@ -4,8 +4,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="LoRA微调原理, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
-    <meta name="description" content="学习了LoRA微调大模型的算法原理，阅读原论文并整理学习知识。">
+    <meta name="keywords" content="A-Mem：Agentic Memory for LLM Agents：记忆动态更新的 Agent 记忆系统, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="description" content="论文提出了一种名为 A-MEM 的适用于 Agent 的主动式记忆系统，通过构建笔记、链接生成、记忆进化三个环节，来尝试解决现有 LLM 代理记忆系统结构僵化、适应性不足的问题。">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>LoRA微调原理 | Cyan&#39;s Blog</title>
+    <title>A-Mem：Agentic Memory for LLM Agents：记忆动态更新的 Agent 记忆系统 | Cyan&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -334,12 +334,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%9B%BE%E7%89%871.png?imageSlim')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529084952905.png?imageSlim')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">LoRA微调原理</h1>
+                    <h1 class="description center-align post-title">A-Mem：Agentic Memory for LLM Agents：记忆动态更新的 Agent 记忆系统</h1>
                 </div>
             </div>
         </div>
@@ -363,8 +363,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
-                                <span class="chip bg-color">学习笔记</span>
+                            <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+                                <span class="chip bg-color">论文笔记</span>
                             </a>
                         
                     </div>
@@ -379,7 +379,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2024-05-07
+                    2025-10-10
                 </div>
                 
 
@@ -388,7 +388,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.1k
+                    2.2k
                 </div>
                 
 
@@ -405,63 +405,102 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="Lora-微调原理"><a href="#Lora-微调原理" class="headerlink" title="Lora 微调原理"></a>Lora 微调原理</h2><blockquote>
-<p>大语言模型微调算法</p>
-</blockquote>
-<hr>
-<p><strong>基本原理：</strong>低秩矩阵相乘升维，与预训练权重矩阵叠加，实现模型微调</p>
-<p><strong>原理简述：</strong>冻结预训练的模型参数，然后在Transfomer的每一层中加入一个可训练的旁路矩阵（低秩可分离矩阵），接着将旁路输出与初始路径输出相加输入到网络当中。在训练的时候，只训练这些新增的低秩矩阵的参数。其中低秩矩阵由两个矩阵组成，第一个矩阵负责降维，第二个矩阵负责升维，中间层维度为r，两个低秩矩阵能够大幅度减小参数量。</p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508103941588.png" alt="image-20240508103941588"></p>
-<p><strong>原理解释：</strong></p>
-<p>输入为<code>x</code>，输出为<code>h</code>，预训练模型：</p>
-<p>$h&#x3D;W_{0}x$</p>
-<p>在全参数量上微调（regular finetuning）：</p>
-<p>$h&#x3D;W_{0}x+△Wx$</p>
-<p>如果采用低秩可分离矩阵（LoRA），则：<br>$$h&#x3D;W_{0}x+△Wx&#x3D;W_{0}x+BAx $$</p>
-<p>在这个过程中，最核心的步骤便是将 $△W$ 进行分解，将其分解为两个低秩矩阵。如果只使用单独的一个矩阵，那么参数量为 $$d<em>d$$，如果使用低秩可分离矩阵，此时原来的大矩阵可分解为两个秩为 $r$ 的大小为 $$d</em>r$$ 的小矩阵，参数量大小为 ，由于 $$r&lt;d$$ 所以可以大幅度减少参数量。</p>
-<p>即：*<em>A矩阵采用一个 $$d</em>r$$ 矩阵，B矩阵采用一个 $$r<em>d$$ 矩阵，总参数量 $$2r</em>d$$ **</p>
-<p><strong>公式推导：</strong></p>
-<p>LoRA 作用形式：$W&#x3D;W_{plm}+aW_{lora}&#x3D;W_{plm}+aB_{lora_{zeros}}*A_{lora_{gaussian}}$</p>
-<p>论文中，将 LoRA 作用在 Query 与 Value 权重矩阵上效果最好：</p>
-<p><code>attention query</code> 映射矩阵：$W_{q}&#x3D;W_{q_{plm}}+aW_{q_{lora}}$</p>
-<p><code>attention value</code> 映射矩阵：$W_{v}&#x3D;W_{v_{plm}}+aW_{v_{lora}}$</p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508141215200.png" alt="image-20240508141215200"></p>
-<p><code>Attention</code> 计算结果：</p>
-<p>$head&#x3D;softmax(Q,K)XW&#x3D;softmax(Q,K)X(W_{v_{plm}}+aX<em>W_{v_{lora}})&#x3D;softmax(Q,K)XW_{v_{plm}}+a</em>softmax(Q,K)XW_{v_{lora}}$</p>
-<hr>
-<p><strong>低秩分解：</strong></p>
-<p>· 如何实现低秩分解？</p>
-<p>低秩分解是一种将矩阵分解为低秩近似的技术。在LORA中，我们使用低秩矩阵来编码参数增量。假设我们有一个预训练的权重矩阵，它的维度是高的。我们可以将<strong>这个矩阵分解为两个低秩矩阵的乘积</strong>，例如：$$W&#x3D; UV^T$$其中U 和V是低秩矩阵。</p>
-<pre class=" language-text"><code class="language-text">##矩阵中，row2 = row1 * 2，row3 = row1*3，也就是说，矩阵中的每一行，都可以通过第一行线性表示。
-A = [[1, 2, 3],[2, 4, 6],[3, 6, 9]]
-#任意一行，总可以用其他两行的线性组合来表示。
-B = [[1, 2, 3],   [7, 11, 5],[8, 13, 8]]
-#任意一行，都不能从其余行的线性组合中推导而来。
-C = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
-
-#求解秩：
-A = np.array(A)
-B = np.array(B)
-C = np.array(C)
- 
-print("Rank of A:", np.linalg.matrix_rank(A)) # 1
-print("Rank of B:", np.linalg.matrix_rank(B)) # 2
-print("Rank of C:", np.linalg.matrix_rank(C)) # 3
-
-# 对矩阵A来说，由于只要掌握其中的任意一行，其余行都可以由这一行线性推导而来，因此A的秩是1。
-# 对矩阵B来说，由于只要掌握其中的任意两行，其余行都可以由这两行线性组合推导而来，因此B的秩是2。
-# 对矩阵C来说，由于必须完全掌握三行，才能得到完整的C，因此C的秩是3。
-# 简单理解一下，秩表示的是矩阵的信息量。
-#如果矩阵中的某一维，总可以通过其余维度线性推导而来，那么对模型来说，
-#这一维的信息是冗余的，是重复表达的。
-#对A和B的情况，我们称为秩亏（rank deficient），
-#对C的情况，我们称为满秩（full rank）。
-</code></pre>
-<p>· 对A矩阵，采用随机高斯初始化；对B矩阵，采用zero初始化。这样做的原因是要<strong>保证梯度更新有效。</strong></p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508142401355.png" alt="image-20240508142401355"></p>
-<p>$ℎ_{𝑖}^{(2)}$ 是输出向量 $h$ 的第 $i$ 个元素，$B_{i,k}$ 是矩阵 $B$ 的元素，$A_{i,k}$ 是矩阵 $A$ 的元素，而 $x_{j}$ 是输入向量 $x$ 的第 $j$ 个元素。</p>
-<p>计算权重 $B$ 中元素 $B_{i,k}$ 的偏导数来进行梯度下降。固定 $i$ 和 $k$，对所有的 $j$ 进行求和，将 $A$ 的对应元素与输入向量的元素相乘并累加。</p>
-<p>$B_{i,k}$ 的每个更新都是由 $x$ 和 $A$ 的对应元素的乘积影响的，故而对A矩阵，采用随机高斯初始化；对B矩阵，采用zero初始化。</p>
+                <h1 id="A-Mem：Agentic-Memory-for-LLM-Agents"><a href="#A-Mem：Agentic-Memory-for-LLM-Agents" class="headerlink" title="A-Mem：Agentic Memory for LLM Agents"></a>A-Mem：Agentic Memory for LLM Agents</h1><p>原文链接：<a target="_blank" rel="noopener" href="http://example.com/" title="Title">https://arxiv.org/abs/2502.12110</a></p>
+<p>论文主要提出了一种名为 A-MEM 的适用于 Agent 的主动式记忆系统，来尝试解决现有 LLM 代理记忆系统<strong>结构僵化、适应性不足</strong>的问题。</p>
+<h3 id="Background-Motivation"><a href="#Background-Motivation" class="headerlink" title="Background &amp; Motivation"></a>Background &amp; Motivation</h3><p>我们知道，Agent 的记忆一般分为短期记忆和长期记忆，短期记忆可通过维护上下文窗口提供，而<strong>长期记忆往往需要维护一个记忆存储库</strong>，在每次交互时对存储库里的记忆进行写入与调用。</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011220615.png" alt="Alt pic"></p>
+<p>传统记忆系统一般会<strong>预定义存储结构、存储点、记忆关联。</strong> 例如，记忆存储格式固定为数据库 Table 结构或 Json 模版；硬性规定在特定对话轮次或步骤写入记忆；记忆之间彼此孤立或硬性定义其关联。这种记忆系统交互是线性且固定的，缺乏自主性，体现出如下缺陷：</p>
+<ul>
+<li><strong>灵活性差：</strong> 在更复杂开放的一些场景下，预定义的知识模式可能不能很好地匹配现有需求。</li>
+<li><strong>长期交互效果不佳：</strong> 记忆孤立且静态，新记忆难以与旧记忆产生联系，也无法更新记忆，模型难以在长期对话中维持深入推理。</li>
+<li><strong>知识组织僵化：</strong> 如论文所述，当代理学习到一个新数学解法时，无法主动创建新的组织模式，或发现新联系。</li>
+</ul>
+<p>因此，A-Mem 针对上述问题改进，灵感基于 Zettelkasten 方法（使用原子笔记和灵活的链接机制，可以创建相互连接的信息网络），设计了一个具备自主性（<strong>能够自主建立记忆联系并更新记忆</strong>）的记忆系统。</p>
+<p>Zettelkasten 方法是一种知识管理系统，由德国社会学家 Niklas Luhmann 提出。它通过创建相互连接的笔记网络来组织知识，每张笔记（Zettel）包含一个独立的想法，并通过链接与其他相关的笔记连接起来。</p>
+<h3 id="Related-Works-Comparison"><a href="#Related-Works-Comparison" class="headerlink" title="Related Works Comparison"></a>Related Works Comparison</h3><table>
+<thead>
+<tr>
+<th><strong>Method</strong></th>
+<th><strong>Core Mechanism</strong></th>
+<th><strong>Limit</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MemGPT</td>
+<td>类 OS 系统的内存分层</td>
+<td>固定大小的上下文窗口</td>
+</tr>
+<tr>
+<td>MemoryBank</td>
+<td>基于遗忘曲线进行动态更新</td>
+<td>缺乏跨记忆的语义关联</td>
+</tr>
+<tr>
+<td>Agentic RAG</td>
+<td>系统自主检索增强</td>
+<td>知识库静态，不可更新</td>
+</tr>
+<tr>
+<td>A-MEM</td>
+<td>动态链接 + 自主进化</td>
+<td>上下文表征可能不够丰富</td>
+</tr>
+</tbody></table>
+<h3 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h3><p>A-Mem的核心是一个动态、自演进的内存网络。每当代理有一次新交互，系统会执行三步操作：</p>
+<ol>
+<li><strong>笔记构建</strong>：将原始交互转化为结构化的记忆笔记；</li>
+<li><strong>链接生成</strong>：自动寻找与已有记忆的关联并建立链接；</li>
+<li><strong>记忆进化</strong>：根据新记忆更新相关旧记忆的上下文或标签。</li>
+</ol>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011220549.png" alt="Alt pic"></p>
+<h4 id="原子笔记构建"><a href="#原子笔记构建" class="headerlink" title="原子笔记构建"></a>原子笔记构建</h4><p>对于每一个记忆单元可以表示为：$m_{i}&#x3D;{c_{i}, t_{i}, K_{i}, G_{i}, X_{i}, e_{i}, L_{i}}$</p>
+<ul>
+<li>$m_{i}$ ：第 i 个记忆笔记。</li>
+<li>$c_{i}$ ：原始交互内容（content），例如对话文本、观察到的事件等。</li>
+<li>$t_{i}$ ：时间戳（timestamp），记录记忆发生的时间。</li>
+<li>$K_{i}$ ：LLM 生成的关键词（keywords），用于捕捉记忆的关键概念。</li>
+<li>$G_{i}$ ：LLM 生成的标签（tags），用于对记忆进行分类。</li>
+<li>$X_{i}$ ：LLM 生成的上下文描述（contextual description），提供丰富的语义理解。包含隐含语义，如「该解法与拓扑学存在潜在联系」。</li>
+<li>$e_{i}$ : 嵌入向量（embedding），用于相似度计算和检索。</li>
+<li>$L_{i}$ ：链接记忆集合（linked memories），包含与当前记忆相关的其他记忆。</li>
+</ul>
+<p>这种做法有什么好处呢？</p>
+<p>传统方法的记忆结构（如数据库表或JSON字段）是固定的，并且内容通常直接来自原始交互数据（例如，直接存储用户消息和模型响应），缺乏语义增强。存储什么、如何存储完全由预定义规则决定。</p>
+<p>而 A-Mem 的每个记忆笔记中的关键词（Ki）、标签（Gi​）和上下文描述（Xi）都是由LLM在每次交互后动态生成的。这意味着即使结构模板固定，但其内容是根据当前交互的语义灵活生成的，从而适应不同任务和语境。</p>
+<h4 id="链接生成"><a href="#链接生成" class="headerlink" title="链接生成"></a>链接生成</h4><p>首先通过余弦相似度初步筛选 Top-K 候选记忆单元：$[ s_{n,j} &#x3D; \frac{e_n \cdot e_j}{|e_n||e_j|} ]$</p>
+<p>接下来，借助 LLM 来分析候选记忆的深层关系，并建立连接：</p>
+<p>$L_{i} ← LLM(m_{n}||M_{near}^{n}||P_{s2})$</p>
+<p>这里 $P_{s2}$ 是预定义的提示词模版，通过 LLM 来生成链接关联。</p>
+<h4 id="记忆更新"><a href="#记忆更新" class="headerlink" title="记忆更新"></a>记忆更新</h4><p>新记忆 $m_{n}$ 的进入会触发历史记忆的更新，更新公式为：</p>
+<p>$m_{j}^{*} ← LLM(m_{n} || M_{near}^{n} \ m_{j} || m_{j} || P_{s3})$</p>
+<p>例如，当学习「量子退火」后，系统自动将历史记忆「模拟退火算法」的标签更新为「优化算法→量子计算」。</p>
+<h3 id="Experiment-Results"><a href="#Experiment-Results" class="headerlink" title="Experiment &amp; Results"></a>Experiment &amp; Results</h3><ul>
+<li><strong>数据集</strong>：<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=255609194&content_type=Article&match_order=1&q=LoCoMo+%E6%95%B0%E6%8D%AE%E9%9B%86&zhida_source=entity">LoCoMo 数据集</a>，包含长时间的对话，适合评估模型处理长程依赖关系和保持一致性的能力。</li>
+<li><strong>评估指标</strong>：F1 score、BLEU-1、ROUGE-L、ROUGE-2、METEOR、SBERT Similarity。</li>
+<li><strong>基线模型</strong>：LoCoMo、ReadAgent、MemoryBank、MemGPT。</li>
+</ul>
+<p><strong>实验结果</strong>：</p>
+<p>在非 GPT 基础模型上，A-MEM 始终优于所有基线模型。<br>在 GPT-4-mini 上，A-MEM 的 F1 得分达到 45.85%，远超 MemGPT 的 25.52%</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223508.png" alt="Alt pic"></p>
+<p><strong>效率优势</strong>： A-MEM 在实现这些改进的同时，与 LoCoMo 和 MemGPT 相比，token 长度要求显著降低（约 1,200-2,500 个 token，而 LoCoMo 和 MemGPT 为 16,900 个 token）。</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223546.png" alt="Alt pic"></p>
+<p><strong>可视化证据</strong>： t-SNE 可视化表明，与基线系统相比，A-MEM 具有更连贯的聚类模式，验证了其记忆组织方法的有效性。</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223600.png" alt="Alt pic"></p>
+<p><strong>消融实验</strong>：链接生成（LG）和记忆演化（ME）模块对 A-MEM 的性能至关重要。</p>
+<p><strong>超参数分析</strong>：适中的 k 值（检索记忆的数量）在上下文丰富性和信息处理效率之间取得了最佳平衡。k 值持续增大，也会伴随效果下降。</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223617.png" alt="Alt pic"></p>
+<h3 id="My-Thoughts"><a href="#My-Thoughts" class="headerlink" title="My Thoughts"></a>My Thoughts</h3><p>A-Mem 的方法本身并不难理解，但其方法很有效。通过 A-Mem 得到的惊艳效果，可以看到仅仅基于传统 RAG 的方法引入外部数据库来存储记忆是远远不够的。可以从中提炼出关于 Agent 长期记忆的几个要点：</p>
+<ol>
+<li>记忆之间需要建立相互连接的关系（并非人为固定定义）；</li>
+<li>模型记忆需要伴随着演化更新，并非一成不变，类似模型知识编辑；</li>
+<li>A-Mem 取得的效果大概率依赖于 LLM 生成的对记忆的上下文描述；</li>
+</ol>
+<p>论文中提到的 Future Works 包括引入多模态信息、解决不同大模型上下文生成区别等，不过感觉都不是一些关键点。</p>
+<p>读完之后有几个初步的思考点，大概是这些：</p>
+<p>首先，A-Mem 并未引入遗忘机制，记忆库会无限膨胀。当记忆库很庞大时，通过向量相似度初筛可能就会引入记忆污染等等问题。能否在其大体机制上稍加修改，引入记忆遗忘与压缩机制，在更大规模的对话数据集上实验验证效果？</p>
+<p>个人想法是，人类对于记忆的“遗忘”与“调用”过程更像是对记忆的一个置信度评估，像 MemGPT 那样基于 OS 的记忆管理思路那样，能否对记忆施加一个“置信度”参数，随模型链接记忆的时间次数而衰减，或设定一个置信度的传播与更新机制，在链接时优先考虑高置信度的相关记忆，并优先忘却低置信度的相关记忆？</p>
+<p>另外，A-Mem 给出的几个启发能否也在参数化记忆上做一些尝试呢？现有的参数化记忆更新方法大多通过模型微调、增加模型 memory block 等实现。记忆之间建立相互连接的关系通常也通过知识图谱等方式添加到模型网络中去。</p>
+<p>一般当前的方法都是仅单独专注于非参数化记忆优化、参数化记忆优化本身，很少有把两者结合起来做的工作。之前也读过几篇模型知识编辑相关的论文，能否把长期记忆更新和模型编辑相结合，在模型参数化记忆上也去做一个更新改动呢？</p>
 
                 
             </div>
@@ -488,7 +527,7 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://yukiiceeee.github.io/2024/05/07/xue-xi-lora-wei-diao-yuan-li/">https://yukiiceeee.github.io/2024/05/07/xue-xi-lora-wei-diao-yuan-li/</a>
+                    <a href="https://yukiiceeee.github.io/2025/10/10/lun-wen-a-mem-agentic-memory-for-llm-agents/">https://yukiiceeee.github.io/2025/10/10/lun-wen-a-mem-agentic-memory-for-llm-agents/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -526,8 +565,8 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
-                                    <span class="chip bg-color">学习笔记</span>
+                                <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+                                    <span class="chip bg-color">论文笔记</span>
                                 </a>
                             
                         </div>
@@ -610,23 +649,23 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2024/05/08/xue-xi-moe-hun-he-zhuan-jia-mo-xing/">
+                <a href="/2025/10/12/xue-xi-build-agent-syetem-with-langgraph-deepseek/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240508171027413.png?imageSlim" class="responsive-img" alt="MOE混合专家模型架构">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/illust_105369093_20231026_120919.jpg?imageSlim" class="responsive-img" alt="Build Agent Syetem with Langgraph &amp; DeepSeek">
                         
-                        <span class="card-title">MOE混合专家模型架构</span>
+                        <span class="card-title">Build Agent Syetem with Langgraph &amp; DeepSeek</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            学习了MOE混合专家模型的工作原理，对门控单元有了更深入的理解。
+                            熟悉了LangChain与LangGraph库的一些基础，并基于两者分别调用DeepSeek API简单搭建了Agent系统。
                         
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2024-05-08
+                            <i class="far fa-clock fa-fw icon-date"></i>2025-10-12
                         </span>
                         <span class="publish-author">
                             
@@ -654,23 +693,23 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2024/04/19/wen-ji-shui-shou-yu-hai/">
+                <a href="/2025/02/18/xue-xi-zai-deepseek-r1-3b-shang-zuo-jian-dan-lora-wei-diao/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/6D9D55BA3EEBA727564FDE5871E3BEB1.jpg?imageSlim" class="responsive-img" alt="水手与海">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1739957817449.jpg?imageSlim" class="responsive-img" alt="在DeepSeek-R1-1.5b模型上做一个简单的lora微调">
                         
-                        <span class="card-title">水手与海</span>
+                        <span class="card-title">在DeepSeek-R1-1.5b模型上做一个简单的lora微调</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            很久以前记下的一段。
+                            最近开始上手微调模型做些小项目，所以先简单写了个lora微调DeepSeek-R1-Distill-Qwen-1.5B的脚本，熟悉熟悉一些基本的库和微调操作。记录一下~
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2024-04-19
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-02-18
                             </span>
                         <span class="publish-author">
                             
@@ -683,8 +722,8 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E6%96%87%E9%9B%86/">
-                        <span class="chip bg-color">文集</span>
+                    <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+                        <span class="chip bg-color">学习笔记</span>
                     </a>
                     
                 </div>

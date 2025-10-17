@@ -4,8 +4,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="LoRA微调原理, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
-    <meta name="description" content="学习了LoRA微调大模型的算法原理，阅读原论文并整理学习知识。">
+    <meta name="keywords" content="Build Agent Syetem with Langgraph &amp; DeepSeek, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="description" content="熟悉了LangChain与LangGraph库的一些基础，并基于两者分别调用DeepSeek API简单搭建了Agent系统。">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>LoRA微调原理 | Cyan&#39;s Blog</title>
+    <title>Build Agent Syetem with Langgraph &amp; DeepSeek | Cyan&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -334,12 +334,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/%E5%9B%BE%E7%89%871.png?imageSlim')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/illust_105369093_20231026_120919.jpg?imageSlim')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">LoRA微调原理</h1>
+                    <h1 class="description center-align post-title">Build Agent Syetem with Langgraph &amp; DeepSeek</h1>
                 </div>
             </div>
         </div>
@@ -379,7 +379,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2024-05-07
+                    2025-10-12
                 </div>
                 
 
@@ -388,7 +388,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.1k
+                    1.8k
                 </div>
                 
 
@@ -405,63 +405,299 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="Lora-微调原理"><a href="#Lora-微调原理" class="headerlink" title="Lora 微调原理"></a>Lora 微调原理</h2><blockquote>
-<p>大语言模型微调算法</p>
-</blockquote>
-<hr>
-<p><strong>基本原理：</strong>低秩矩阵相乘升维，与预训练权重矩阵叠加，实现模型微调</p>
-<p><strong>原理简述：</strong>冻结预训练的模型参数，然后在Transfomer的每一层中加入一个可训练的旁路矩阵（低秩可分离矩阵），接着将旁路输出与初始路径输出相加输入到网络当中。在训练的时候，只训练这些新增的低秩矩阵的参数。其中低秩矩阵由两个矩阵组成，第一个矩阵负责降维，第二个矩阵负责升维，中间层维度为r，两个低秩矩阵能够大幅度减小参数量。</p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508103941588.png" alt="image-20240508103941588"></p>
-<p><strong>原理解释：</strong></p>
-<p>输入为<code>x</code>，输出为<code>h</code>，预训练模型：</p>
-<p>$h&#x3D;W_{0}x$</p>
-<p>在全参数量上微调（regular finetuning）：</p>
-<p>$h&#x3D;W_{0}x+△Wx$</p>
-<p>如果采用低秩可分离矩阵（LoRA），则：<br>$$h&#x3D;W_{0}x+△Wx&#x3D;W_{0}x+BAx $$</p>
-<p>在这个过程中，最核心的步骤便是将 $△W$ 进行分解，将其分解为两个低秩矩阵。如果只使用单独的一个矩阵，那么参数量为 $$d<em>d$$，如果使用低秩可分离矩阵，此时原来的大矩阵可分解为两个秩为 $r$ 的大小为 $$d</em>r$$ 的小矩阵，参数量大小为 ，由于 $$r&lt;d$$ 所以可以大幅度减少参数量。</p>
-<p>即：*<em>A矩阵采用一个 $$d</em>r$$ 矩阵，B矩阵采用一个 $$r<em>d$$ 矩阵，总参数量 $$2r</em>d$$ **</p>
-<p><strong>公式推导：</strong></p>
-<p>LoRA 作用形式：$W&#x3D;W_{plm}+aW_{lora}&#x3D;W_{plm}+aB_{lora_{zeros}}*A_{lora_{gaussian}}$</p>
-<p>论文中，将 LoRA 作用在 Query 与 Value 权重矩阵上效果最好：</p>
-<p><code>attention query</code> 映射矩阵：$W_{q}&#x3D;W_{q_{plm}}+aW_{q_{lora}}$</p>
-<p><code>attention value</code> 映射矩阵：$W_{v}&#x3D;W_{v_{plm}}+aW_{v_{lora}}$</p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508141215200.png" alt="image-20240508141215200"></p>
-<p><code>Attention</code> 计算结果：</p>
-<p>$head&#x3D;softmax(Q,K)XW&#x3D;softmax(Q,K)X(W_{v_{plm}}+aX<em>W_{v_{lora}})&#x3D;softmax(Q,K)XW_{v_{plm}}+a</em>softmax(Q,K)XW_{v_{lora}}$</p>
-<hr>
-<p><strong>低秩分解：</strong></p>
-<p>· 如何实现低秩分解？</p>
-<p>低秩分解是一种将矩阵分解为低秩近似的技术。在LORA中，我们使用低秩矩阵来编码参数增量。假设我们有一个预训练的权重矩阵，它的维度是高的。我们可以将<strong>这个矩阵分解为两个低秩矩阵的乘积</strong>，例如：$$W&#x3D; UV^T$$其中U 和V是低秩矩阵。</p>
-<pre class=" language-text"><code class="language-text">##矩阵中，row2 = row1 * 2，row3 = row1*3，也就是说，矩阵中的每一行，都可以通过第一行线性表示。
-A = [[1, 2, 3],[2, 4, 6],[3, 6, 9]]
-#任意一行，总可以用其他两行的线性组合来表示。
-B = [[1, 2, 3],   [7, 11, 5],[8, 13, 8]]
-#任意一行，都不能从其余行的线性组合中推导而来。
-C = [[1, 0, 0],[0, 1, 0],[0, 0, 1]]
-
-#求解秩：
-A = np.array(A)
-B = np.array(B)
-C = np.array(C)
- 
-print("Rank of A:", np.linalg.matrix_rank(A)) # 1
-print("Rank of B:", np.linalg.matrix_rank(B)) # 2
-print("Rank of C:", np.linalg.matrix_rank(C)) # 3
-
-# 对矩阵A来说，由于只要掌握其中的任意一行，其余行都可以由这一行线性推导而来，因此A的秩是1。
-# 对矩阵B来说，由于只要掌握其中的任意两行，其余行都可以由这两行线性组合推导而来，因此B的秩是2。
-# 对矩阵C来说，由于必须完全掌握三行，才能得到完整的C，因此C的秩是3。
-# 简单理解一下，秩表示的是矩阵的信息量。
-#如果矩阵中的某一维，总可以通过其余维度线性推导而来，那么对模型来说，
-#这一维的信息是冗余的，是重复表达的。
-#对A和B的情况，我们称为秩亏（rank deficient），
-#对C的情况，我们称为满秩（full rank）。
+                <h1 id="Build-Agent-Syetem-with-Langgraph-DeepSeek"><a href="#Build-Agent-Syetem-with-Langgraph-DeepSeek" class="headerlink" title="Build Agent Syetem with Langgraph &amp; DeepSeek"></a>Build Agent Syetem with Langgraph &amp; DeepSeek</h1><hr>
+<h3 id="Environment"><a href="#Environment" class="headerlink" title="Environment"></a>Environment</h3><p>首先使用 pip 安装相关依赖包：</p>
+<pre class=" language-python"><code class="language-python">    pip install langchain
+    pip install langgraph
 </code></pre>
-<p>· 对A矩阵，采用随机高斯初始化；对B矩阵，采用zero初始化。这样做的原因是要<strong>保证梯度更新有效。</strong></p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508142401355.png" alt="image-20240508142401355"></p>
-<p>$ℎ_{𝑖}^{(2)}$ 是输出向量 $h$ 的第 $i$ 个元素，$B_{i,k}$ 是矩阵 $B$ 的元素，$A_{i,k}$ 是矩阵 $A$ 的元素，而 $x_{j}$ 是输入向量 $x$ 的第 $j$ 个元素。</p>
-<p>计算权重 $B$ 中元素 $B_{i,k}$ 的偏导数来进行梯度下降。固定 $i$ 和 $k$，对所有的 $j$ 进行求和，将 $A$ 的对应元素与输入向量的元素相乘并累加。</p>
-<p>$B_{i,k}$ 的每个更新都是由 $x$ 和 $A$ 的对应元素的乘积影响的，故而对A矩阵，采用随机高斯初始化；对B矩阵，采用zero初始化。</p>
+<p>配置一下 API 和 URL：</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> dotenv <span class="token keyword">import</span> load_dotenv
+
+<span class="token keyword">import</span> os
+
+  
+
+load_dotenv<span class="token punctuation">(</span><span class="token string">".env"</span><span class="token punctuation">)</span>
+
+  
+
+BASE_URL <span class="token operator">=</span> <span class="token string">"https://api.deepseek.com"</span>
+
+API_KEY <span class="token operator">=</span> os<span class="token punctuation">.</span>environ<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"API_KEY"</span><span class="token punctuation">)</span>
+
+  
+
+deepseek_chat_model <span class="token operator">=</span> <span class="token string">"deepseek-chat"</span>
+</code></pre>
+<h3 id="Initialization-Agent"><a href="#Initialization-Agent" class="headerlink" title="Initialization Agent"></a>Initialization Agent</h3><p>一共有三种方式来初始化 Agent：</p>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># 1. langchain: init model,invoke,prompt template（比较简单通用）</span>
+<span class="token comment" spellcheck="true"># 2. langgraph memory</span>
+<span class="token comment" spellcheck="true"># 3. langgraph create_react_agent</span>
+</code></pre>
+<h4 id="Langchain"><a href="#Langchain" class="headerlink" title="Langchain"></a>Langchain</h4><p>DeepSeek 兼容 openai sdk，因此可以调用 langchain_openai 来导入模型。不过 DeepSeek 自己也有 langchain 专门的一个 sdk，也可以直接调用。这种方法就是 ChatXXX Model 来进行一个初始化。</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> langchain_openai <span class="token keyword">import</span> ChatOpenAI
+
+<span class="token comment" spellcheck="true"># from langchain_deepseek import ChatDeepSeek</span>
+
+<span class="token keyword">from</span> langchain_core<span class="token punctuation">.</span>messages <span class="token keyword">import</span> HumanMessage
+
+<span class="token keyword">from</span> langchain_core<span class="token punctuation">.</span>prompts <span class="token keyword">import</span> ChatPromptTemplate
+
+  
+
+llm1 <span class="token operator">=</span> ChatOpenAI<span class="token punctuation">(</span>model<span class="token operator">=</span>deepseek_chat_model<span class="token punctuation">,</span> api_key<span class="token operator">=</span>API_KEY<span class="token punctuation">,</span> base_url<span class="token operator">=</span>BASE_URL<span class="token punctuation">)</span>
+
+  
+
+result <span class="token operator">=</span> llm1<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span><span class="token punctuation">[</span>HumanMessage<span class="token punctuation">(</span><span class="token string">"给我讲个笑话吧"</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>result<span class="token punctuation">.</span>content<span class="token punctuation">)</span>
+</code></pre>
+<p>更通用的一个方法是使用更统一的 langchain.chat_models 导入：</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> langchain<span class="token punctuation">.</span>chat_models <span class="token keyword">import</span> init_chat_model
+
+  
+
+llm2 <span class="token operator">=</span> init_chat_model<span class="token punctuation">(</span>
+
+    deepseek_chat_model<span class="token punctuation">,</span>
+
+    api_key<span class="token operator">=</span>API_KEY<span class="token punctuation">,</span>
+
+    base_url<span class="token operator">=</span>BASE_URL
+
+<span class="token punctuation">)</span>
+
+  
+
+result <span class="token operator">=</span> llm2<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span><span class="token punctuation">[</span>HumanMessage<span class="token punctuation">(</span><span class="token string">"给我讲个笑话吧"</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>result<span class="token punctuation">.</span>content<span class="token punctuation">)</span>
+</code></pre>
+<p>初始化模型后，我们接下来可以去创建提示词模版。使用提示词模版的好处在于，每次输入的时候并不需要都传一个 message 参数，大部分时候我们的输入都只是改变其中的一部分内容，所以可以对提示词模版中的部分元素进行一个变量替换。通过方括号 “{}” 可以在 template 里替换掉对应的部分。</p>
+<p>这个提示词模版可以用 langchain 里通用的调用接口 invoke() 来调用。针对 llm 的 invoke 是调用 AI 服务，发送消息到 AI 模型，接收回复并返回结果。而提示词模版对象的调用是文本处理，不涉及 AI 调用。</p>
+<p>当然，invoke() 也支持一些其它对象的调用，比如 tools，chains，而这就是 langchain 的统一对象接口调用理念的体现。</p>
+<p>使用提示词模版的时候，我们可以直接利用 langchain 里的 chain 来进行模版填充和模型回复。</p>
+<p>这里直接构造 chain &#x3D; prompt | llm1，所起到的作用就是对 | 的两端同时调用 invoke() 方法。得益于 invoke() 对不同对象的适用性，这就使得 langchain 可以将多个模型、工具、提示词串联，来构造 agent 工作流。</p>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># 构建prompt template</span>
+
+<span class="token keyword">from</span> langchain_core<span class="token punctuation">.</span>prompts <span class="token keyword">import</span> ChatPromptTemplate
+
+  
+
+prompt <span class="token operator">=</span> ChatPromptTemplate<span class="token punctuation">(</span>
+
+    <span class="token punctuation">[</span>
+
+        <span class="token punctuation">(</span><span class="token string">"system"</span><span class="token punctuation">,</span> <span class="token string">"你是一个笑话大王，请给我讲个笑话"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+        <span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> <span class="token string">"帮我写一个主题为&amp;#123;topic&amp;#125;的笑话"</span><span class="token punctuation">)</span>
+
+    <span class="token punctuation">]</span>
+
+<span class="token punctuation">)</span>
+
+  
+
+prompt<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"topic": "狗"&amp;#125;).to_messages()</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>prompt<span class="token punctuation">.</span>input_variables<span class="token punctuation">)</span>
+
+  
+
+<span class="token comment" spellcheck="true"># langchian里chain的体现</span>
+
+<span class="token comment" spellcheck="true"># | 连接的两侧必须是可以被invoke的，在调用时会自动调用两侧的invoke方法</span>
+
+<span class="token comment" spellcheck="true"># 左边的输出会作为右边的输入</span>
+
+chain <span class="token operator">=</span> prompt <span class="token operator">|</span> llm1
+
+  
+
+ans <span class="token operator">=</span> chain<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span>
+
+    <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"topic": "狗"&amp;#125;</span>
+
+<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>ans<span class="token punctuation">.</span>content<span class="token punctuation">)</span>
+</code></pre>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251012230813.png" alt="Alt pic"></p>
+<p>生成的笑话，虽然有点冷，，</p>
+<p><strong>补充</strong>：事实上一般在我们去做一些文本生成、数据生成等任务的时候，我们可能更希望有一个 json 格式的输出结果。如何让模型的输出结果自动返回 json 格式呢？</p>
+<ol>
+<li>首先，我们可以借助 Pydantic 库，定义一个匹配我们需求的输出 json 格式的数据结构。Pydantic 的 BaseModel 类用于进行数据验证、类型转换等操作，确保返回格式符合需求的 json 格式要求；</li>
+<li>接下来，我们利用模型 API 的 with_structured_output() 输出方法，将 Pydantic 模型转换为 JSON Schema 并使用 Function Calling 机制，在提示词中嵌入结构要求，令模型的输出结果符合所需的 json 格式。</li>
+</ol>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> pydantic <span class="token keyword">import</span> BaseModel<span class="token punctuation">,</span> Field
+
+  
+
+<span class="token keyword">class</span> <span class="token class-name">Joke</span><span class="token punctuation">(</span>BaseModel<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token string">"joke to tell user"</span>
+
+    setup<span class="token punctuation">:</span> str <span class="token operator">=</span> Field<span class="token punctuation">(</span>description<span class="token operator">=</span><span class="token string">"The setup of the joke"</span><span class="token punctuation">)</span>
+
+    punchline<span class="token punctuation">:</span> str <span class="token operator">=</span> Field<span class="token punctuation">(</span>description<span class="token operator">=</span><span class="token string">"The punchline of the joke"</span><span class="token punctuation">)</span>
+
+  
+
+joke_chain <span class="token operator">=</span> prompt <span class="token operator">|</span> ChatDeepSeek<span class="token punctuation">(</span>
+
+    model<span class="token operator">=</span>deepseek_chat_model<span class="token punctuation">,</span>
+
+    api_key<span class="token operator">=</span>API_KEY<span class="token punctuation">,</span>
+
+    base_url<span class="token operator">=</span>BASE_URL
+
+<span class="token punctuation">)</span><span class="token punctuation">.</span>with_structured_output<span class="token punctuation">(</span>Joke<span class="token punctuation">)</span>
+
+  
+
+ans <span class="token operator">=</span> joke_chain<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"topic": "狗"&amp;#125;)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>ans<span class="token punctuation">.</span>setup<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>ans<span class="token punctuation">.</span>punchline<span class="token punctuation">)</span>
+</code></pre>
+<p><strong>注意，这里的方法仅适用于支持 Function Calling 的模型</strong>！</p>
+<p>因为实际上我们采用 with_structured_output(class) 来让模型输出 json 格式时，其实是虚拟了一个自定义的 function，这个 function 规定了一个 json 转换的模式，在调用 API 的时候会打开 function calling 采用这个虚拟 function，来实现 json 格式的转换，并通过 pydantic 库验证输出。</p>
+<p>function calling 就是自定义函数支持。简单来说，用户可以预先定义好函数（比如天气获取函数），模型可以选择调用函数，执行函数并返回结果，最终模型基于函数结果生成回答。</p>
+<p>函数信息可以通过每次调用 API 时传递，模型在收到这样的消息，判断要调用一些函数，便不生成实际回复，而是生成一个函数调用并结束该次响应。应用程序执行函数 → 再次调用模型 → 模型基于结果生成最终回答。</p>
+<p>当然也有模型直接支持启用 json 模式，这时候生成结果就是 json 格式的：</p>
+<pre class=" language-python"><code class="language-python">llm_with_json <span class="token operator">=</span> ChatOpenAI<span class="token punctuation">(</span>
+
+    model<span class="token operator">=</span><span class="token string">"gpt-4-1106-preview"</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 支持 JSON Mode</span>
+
+    response_format<span class="token operator">=</span><span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"type": "json_object"&amp;#125;</span>
+
+<span class="token punctuation">)</span>
+
+
+result <span class="token operator">=</span> llm_with_json<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span><span class="token punctuation">[</span>HumanMessage<span class="token punctuation">(</span><span class="token string">"生成笑话"</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="Langgraph-Memory"><a href="#Langgraph-Memory" class="headerlink" title="Langgraph Memory"></a>Langgraph Memory</h4><p>langgraph 基于图结构来编排 Agent 工作流，其关键点就在于图结构的 message memory 储存机制。LangGraph的核心理念是将应用逻辑表示为一个图（Graph），其中：</p>
+<ul>
+<li>节点（Nodes）：代表工作流中的独立组件或智能体，可以视为以特定方式相互交互的”参与者”。每个节点可以执行特定的功能，如生成文本、分析数据或调用外部工具。</li>
+<li>边（Edges）：是Python中的函数，基于当前状态决定下一个要执行的节点，实现了工作流中的条件逻辑和控制流。</li>
+<li>状态（State）：作为一种”记忆库”，记录和跟踪AI系统处理的所有有价值的信息，确保系统能够维持上下文并做出连贯的响应。</li>
+</ul>
+<p>图驱动的架构使 langgraph 在需要上下文连贯性的应用中表现比较出色。</p>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># memory: message &amp; output, 通过维护图结构来保存</span>
+
+  
+
+<span class="token comment" spellcheck="true"># class MessagesState(TypedDict):</span>
+
+<span class="token comment" spellcheck="true">#     messages: Annotated[list[AnyMessage], add_messages]</span>
+
+<span class="token comment" spellcheck="true">#     &amp;#123;</span>
+
+<span class="token comment" spellcheck="true">#         "messages": []</span>
+
+<span class="token comment" spellcheck="true">#     &amp;#125;</span>
+</code></pre>
+<p>通过维护消息状态，langgraph 会通过合并消息、新增消息节点等来进行状态管理。</p>
+<p>这其实就是一个图结构的 Agent Memory，实现的是一个短期记忆。对话消息上下文会通过图结构的维护来传递给 Agent。</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> langgraph<span class="token punctuation">.</span>checkpoint<span class="token punctuation">.</span>memory <span class="token keyword">import</span> MemorySaver
+
+<span class="token keyword">from</span> langgraph<span class="token punctuation">.</span>graph <span class="token keyword">import</span> MessagesState<span class="token punctuation">,</span> START<span class="token punctuation">,</span> StateGraph<span class="token punctuation">,</span> END
+
+  
+
+workflow <span class="token operator">=</span> StateGraph<span class="token punctuation">(</span>MessagesState<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">def</span> <span class="token function">call_model</span><span class="token punctuation">(</span>state<span class="token punctuation">:</span> MessagesState<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token keyword">return</span> <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"messages": [llm1.invoke(state["messages"])]&amp;#125;</span>
+
+  
+
+workflow<span class="token punctuation">.</span>add_node<span class="token punctuation">(</span><span class="token string">"node1"</span><span class="token punctuation">,</span> call_model<span class="token punctuation">)</span>
+
+workflow<span class="token punctuation">.</span>add_edge<span class="token punctuation">(</span>START<span class="token punctuation">,</span> <span class="token string">"node1"</span><span class="token punctuation">)</span>
+
+  
+
+<span class="token comment" spellcheck="true"># Add Memory</span>
+
+memory <span class="token operator">=</span> MemorySaver<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+graph <span class="token operator">=</span> workflow<span class="token punctuation">.</span>compile<span class="token punctuation">(</span>checkpointer<span class="token operator">=</span>memory<span class="token punctuation">)</span>
+
+  
+
+<span class="token comment" spellcheck="true"># config标识线程id，是通过线程id来存储历史消息的</span>
+
+config <span class="token operator">=</span> <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"configurable": &amp;#123;"thread_id": "1"&amp;#125;&amp;#125;</span>
+
+query <span class="token operator">=</span> <span class="token string">"你好啊，我是Cyan。"</span>
+
+  
+
+input_messages <span class="token operator">=</span> <span class="token punctuation">[</span>HumanMessage<span class="token punctuation">(</span>content<span class="token operator">=</span>query<span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+output_messages <span class="token operator">=</span> graph<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span>input_messages<span class="token punctuation">,</span> config<span class="token operator">=</span>config<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>output_messages<span class="token punctuation">[</span><span class="token string">"messages"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>content<span class="token punctuation">)</span>
+
+<span class="token comment" spellcheck="true"># 这里的output包含所有历史消息，langgraph做了一个消息拼接，[-1] 获取最后一条消息（最新的AI回复）</span>
+
+  
+
+query <span class="token operator">=</span> <span class="token string">"我叫什么名字？"</span>
+
+input_messages <span class="token operator">=</span> <span class="token punctuation">[</span>HumanMessage<span class="token punctuation">(</span>content<span class="token operator">=</span>query<span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+output_messages <span class="token operator">=</span> graph<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span>input_messages<span class="token punctuation">,</span> config<span class="token operator">=</span>config<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>output_messages<span class="token punctuation">[</span><span class="token string">"messages"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>content<span class="token punctuation">)</span>
+</code></pre>
+<h4 id="Single-Agent-with-tools"><a href="#Single-Agent-with-tools" class="headerlink" title="Single Agent (with tools)"></a>Single Agent (with tools)</h4><p>使用 function calling 来 create 一个 ReAct 的单 agent 系统，agent 能够在推理过程中去调用已有声明的自定义函数帮助完成推理过程：</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> langgraph<span class="token punctuation">.</span>prebuilt <span class="token keyword">import</span> create_react_agent
+
+  
+
+<span class="token keyword">def</span> <span class="token function">add</span><span class="token punctuation">(</span>a<span class="token punctuation">:</span>int<span class="token punctuation">,</span> b<span class="token punctuation">:</span>int<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token keyword">return</span> a <span class="token operator">+</span> b
+
+  
+
+<span class="token keyword">def</span> <span class="token function">multiply</span><span class="token punctuation">(</span>a<span class="token punctuation">:</span>int<span class="token punctuation">,</span> b<span class="token punctuation">:</span>int<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token keyword">return</span> a <span class="token operator">*</span> b
+
+  
+
+agent <span class="token operator">=</span> create_react_agent<span class="token punctuation">(</span>
+
+    model<span class="token operator">=</span>llm1<span class="token punctuation">,</span>
+
+    tools<span class="token operator">=</span><span class="token punctuation">[</span>add<span class="token punctuation">,</span> multiply<span class="token punctuation">]</span><span class="token punctuation">,</span>
+
+    config<span class="token operator">=</span><span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"configurable": &amp;#123;"thread_id": "1"&amp;#125;&amp;#125;</span>
+
+<span class="token punctuation">)</span>
+
+  
+
+input_messages <span class="token operator">=</span> <span class="token punctuation">[</span>HumanMessage<span class="token punctuation">(</span>content<span class="token operator">=</span><span class="token string">"计算10+20，然后计算10*20"</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+output_messages <span class="token operator">=</span> agent<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span>input_messages<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">for</span> message <span class="token keyword">in</span> output_messages<span class="token punctuation">[</span><span class="token string">"messages"</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span>message<span class="token punctuation">.</span>content<span class="token punctuation">)</span>
+</code></pre>
 
                 
             </div>
@@ -488,7 +724,7 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://yukiiceeee.github.io/2024/05/07/xue-xi-lora-wei-diao-yuan-li/">https://yukiiceeee.github.io/2024/05/07/xue-xi-lora-wei-diao-yuan-li/</a>
+                    <a href="https://yukiiceeee.github.io/2025/10/12/xue-xi-build-agent-syetem-with-langgraph-deepseek/">https://yukiiceeee.github.io/2025/10/12/xue-xi-build-agent-syetem-with-langgraph-deepseek/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -610,23 +846,23 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2024/05/08/xue-xi-moe-hun-he-zhuan-jia-mo-xing/">
+                <a href="/2025/10/16/sui-bi-bao-yan-jing-yan-tie/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240508171027413.png?imageSlim" class="responsive-img" alt="MOE混合专家模型架构">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/2024.jpg?imageSlim" class="responsive-img" alt="2025年（26届）四非CS保研经验帖">
                         
-                        <span class="card-title">MOE混合专家模型架构</span>
+                        <span class="card-title">2025年（26届）四非CS保研经验帖</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            学习了MOE混合专家模型的工作原理，对门控单元有了更深入的理解。
+                            一切尘埃落定，三年的生活交上了一个答案。于是简单记了一个经验帖，总结了一下半年来的心路历程。总之，是时候在新的起点向前继续迈进了。
                         
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2024-05-08
+                            <i class="far fa-clock fa-fw icon-date"></i>2025-10-16
                         </span>
                         <span class="publish-author">
                             
@@ -639,8 +875,8 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
-                        <span class="chip bg-color">学习笔记</span>
+                    <a href="/tags/%E9%9A%8F%E7%AC%94/">
+                        <span class="chip bg-color">随笔</span>
                     </a>
                     
                 </div>
@@ -654,23 +890,23 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2024/04/19/wen-ji-shui-shou-yu-hai/">
+                <a href="/2025/10/10/lun-wen-a-mem-agentic-memory-for-llm-agents/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/6D9D55BA3EEBA727564FDE5871E3BEB1.jpg?imageSlim" class="responsive-img" alt="水手与海">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529084952905.png?imageSlim" class="responsive-img" alt="A-Mem：Agentic Memory for LLM Agents：记忆动态更新的 Agent 记忆系统">
                         
-                        <span class="card-title">水手与海</span>
+                        <span class="card-title">A-Mem：Agentic Memory for LLM Agents：记忆动态更新的 Agent 记忆系统</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            很久以前记下的一段。
+                            论文提出了一种名为 A-MEM 的适用于 Agent 的主动式记忆系统，通过构建笔记、链接生成、记忆进化三个环节，来尝试解决现有 LLM 代理记忆系统结构僵化、适应性不足的问题。
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2024-04-19
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-10-10
                             </span>
                         <span class="publish-author">
                             
@@ -683,8 +919,8 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E6%96%87%E9%9B%86/">
-                        <span class="chip bg-color">文集</span>
+                    <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+                        <span class="chip bg-color">论文笔记</span>
                     </a>
                     
                 </div>

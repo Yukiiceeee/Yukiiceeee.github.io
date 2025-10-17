@@ -4,8 +4,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="归档: 2024/12, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
-    <meta name="description" content="个人博客">
+    <meta name="keywords" content="MOELoRA: 一种基于MOE多任务医疗应用下的高效参数微调方法, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="description" content="将稀疏的LoRA专家换到MOE层里，将不同的医疗领域任务类型作为分类依据，实现不同模型对应解决不同任务，同时采用LoRA加快微调效率。">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -17,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>归档: 2024/12 | Cyan&#39;s Blog</title>
+    <title>MOELoRA: 一种基于MOE多任务医疗应用下的高效参数微调方法 | Cyan&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     
 
@@ -330,218 +330,486 @@
 
 </header>
 
-    <div class="bg-cover pd-header about-cover">
-    <div class="container">
-    <div class="row">
-    <div class="col s10 offset-s1 m8 offset-m2 l8 offset-l2">
-        <div class="brand">
-            <div class="title center-align">
-                
-                All Of My Life.
-                
-            </div>
+    
 
-            <div class="description center-align">
-                
-                <span id="subtitle"></span>
-                <script src="/libs/typed/typed.js"></script>
-                <script>
-                    var typed = new Typed("#subtitle", {
-                        strings: [ 
-                            
-                                "翻山越岭，他们才会听到你的故事。",
-                            
-                                "Never really desperate, only the lost of the soul",
-                            
-                        ],
-                        startDelay: 300,
-                        typeSpeed: 100,
-                        loop: true,
-                        backSpeed: 50,
-                        showCursor: true
-                    });
-                </script>
-                
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519225817161.png?imageSlim')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">MOELoRA: 一种基于MOE多任务医疗应用下的高效参数微调方法</h1>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 
-<script>
-    // 每天切换 banner 图.  Switch banner image every day.
-    var bannerUrl = "/medias/banner/" + new Date().getDay() + '.jpg';
-    $('.bg-cover').css('background-image', 'url(' + bannerUrl + ')');
-</script>
-<script>
-    
-      var bannerUrl = "/medias/featureimages/" + Math.floor(Math.random() * 24) + '.jpg';
-    
-    $('.bg-cover.about-cover').css('background-image', 'url(' + bannerUrl + ')');
-
-</script>
 
 
-    </div>
-</div>
-
-<main class="content">
+<main class="post-container content">
 
     
-    <div class="container archive-calendar">
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
     <div class="card">
-        <div id="post-calendar" class="card-content"></div>
-    </div>
-</div>
-
-<script type="text/javascript" src="/libs/echarts/echarts.min.js"></script>
-<script type="text/javascript">
-    let myChart = echarts.init(document.getElementById('post-calendar'));
-
-    
-
-    let option = {
-        title: {
-            top: 0,
-            text: '文章日历',
-            left: 'center',
-            textStyle: {
-                color: '#3C4858'
-            }
-        },
-        tooltip: {
-            padding: 10,
-            backgroundColor: '#555',
-            borderColor: '#777',
-            borderWidth: 1,
-            formatter: function (obj) {
-                var value = obj.value;
-                return '<div style="font-size: 14px;">' + value[0] + '：' + value[1] + '</div>';
-            }
-        },
-        visualMap: {
-            show: true,
-            showLabel: true,
-            categories: [0, 1, 2, 3, 4],
-            calculable: true,
-            inRange: {
-                symbol: 'rect',
-                color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127']
-            },
-            itemWidth: 12,
-            itemHeight: 12,
-            orient: 'horizontal',
-            left: 'center',
-            bottom: 0
-        },
-        calendar: [{
-            left: 'center',
-            range: ["2024-10-17", "2025-10-17"],
-            cellSize: [13, 13],
-            splitLine: {
-                show: false
-            },
-            itemStyle: {
-                color: '#196127',
-                borderColor: '#fff',
-                borderWidth: 2
-            },
-            yearLabel: {
-                show: false
-            },
-            monthLabel: {
-                nameMap: 'cn',
-                fontSize: 11
-            },
-            dayLabel: {
-                formatter: '{start}  1st',
-                nameMap: 'cn',
-                fontSize: 11
-            }
-        }],
-        series: [{
-            type: 'heatmap',
-            coordinateSystem: 'calendar',
-            calendarIndex: 0,
-            data: [["2024-10-17", 0], ["2024-10-18", 0], ["2024-10-19", 0], ["2024-10-20", 0], ["2024-10-21", 0], ["2024-10-22", 0], ["2024-10-23", 0], ["2024-10-24", 0], ["2024-10-25", 0], ["2024-10-26", 0], ["2024-10-27", 0], ["2024-10-28", 0], ["2024-10-29", 0], ["2024-10-30", 0], ["2024-10-31", 0], ["2024-11-01", 0], ["2024-11-02", 0], ["2024-11-03", 0], ["2024-11-04", 0], ["2024-11-05", 0], ["2024-11-06", 0], ["2024-11-07", 0], ["2024-11-08", 0], ["2024-11-09", 0], ["2024-11-10", 0], ["2024-11-11", 0], ["2024-11-12", 0], ["2024-11-13", 0], ["2024-11-14", 0], ["2024-11-15", 0], ["2024-11-16", 0], ["2024-11-17", 0], ["2024-11-18", 0], ["2024-11-19", 0], ["2024-11-20", 0], ["2024-11-21", 0], ["2024-11-22", 0], ["2024-11-23", 0], ["2024-11-24", 0], ["2024-11-25", 0], ["2024-11-26", 0], ["2024-11-27", 0], ["2024-11-28", 0], ["2024-11-29", 0], ["2024-11-30", 0], ["2024-12-01", 0], ["2024-12-02", 0], ["2024-12-03", 0], ["2024-12-04", 0], ["2024-12-05", 0], ["2024-12-06", 0], ["2024-12-07", 0], ["2024-12-08", 0], ["2024-12-09", 0], ["2024-12-10", 0], ["2024-12-11", 0], ["2024-12-12", 0], ["2024-12-13", 0], ["2024-12-14", 0], ["2024-12-15", 0], ["2024-12-16", 0], ["2024-12-17", 0], ["2024-12-18", 0], ["2024-12-19", 0], ["2024-12-20", 0], ["2024-12-21", 0], ["2024-12-22", 0], ["2024-12-23", 1], ["2024-12-24", 0], ["2024-12-25", 0], ["2024-12-26", 0], ["2024-12-27", 0], ["2024-12-28", 0], ["2024-12-29", 0], ["2024-12-30", 0], ["2024-12-31", 0], ["2025-01-01", 0], ["2025-01-02", 0], ["2025-01-03", 0], ["2025-01-04", 0], ["2025-01-05", 1], ["2025-01-06", 0], ["2025-01-07", 0], ["2025-01-08", 0], ["2025-01-09", 0], ["2025-01-10", 0], ["2025-01-11", 0], ["2025-01-12", 0], ["2025-01-13", 0], ["2025-01-14", 0], ["2025-01-15", 0], ["2025-01-16", 0], ["2025-01-17", 0], ["2025-01-18", 0], ["2025-01-19", 0], ["2025-01-20", 0], ["2025-01-21", 0], ["2025-01-22", 1], ["2025-01-23", 0], ["2025-01-24", 0], ["2025-01-25", 0], ["2025-01-26", 0], ["2025-01-27", 0], ["2025-01-28", 0], ["2025-01-29", 0], ["2025-01-30", 0], ["2025-01-31", 0], ["2025-02-01", 0], ["2025-02-02", 0], ["2025-02-03", 0], ["2025-02-04", 0], ["2025-02-05", 0], ["2025-02-06", 0], ["2025-02-07", 0], ["2025-02-08", 0], ["2025-02-09", 0], ["2025-02-10", 0], ["2025-02-11", 0], ["2025-02-12", 0], ["2025-02-13", 0], ["2025-02-14", 0], ["2025-02-15", 0], ["2025-02-16", 0], ["2025-02-17", 0], ["2025-02-18", 1], ["2025-02-19", 0], ["2025-02-20", 0], ["2025-02-21", 0], ["2025-02-22", 0], ["2025-02-23", 0], ["2025-02-24", 0], ["2025-02-25", 0], ["2025-02-26", 0], ["2025-02-27", 0], ["2025-02-28", 0], ["2025-03-01", 0], ["2025-03-02", 0], ["2025-03-03", 0], ["2025-03-04", 0], ["2025-03-05", 0], ["2025-03-06", 0], ["2025-03-07", 0], ["2025-03-08", 0], ["2025-03-09", 0], ["2025-03-10", 0], ["2025-03-11", 0], ["2025-03-12", 0], ["2025-03-13", 0], ["2025-03-14", 0], ["2025-03-15", 0], ["2025-03-16", 0], ["2025-03-17", 0], ["2025-03-18", 0], ["2025-03-19", 0], ["2025-03-20", 0], ["2025-03-21", 0], ["2025-03-22", 0], ["2025-03-23", 0], ["2025-03-24", 0], ["2025-03-25", 0], ["2025-03-26", 0], ["2025-03-27", 0], ["2025-03-28", 0], ["2025-03-29", 0], ["2025-03-30", 0], ["2025-03-31", 0], ["2025-04-01", 0], ["2025-04-02", 0], ["2025-04-03", 0], ["2025-04-04", 0], ["2025-04-05", 0], ["2025-04-06", 0], ["2025-04-07", 0], ["2025-04-08", 0], ["2025-04-09", 0], ["2025-04-10", 0], ["2025-04-11", 0], ["2025-04-12", 0], ["2025-04-13", 0], ["2025-04-14", 0], ["2025-04-15", 0], ["2025-04-16", 0], ["2025-04-17", 0], ["2025-04-18", 0], ["2025-04-19", 0], ["2025-04-20", 0], ["2025-04-21", 0], ["2025-04-22", 0], ["2025-04-23", 0], ["2025-04-24", 0], ["2025-04-25", 0], ["2025-04-26", 0], ["2025-04-27", 0], ["2025-04-28", 0], ["2025-04-29", 0], ["2025-04-30", 0], ["2025-05-01", 0], ["2025-05-02", 0], ["2025-05-03", 0], ["2025-05-04", 0], ["2025-05-05", 0], ["2025-05-06", 0], ["2025-05-07", 0], ["2025-05-08", 0], ["2025-05-09", 0], ["2025-05-10", 0], ["2025-05-11", 0], ["2025-05-12", 0], ["2025-05-13", 0], ["2025-05-14", 0], ["2025-05-15", 0], ["2025-05-16", 0], ["2025-05-17", 0], ["2025-05-18", 0], ["2025-05-19", 0], ["2025-05-20", 0], ["2025-05-21", 0], ["2025-05-22", 0], ["2025-05-23", 0], ["2025-05-24", 0], ["2025-05-25", 0], ["2025-05-26", 0], ["2025-05-27", 0], ["2025-05-28", 0], ["2025-05-29", 0], ["2025-05-30", 0], ["2025-05-31", 0], ["2025-06-01", 0], ["2025-06-02", 0], ["2025-06-03", 0], ["2025-06-04", 0], ["2025-06-05", 0], ["2025-06-06", 0], ["2025-06-07", 0], ["2025-06-08", 0], ["2025-06-09", 0], ["2025-06-10", 0], ["2025-06-11", 0], ["2025-06-12", 0], ["2025-06-13", 0], ["2025-06-14", 0], ["2025-06-15", 0], ["2025-06-16", 0], ["2025-06-17", 0], ["2025-06-18", 0], ["2025-06-19", 0], ["2025-06-20", 0], ["2025-06-21", 0], ["2025-06-22", 0], ["2025-06-23", 0], ["2025-06-24", 0], ["2025-06-25", 0], ["2025-06-26", 0], ["2025-06-27", 0], ["2025-06-28", 0], ["2025-06-29", 0], ["2025-06-30", 0], ["2025-07-01", 0], ["2025-07-02", 0], ["2025-07-03", 0], ["2025-07-04", 0], ["2025-07-05", 0], ["2025-07-06", 0], ["2025-07-07", 0], ["2025-07-08", 0], ["2025-07-09", 0], ["2025-07-10", 0], ["2025-07-11", 0], ["2025-07-12", 0], ["2025-07-13", 0], ["2025-07-14", 0], ["2025-07-15", 0], ["2025-07-16", 0], ["2025-07-17", 0], ["2025-07-18", 0], ["2025-07-19", 0], ["2025-07-20", 0], ["2025-07-21", 0], ["2025-07-22", 0], ["2025-07-23", 0], ["2025-07-24", 0], ["2025-07-25", 0], ["2025-07-26", 0], ["2025-07-27", 0], ["2025-07-28", 0], ["2025-07-29", 0], ["2025-07-30", 0], ["2025-07-31", 0], ["2025-08-01", 0], ["2025-08-02", 0], ["2025-08-03", 0], ["2025-08-04", 0], ["2025-08-05", 0], ["2025-08-06", 0], ["2025-08-07", 0], ["2025-08-08", 0], ["2025-08-09", 0], ["2025-08-10", 0], ["2025-08-11", 0], ["2025-08-12", 0], ["2025-08-13", 0], ["2025-08-14", 0], ["2025-08-15", 0], ["2025-08-16", 0], ["2025-08-17", 0], ["2025-08-18", 0], ["2025-08-19", 0], ["2025-08-20", 0], ["2025-08-21", 0], ["2025-08-22", 0], ["2025-08-23", 0], ["2025-08-24", 0], ["2025-08-25", 0], ["2025-08-26", 0], ["2025-08-27", 0], ["2025-08-28", 0], ["2025-08-29", 0], ["2025-08-30", 0], ["2025-08-31", 0], ["2025-09-01", 0], ["2025-09-02", 0], ["2025-09-03", 0], ["2025-09-04", 0], ["2025-09-05", 0], ["2025-09-06", 0], ["2025-09-07", 0], ["2025-09-08", 0], ["2025-09-09", 0], ["2025-09-10", 0], ["2025-09-11", 0], ["2025-09-12", 0], ["2025-09-13", 0], ["2025-09-14", 0], ["2025-09-15", 0], ["2025-09-16", 0], ["2025-09-17", 0], ["2025-09-18", 0], ["2025-09-19", 0], ["2025-09-20", 0], ["2025-09-21", 0], ["2025-09-22", 0], ["2025-09-23", 0], ["2025-09-24", 0], ["2025-09-25", 0], ["2025-09-26", 0], ["2025-09-27", 0], ["2025-09-28", 0], ["2025-09-29", 0], ["2025-09-30", 0], ["2025-10-01", 0], ["2025-10-02", 0], ["2025-10-03", 0], ["2025-10-04", 0], ["2025-10-05", 0], ["2025-10-06", 0], ["2025-10-07", 0], ["2025-10-08", 0], ["2025-10-09", 0], ["2025-10-10", 1], ["2025-10-11", 0], ["2025-10-12", 1], ["2025-10-13", 0], ["2025-10-14", 0], ["2025-10-15", 0], ["2025-10-16", 1], ["2025-10-17", 0]]
-        }]
-
-    };
-
-    myChart.setOption(option);
-</script>
-
-    
-
-    
-
-    <div id="cd-timeline" class="container">
-        
-        <div class="cd-timeline-block">
-
-            
-            
-            
-            <div class="cd-timeline-img year" data-aos="zoom-in-up">
-                <a href="/archives/2024">2024</a>
-            </div>
-            
-
-            
-            
-            
-            <div class="cd-timeline-img month" data-aos="zoom-in-up">
-                <a href="/archives/2024/12">12</a>
-            </div>
-            
-
-            
-            <div class="cd-timeline-img day" data-aos="zoom-in-up">
-                <span>23</span>
-            </div>
-            <article class="cd-timeline-content" data-aos="fade-up">
-                <div class="article col s12 m6">
-                    <div class="card">
-                        <a href="/2024/12/23/xue-xi-transformer-yuan-li/">
-                            <div class="card-image">
-                                
-                                <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/128135299_p4.jpg?imageSlim" class="responsive-img" alt="【学习】Transformer基础架构">
-                                
-                                <span class="card-title">【学习】Transformer基础架构</span>
-                            </div>
-                        </a>
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    回想起上次仔细看transformer还是上次，现在遗忘得又有点多了，从原理到代码重新过一遍，于是就有了这篇博客~
-                                
-                            </div>
-                            <div class="publish-info">
-                                <span class="publish-date">
-                                    <i class="far fa-clock fa-fw icon-date"></i>2024-12-23
-                                </span>
-                                <span class="publish-author">
-                                    
-                                    <i class="fas fa-user fa-fw"></i>
-                                    Cyan.
-                                    
-                                </span>
-                            </div>
-                        </div>
-
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
                         
-                        <div class="card-action article-tags">
-                            
-                            <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"><span class="chip bg-color">学习笔记</span></a>
-                            
-                        </div>
+                            <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+                                <span class="chip bg-color">论文笔记</span>
+                            </a>
                         
                     </div>
+                    
                 </div>
-            </article>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2024-05-18
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    803
+                </div>
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="MOELoRA-一种基于-MOE-多任务医疗应用下的高效参数微调方法"><a href="#MOELoRA-一种基于-MOE-多任务医疗应用下的高效参数微调方法" class="headerlink" title="MOELoRA: 一种基于 MOE 多任务医疗应用下的高效参数微调方法"></a>MOELoRA: 一种基于 MOE 多任务医疗应用下的高效参数微调方法</h1><ul>
+<li><strong>医疗领域的LLM微调困境：</strong>①任务多样性太大；②参数量大，微调成本太高</li>
+<li><strong>解决思路：</strong>MOE与LoRA结合，针对特定领域任务进行微调</li>
+<li><strong>突出问题：</strong>不同任务下的数据量在质量、规模上都存在差距（A任务有1000个数据，B任务有5000个数据，使得微调参数会倾向于样本量更大的任务，破坏少样本任务的处理性能。如何解决？）</li>
+</ul>
+<hr>
+<h4 id="模型架构："><a href="#模型架构：" class="headerlink" title="模型架构："></a>模型架构：</h4><ul>
+<li>多个专家作为可训练的参数，其中每个专家由一对低秩矩阵组成，以保持少量的可训练的参数。</li>
+<li>为所有的MOELoRA层提出了一个任务动机的门函数，该函数可以调节每个专家的贡献，并为各种任务生成不同的参数。</li>
+</ul>
+<p><strong>使用MOELoRA对LLM的参数高效微调过程的可视化表示如下：</strong></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519223632525.png?imageSlim" alt="image-20240519223632525"></p>
+<ol>
+<li><p><strong>Attention层</strong>：</p>
+<ul>
+<li>包含多头注意力机制的标准组件，其中Q（Query）、K（Key）、V（Value）各自通过LoRA适配器进行增强。</li>
+<li>每个Q、K、V矩阵都通过MOE-LoRA增强，即每个矩阵都分别有专门的LoRA专家进行调整。</li>
+<li>这些LoRA专家由底部的门控（Gate）单元动态选择，门控根据输入的任务ID决定激活哪些专家。</li>
+</ul>
+</li>
+<li><p><strong>Layer Norm和Add层</strong>：</p>
+<ul>
+<li><p>Transformer架构中的每个子层输出后都会经过一个添加（Add）和层归一化（Layer Norm）操作。</p>
+</li>
+<li><p>在此架构中，W表示权重矩阵，包括由MoE-LoRA微调的参数。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Gate单元</strong>：</p>
+<ul>
+<li><p>根据输入的任务ID（如文档底部所示），决定哪些LoRA专家参与当前任务的计算。</p>
+</li>
+<li><p>确保每个特定任务都能调用最适合它的专家组合，从而实现高效的任务特定微调。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>训练与固定权重</strong>：</p>
+<ul>
+<li>图中用火焰符号标注的权重（W）是可训练的，而用雪花符号标注的是固定的，表明在微调过程中这部分权重不会被更新。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="MOELoRA层："><a href="#MOELoRA层：" class="headerlink" title="MOELoRA层："></a>MOELoRA层：</h4><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519225817161.png?imageSlim" alt="image-20240519225817161"></p>
+<ul>
+<li><p>每个专家都被替换为了一个低秩矩阵相乘的形式</p>
+</li>
+<li><p>任务 $T_{j}$ 样本的线性层与MOELoRA层配对的前向过程表示为：</p>
+</li>
+</ul>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519230406663.png?imageSlim" alt="image-20240519230406663"></p>
+<hr>
+<h4 id="任务驱动的门控单元："><a href="#任务驱动的门控单元：" class="headerlink" title="任务驱动的门控单元："></a>任务驱动的门控单元：</h4><p>权重计算公式：</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519231110060.png?imageSlim" alt="image-20240519231110060"></p>
+<ul>
+<li>任务驱动的门函数为每个任务产生一组<strong>独特</strong>的贡献权值</li>
+</ul>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519231241393.png?imageSlim" alt="image-20240519231241393"></p>
+<p>如果门函数是由输入向量x驱动的，权向量将在样本之间有所不同。因此只将任务身份输入到门函数中，这意味着每个样本都将拥有其独特的ωj，从而导致一个特定于样本的微调参数矩阵。<em>（这个地方有点不太理解……？）</em></p>
+<ol>
+<li><strong>任务定制：</strong>每个任务都使用一组参数进行微调，这有助于学习更多特定于任务的信息，缓解数据不平衡的问题。</li>
+<li><strong>推理效率：</strong>检索到的微调LLM显示出减少的推理延迟。这是由于消除了与LoRA层相关的额外正向计算的需要。</li>
+</ol>
+<hr>
+<h4 id="算法实现过程："><a href="#算法实现过程：" class="headerlink" title="算法实现过程："></a>算法实现过程：</h4><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240519231739537.png?imageSlim" alt="image-20240519231739537"></p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Cyan.</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://yukiiceeee.github.io/2024/05/18/lun-wen-moelora/">https://yukiiceeee.github.io/2024/05/18/lun-wen-moelora/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">Cyan.</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+                                    <span class="chip bg-color">论文笔记</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2024/05/28/lun-wen-patch-level-routing-in-moe/">
+                    <div class="card-image">
+                        
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529084952905.png?imageSlim" class="responsive-img" alt="Patch-level Routing in MOE：针对局部图像区域分配专家，提高样本效率">
+                        
+                        <span class="card-title">Patch-level Routing in MOE：针对局部图像区域分配专家，提高样本效率</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            论文提出了一种基于图像局部区域（patch）的专家分配策略，而不是对整个图像进行分配；这种方法利用CNNs的结构特点，将输入图像分割成若干个patch，每个patch独立地分配给不同的专家，从而提高效率。
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2024-05-28
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            Cyan.
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+                        <span class="chip bg-color">论文笔记</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2024/05/08/xue-xi-moe-hun-he-zhuan-jia-mo-xing/">
+                    <div class="card-image">
+                        
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240508171027413.png?imageSlim" class="responsive-img" alt="MOE混合专家模型架构">
+                        
+                        <span class="card-title">MOE混合专家模型架构</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            学习了MOE混合专家模型的工作原理，对门控单元有了更深入的理解。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2024-05-08
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            Cyan.
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+                        <span class="chip bg-color">学习笔记</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
         </div>
         
     </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
 
 </main>
 
