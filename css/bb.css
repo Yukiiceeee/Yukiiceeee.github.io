@@ -7,7 +7,7 @@ div.timenode:after {
     content: '';
     z-index: 1;
     position: absolute;
-    background: rgba(68, 215, 182, 0.5);
+    background: rgba(68, 215, 183, 0.818);
     width: 2px;
     left: 7px;
 }
@@ -50,14 +50,14 @@ div.timenode .meta:after {
 }
 
 div.timenode .meta:before {
-    background: rgba(68, 215, 182, 0.5);
+    background: rgba(68, 215, 183, 0.789);
     width: 16px;
     height: 16px;
     border-radius: 8px;
 }
 
 div.timenode .meta:after {
-    background: #44d7b6;
+    background: #37c9a9;
     margin-left: 2px;
     margin-top: 2px;
     width: 12px;
