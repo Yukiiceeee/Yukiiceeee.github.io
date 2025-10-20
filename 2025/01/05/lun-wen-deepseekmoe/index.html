@@ -368,7 +368,7 @@
 </ul>
 <hr>
 <h4 id="模型架构："><a href="#模型架构：" class="headerlink" title="模型架构："></a>模型架构：</h4><p>所以方法也很直观了，论文里的 <strong>pipeline</strong> 也画得非常清楚：</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738763285958.jpg?imageSlim" alt="image-20240519223632525"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738763285958.jpg?imageSlim"></p>
 <ol>
 <li><p><strong>专家数量增加实现</strong>：</p>
 <ul>
@@ -392,9 +392,9 @@
 <p>不得不说人家的 Experiment 是真的充分，而且特别详细……</p>
 </blockquote>
 <p><strong>验证实验（2B参数模型）：</strong>验证DeepSeekMoE架构在中小规模下的有效性。对比了Dense模型、Hash Layer、Switch Transformer、GShard等MoE架构，</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738764304023.jpg?imageSlim" alt="image-20240519225817161"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738764304023.jpg?imageSlim"></p>
 <p><strong>消融实验：</strong>主要验证了细粒度分割和共享专家的作用体现。</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738764486549.jpg?imageSlim" alt="image-20240519230406663"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/1738764486549.jpg?imageSlim"></p>
 <p>当然论文还做了很多其它实验，在16B模型上的扩展实验、对齐实验（监督微调）、超大规模模型实验……这里就不一一列举了，感兴趣可以去读下原文~</p>
 <p>这里突然想起来 ACL 2024 上还有一篇 Dynamic MoE，直观上感觉那篇的动态路由用到 DeepSeek 这样多专家的架构上提升应该更明显。因为其实 Top-K 这样固定选专家数量的策略，在专家数更多组合更多样的情况下，打分之后可能会有更大的差异性，所以按阈值来路由兴许有更好的效果。</p>
 <hr>

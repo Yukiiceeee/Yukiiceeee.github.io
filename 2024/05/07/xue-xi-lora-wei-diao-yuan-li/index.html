@@ -367,7 +367,7 @@
 <hr>
 <p><strong>基本原理：</strong>低秩矩阵相乘升维，与预训练权重矩阵叠加，实现模型微调</p>
 <p><strong>原理简述：</strong>冻结预训练的模型参数，然后在Transfomer的每一层中加入一个可训练的旁路矩阵（低秩可分离矩阵），接着将旁路输出与初始路径输出相加输入到网络当中。在训练的时候，只训练这些新增的低秩矩阵的参数。其中低秩矩阵由两个矩阵组成，第一个矩阵负责降维，第二个矩阵负责升维，中间层维度为r，两个低秩矩阵能够大幅度减小参数量。</p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508103941588.png" alt="image-20240508103941588"></p>
+<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508103941588.png"></p>
 <p><strong>原理解释：</strong></p>
 <p>输入为<code>x</code>，输出为<code>h</code>，预训练模型：</p>
 <p>$h&#x3D;W_{0}x$</p>
@@ -381,7 +381,7 @@
 <p>论文中，将 LoRA 作用在 Query 与 Value 权重矩阵上效果最好：</p>
 <p><code>attention query</code> 映射矩阵：$W_{q}&#x3D;W_{q_{plm}}+aW_{q_{lora}}$</p>
 <p><code>attention value</code> 映射矩阵：$W_{v}&#x3D;W_{v_{plm}}+aW_{v_{lora}}$</p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508141215200.png" alt="image-20240508141215200"></p>
+<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508141215200.png"></p>
 <p><code>Attention</code> 计算结果：</p>
 <p>$head&#x3D;softmax(Q,K)XW&#x3D;softmax(Q,K)X(W_{v_{plm}}+aX<em>W_{v_{lora}})&#x3D;softmax(Q,K)XW_{v_{plm}}+a</em>softmax(Q,K)XW_{v_{lora}}$</p>
 <hr>
@@ -414,7 +414,7 @@ print("Rank of C:", np.linalg.matrix_rank(C)) # 3
 #对C的情况，我们称为满秩（full rank）。
 </code></pre>
 <p>· 对A矩阵，采用随机高斯初始化；对B矩阵，采用zero初始化。这样做的原因是要<strong>保证梯度更新有效。</strong></p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508142401355.png" alt="image-20240508142401355"></p>
+<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508142401355.png"></p>
 <p>$ℎ_{𝑖}^{(2)}$ 是输出向量 $h$ 的第 $i$ 个元素，$B_{i,k}$ 是矩阵 $B$ 的元素，$A_{i,k}$ 是矩阵 $A$ 的元素，而 $x_{j}$ 是输入向量 $x$ 的第 $j$ 个元素。</p>
 <p>计算权重 $B$ 中元素 $B_{i,k}$ 的偏导数来进行梯度下降。固定 $i$ 和 $k$，对所有的 $j$ 进行求和，将 $A$ 的对应元素与输入向量的元素相乘并累加。</p>
 <p>$B_{i,k}$ 的每个更新都是由 $x$ 和 $A$ 的对应元素的乘积影响的，故而对A矩阵，采用随机高斯初始化；对B矩阵，采用zero初始化。</p>

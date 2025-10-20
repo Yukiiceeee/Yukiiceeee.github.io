@@ -373,17 +373,17 @@
 <li><strong>稀疏 MoE 层</strong>: 取代传统 Transformer 模型中的前馈网络 (FFN) 层。MoE 层包含若干“专家模型”，每个专家本身是一个独立的神经网络。在实际应用中，这些专家通常是前馈网络 (FFN)，也可以是更复杂的网络结构，甚至可以是 MoE 层本身，从而形成层级式的 MoE 结构。</li>
 <li><strong>门控网络单元</strong>: 决定哪些令牌 (token) 被发送到哪个专家。例如，在下图中，“More”这个 <code>token</code> 可能被发送到第二个专家，而“Parameters”这个 <code>token</code> 被发送到第一个专家。有时，一个 <code>token</code> 甚至可以被发送到多个专家。门控单元的设计是 MoE 使用中的一个关键点，与网络的其他部分一同进行预训练。</li>
 </ul>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508171027413.png" alt="image-20240508171027413"></p>
+<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508171027413.png"></p>
 <p>其中，门控网络通常是一个带有Softmax的简单网络，学习将输入发送给哪一个专家的分类。</p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508171640190.png" alt="image-20240508171640190"></p>
+<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508171640190.png"></p>
 <p>所有专家模型都会对所有输入进行运算，但通过门控网络的输出进行加权乘法操作。</p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508171722067.png" alt="image-20240508171722067"></p>
+<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508171722067.png"></p>
 <h4 id="数据需求："><a href="#数据需求：" class="headerlink" title="数据需求："></a>数据需求：</h4><p>对于MOE模型，数据的质量比数据数量更重要。多个专家模型的训练需要确保有涵盖每一个领域的大量数据作为支撑，专家 gating network 也需要分配平衡。故而常需要一个分类器质检，确保数据的质量。</p>
 <p>MOE的更多参数也意味着我们需要更多数据去训练。</p>
 <h4 id="并行训练："><a href="#并行训练：" class="headerlink" title="并行训练："></a>并行训练：</h4><p>MOE在训练中可以采用数据并行或模型并行的训练方法。</p>
 <p><strong>· 数据并行：</strong>多个显卡对同一个MOE（参数一致），每个显卡进行不同的专家模型训练。将数据并行地发送到MOE之中，实现数据并行训练。</p>
 <p><strong>· 模型并行：</strong>将MOE的多个专家拆到多个显卡当中，依次输入相关参数，但每次可能会索引到其它卡的专家模型之中，故而需要卡间通信。</p>
-<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508172345121.png" alt="image-20240508172345121"></p>
+<p><img src="C:\Users\86133\AppData\Roaming\Typora\typora-user-images\image-20240508172345121.png"></p>
 
                 
             </div>

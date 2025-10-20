@@ -1,0 +1,2155 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Build an Agentic RAG System, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="description" content="Agentic RAG 相比传统的一步检索式 Native RAG 有了更卓越的表现，通过牺牲了一些推理时间来换取了更令人满意的效果。本质上就是利用 Agent 多步决策的思路，使模型在检索相关文档时能够有思考、回退、改写等等决策，而不是简单地根据相似度直接得到结果。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Build an Agentic RAG System | Cyan&#39;s Blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Cyan&#39;s Blog</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Cyan&#39;s Blog</div>
+        <div class="logo-desc">
+            
+            个人博客
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/illust_105369093_20231026_120919.jpg?imageSlim')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Build an Agentic RAG System</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+                                <span class="chip bg-color">学习笔记</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2025-10-18
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    3k
+                </div>
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h2 id="Native-RAG"><a href="#Native-RAG" class="headerlink" title="Native RAG"></a>Native RAG</h2><p>传统 RAG 以填充 prompt 的形式进行，从数据库中检索相关知识来填充。原始文档的内容通过切片，经过 Embedding Model 向量化，并存储到数据库中以备检索使用。</p>
+<p>整个过程较为线性，检索方式也比较简单，不能保证最终的检索精度，<strong>其效果有一定局限性</strong>。</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251019140128.png"></p>
+<p>简单的 Native RAG 构建需要两个部分：offline（离线存储）和 online（在线检索）。这里使用 <code>langchain</code> 构建：</p>
+<h4 id="离线部分"><a href="#离线部分" class="headerlink" title="离线部分"></a>离线部分</h4><p>首先准备好文档文本，导入相关库并加载文档内容到内存中：</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> langchain_community<span class="token punctuation">.</span>document_loaders <span class="token keyword">import</span> TextLoader
+
+<span class="token keyword">from</span> langchain<span class="token punctuation">.</span>text_splitter <span class="token keyword">import</span> RecursiveCharacterTextSplitter
+
+<span class="token keyword">from</span> langchain_openai <span class="token keyword">import</span> OpenAIEmbeddings
+
+<span class="token keyword">from</span> langchain_chroma <span class="token keyword">import</span> Chroma
+
+  
+
+<span class="token comment" spellcheck="true"># load document</span>
+
+loader <span class="token operator">=</span> TextLoader<span class="token punctuation">(</span><span class="token string">"./knowledge.txt"</span><span class="token punctuation">)</span>
+
+documents <span class="token operator">=</span> loader<span class="token punctuation">.</span>load<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<p>接下来将文档拆分成段，进行 embedding 并将其持久化存储：</p>
+<pre class=" language-python"><code class="language-python"><span class="token comment" spellcheck="true"># split documents into chunks</span>
+
+text_splitter <span class="token operator">=</span> RecursiveCharacterTextSplitter<span class="token punctuation">(</span>
+
+    chunk_size <span class="token operator">=</span> <span class="token number">500</span><span class="token punctuation">,</span>
+
+    chunk_overlap <span class="token operator">=</span> <span class="token number">20</span><span class="token punctuation">,</span>
+
+<span class="token punctuation">)</span>
+
+splits <span class="token operator">=</span> text_splitter<span class="token punctuation">.</span>split_documents<span class="token punctuation">(</span>documents<span class="token punctuation">)</span>
+
+  
+
+<span class="token comment" spellcheck="true"># embed chunks</span>
+
+embeddings <span class="token operator">=</span> OpenAIEmbeddings<span class="token punctuation">(</span>
+
+    base_url<span class="token operator">=</span><span class="token string">"https://api.siliconflow.cn/v1"</span><span class="token punctuation">,</span>
+
+    model<span class="token operator">=</span><span class="token string">"Qwen/Qwen3-Embedding-0.6B"</span><span class="token punctuation">,</span>
+
+<span class="token punctuation">)</span>
+
+  
+
+<span class="token comment" spellcheck="true"># store chunks</span>
+
+vector_store <span class="token operator">=</span> Chroma<span class="token punctuation">.</span>from_documents<span class="token punctuation">(</span>
+
+    documents<span class="token operator">=</span>splits<span class="token punctuation">,</span>
+
+    embedding<span class="token operator">=</span>embeddings<span class="token punctuation">,</span>
+
+    persist_directory<span class="token operator">=</span><span class="token string">"./vector_store"</span><span class="token punctuation">,</span>
+
+<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"successfully stored chunks"</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="在线部分"><a href="#在线部分" class="headerlink" title="在线部分"></a>在线部分</h4><p>online 环节更加简单，仅需将 query embed，然后进行向量检索，从离线环节构建得到的数据库中检索到相关文档内容，最后将文档内容作为上下文信息，填入到已有的 prompt template 中，调用模型进行内容生成。</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> langchain<span class="token punctuation">.</span>embeddings <span class="token keyword">import</span> OpenAIEmbeddings
+
+<span class="token keyword">from</span> langchain<span class="token punctuation">.</span>vectorstores <span class="token keyword">import</span> Chroma
+
+<span class="token keyword">from</span> langchain_openai <span class="token keyword">import</span> ChatOpenAI
+
+<span class="token keyword">from</span> langchain<span class="token punctuation">.</span>prompts <span class="token keyword">import</span> PromptTemplate
+
+<span class="token keyword">from</span> langchain<span class="token punctuation">.</span>schema <span class="token keyword">import</span> HumanMessage
+
+  
+
+embeddings <span class="token operator">=</span> OpenAIEmbeddings<span class="token punctuation">(</span>
+
+    base_url<span class="token operator">=</span><span class="token string">"https://api.siliconflow.cn/v1"</span><span class="token punctuation">,</span>
+
+    model<span class="token operator">=</span><span class="token string">"Qwen/Qwen3-Embedding-0.6B"</span><span class="token punctuation">,</span>
+
+<span class="token punctuation">)</span>
+
+vectorstore <span class="token operator">=</span> Chroma<span class="token punctuation">(</span>persist_directory<span class="token operator">=</span><span class="token string">"./vector_store"</span><span class="token punctuation">,</span> embedding_function<span class="token operator">=</span>embeddings<span class="token punctuation">)</span>
+
+  
+
+query <span class="token operator">=</span> <span class="token string">"什么是RAG？"</span>
+
+  
+
+documents <span class="token operator">=</span> vectorstore<span class="token punctuation">.</span>similarity_search<span class="token punctuation">(</span>query<span class="token punctuation">,</span> k<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">)</span>
+
+  
+
+context <span class="token operator">=</span> <span class="token string">"\n"</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token punctuation">[</span>doc<span class="token punctuation">.</span>page_content <span class="token keyword">for</span> doc <span class="token keyword">in</span> documents<span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+  
+
+prompt <span class="token operator">=</span> PromptTemplate<span class="token punctuation">(</span>
+
+    template<span class="token operator">=</span><span class="token triple-quoted-string string">"""
+
+    你是一个专业的问答助手。请根据以下参考文档回答用户的问题。
+
+    如果参考文档中没有相关信息，请诚实地说不知道，不要编造答案。
+
+  
+
+    参考文档：&amp;#123;context&amp;#125;
+
+  
+
+    用户问题：&amp;#123;query&amp;#125;
+
+  
+
+    回答：
+
+    """</span><span class="token punctuation">,</span>
+
+    input_variables<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"context"</span><span class="token punctuation">,</span> <span class="token string">"query"</span><span class="token punctuation">]</span>
+
+<span class="token punctuation">)</span>
+
+chain <span class="token operator">=</span> prompt <span class="token operator">|</span> ChatOpenAI<span class="token punctuation">(</span>
+
+    model<span class="token operator">=</span><span class="token string">"THUDM/glm-4-9b-chat"</span><span class="token punctuation">,</span>
+
+    temperature<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>
+
+    max_retries<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">,</span>
+
+    base_url<span class="token operator">=</span><span class="token string">"https://api.siliconflow.cn/v1"</span><span class="token punctuation">,</span>
+
+    api_key<span class="token operator">=</span>API_KEY<span class="token punctuation">,</span>
+
+<span class="token punctuation">)</span>
+
+  
+
+result <span class="token operator">=</span> chain<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"context": context, "query": query&amp;#125;)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>result<span class="token punctuation">.</span>content<span class="token punctuation">)</span>
+</code></pre>
+<h2 id="Agentic-RAG"><a href="#Agentic-RAG" class="headerlink" title="Agentic RAG"></a>Agentic RAG</h2><p>Native RAG 的不足之处：</p>
+<ul>
+<li><strong>一次性检索</strong>：一般一下子检索 <code>Top-K</code> 文档 chunks，无法按需求递进检索；</li>
+<li><strong>查询力度差</strong>：只会根据相似度检索，不会进一步查看文件元数据；</li>
+<li><strong>缺乏任务拆解</strong>：问题可能需要先定位文件、再选片段、再比对与总结，Native RAG 往往缺少这样的多步拆解能力，也不会回溯重试，按语义改写原始查询等。</li>
+</ul>
+<p>Agentic RAG 的思路是<strong>将 RAG 的过程“工具化”</strong>：提供 search tools，模型的检索利用这些 tools 进行，LLM 使用一个 tool use 的循环，获取到足够合适的信息后再生成。</p>
+<p>Agentic 需要的能力：</p>
+<ol>
+<li>Planning &#x2F; Reflection（一般可以体现在 Long COT thinking 过程中）</li>
+<li>tool use &#x2F; Multi-Agent Collaboration（一般体现在 tools 的调用中）</li>
+<li>Multi-Step inference</li>
+</ol>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/kappframework-Zbogca(1)(1).png"></p>
+<ul>
+<li>让 LLM 作为“智能体（Agent）”充当控制器，结合一组工具（检索、查看元数据、读取片段等）执行“思考→行动→观察”的循环（Reason–Act–Observe）。</li>
+<li>在回答之前，按需多轮调用工具，逐步从“找到相关文件”走到“读取关键片段”，最后基于被读取的证据组织答案，并给出引用。</li>
+</ul>
+<p>主要有两种实现方式，一种是基于 <code>tools &amp; prompts</code> 的 RAG，另一种是基于 <code>RL</code> 的 RAG。</p>
+<h4 id="基于-tools-prompts-的-RAG"><a href="#基于-tools-prompts-的-RAG" class="headerlink" title="基于 tools &amp; prompts 的 RAG"></a>基于 tools &amp; prompts 的 RAG</h4><p>ReAct 是一个常见的 Agent 实现方式，因此只要给 LLM 配备合适的 <code>Tool</code>以及适当的引导 <code>Prompt</code>，就可以将一个 <code>Native RAG</code> 转换成 <code>Agentic RAG</code>。</p>
+<p>在 Agentic RAG 经典项目 <a href="%22https://github.com/chatboxai/chatbox/blob/9e33c9f998ebf240f31bbb439a430b4d5e5bd3e0/src/renderer/packages/knowledge-base/tools.ts#L78%22">chatbox</a> 里，主要定义了四种关键的 tools：</p>
+<ul>
+<li><code>query_knowledge_base</code><br>  在知识库中进行语义检索，快速找到候选文件或 <code>chunks</code>。通常作为最基础的检索工具</li>
+<li><code>get_files_meta</code><br>  查看候选文件的元信息（如文件名、大小、chunk 数量），帮助模型决定“读哪几个文件的哪部分”。</li>
+<li><code>read_file_chunks</code><br>  按文件 <code>ID + chunkIndex</code> 精读具体片段，用于“取证”。建议一次只读少量最相关的 <code>chunk</code>，以降低噪声。</li>
+<li><code>list_files</code><br>  列出知识库中的文件清单，作为兜底浏览或当搜索线索不充分时的探索手段。</li>
+</ul>
+<p>这些 <code>tools</code> 具体在 Agentic RAG 里是怎么应用的呢？举个例子来说，<code>query_knowledge_base</code> 就是根据 <code>query</code> 最基础的查找，根据语义检索定位 <code>chunks</code>；紧接着，如果模型决策当前获取的信息不充足，需要补充上下 <code>chunks</code> 里的信息，那么可以通过调用 <code>read_file_chunks</code> 函数来补充。</p>
+<p>同时，由于整个过程被拆解为多个 LLM 的调用决策，模型还可以根据当前判断，主动修改要检索的原始 <code>query</code> 信息，从而实现更好的检索。</p>
+<p>Agentic RAG 的简单实现如下，大致分为三个环节：</p>
+<ul>
+<li>offline：构建文档数据库，定义文件数据类、文件元数据、文件 <code>chunks</code> 分块方式、检索方法；</li>
+<li>offline：定义知识库管理的调用函数，也就是几种模型要用到的工具 <code>tools</code>；</li>
+<li>online：初始化模型，传入定义好的 <code>tools</code>，定义提示词模版，引导模型多步决策进行检索；</li>
+</ul>
+<p>源代码如下：</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> typing <span class="token keyword">import</span> List<span class="token punctuation">,</span> Dict
+
+<span class="token keyword">import</span> json
+
+<span class="token keyword">from</span> dataclasses <span class="token keyword">import</span> dataclass
+
+<span class="token keyword">from</span> langchain_core<span class="token punctuation">.</span>tools <span class="token keyword">import</span> tool
+
+<span class="token keyword">from</span> langchain_openai <span class="token keyword">import</span> ChatOpenAI
+
+<span class="token keyword">from</span> langgraph<span class="token punctuation">.</span>prebuilt <span class="token keyword">import</span> create_react_agent
+
+  
+  
+
+@dataclass
+
+<span class="token keyword">class</span> <span class="token class-name">FileChunk</span><span class="token punctuation">:</span>
+
+    <span class="token triple-quoted-string string">"""文件片段"""</span>
+
+  
+
+    file_id<span class="token punctuation">:</span> int
+
+    chunk_index<span class="token punctuation">:</span> int
+
+    content<span class="token punctuation">:</span> str
+
+  
+  
+
+@dataclass
+
+<span class="token keyword">class</span> <span class="token class-name">FileInfo</span><span class="token punctuation">:</span>
+
+    <span class="token triple-quoted-string string">"""文件信息"""</span>
+
+  
+
+    id<span class="token punctuation">:</span> int
+
+    filename<span class="token punctuation">:</span> str
+
+    chunk_count<span class="token punctuation">:</span> int
+
+    status<span class="token punctuation">:</span> str <span class="token operator">=</span> <span class="token string">"done"</span>
+
+  
+  
+
+<span class="token keyword">class</span> <span class="token class-name">MockKnowledgeBaseController</span><span class="token punctuation">:</span>
+
+    <span class="token triple-quoted-string string">"""模拟知识库控制器 - 内存版本，用于演示"""</span>
+
+  
+
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+        <span class="token comment" spellcheck="true"># 模拟一些文档数据</span>
+
+        self<span class="token punctuation">.</span>files <span class="token operator">=</span> <span class="token punctuation">[</span>
+
+            FileInfo<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"rag_introduction.md"</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            FileInfo<span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token string">"llm_fundamentals.md"</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            FileInfo<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token string">"vector_search.md"</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            FileInfo<span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token string">"prompt_engineering.md"</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+        <span class="token punctuation">]</span>
+
+  
+
+        <span class="token comment" spellcheck="true"># 模拟文档内容片段</span>
+
+        self<span class="token punctuation">.</span>chunks <span class="token operator">=</span> <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+            <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">1</span><span class="token punctuation">,</span>
+
+                <span class="token number">0</span><span class="token punctuation">,</span>
+
+                <span class="token string">"RAG (Retrieval-Augmented Generation) 是一种结合检索和生成的技术，通过从外部知识源检索相关信息来增强大语言模型的生成能力。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">1</span><span class="token punctuation">,</span>
+
+                <span class="token number">1</span><span class="token punctuation">,</span>
+
+                <span class="token string">"RAG 的优点包括：1) 能够访问最新信息，2) 减少模型幻觉，3) 提供可追溯的信息来源，4) 无需重新训练模型即可更新知识。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">1</span><span class="token punctuation">,</span>
+
+                <span class="token number">2</span><span class="token punctuation">,</span>
+
+                <span class="token string">"RAG 的缺点包括：1) 检索质量直接影响生成效果，2) 增加了系统复杂度，3) 对向量数据库的依赖，4) 可能存在检索延迟。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">1</span><span class="token punctuation">,</span>
+
+                <span class="token number">3</span><span class="token punctuation">,</span>
+
+                <span class="token string">"传统 RAG 系统通常采用固定的检索-生成流程，无法根据问题复杂度动态调整策略。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">1</span><span class="token punctuation">,</span>
+
+                <span class="token number">4</span><span class="token punctuation">,</span>
+
+                <span class="token string">"Agentic RAG 通过引入智能体，使系统能够自主决策何时检索、如何检索以及检索多少内容，从而提升复杂问题的处理能力。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">2</span><span class="token punctuation">,</span>
+
+                <span class="token number">0</span><span class="token punctuation">,</span>
+
+                <span class="token string">"大语言模型 (LLM) 是基于 Transformer 架构的深度学习模型，通过预训练学习语言的统计规律。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"LLM 的核心能力包括自然语言理解、生成、推理和少样本学习等。"</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token string">"LLM 的局限性包括知识截止时间、可能产生幻觉、计算资源消耗大等。"</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">2</span><span class="token punctuation">,</span>
+
+                <span class="token number">3</span><span class="token punctuation">,</span>
+
+                <span class="token string">"工具调用是 LLM 的重要扩展能力，使模型能够与外部系统交互，执行复杂任务。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">3</span><span class="token punctuation">,</span>
+
+                <span class="token number">0</span><span class="token punctuation">,</span>
+
+                <span class="token string">"向量搜索是 RAG 系统的核心组件，通过将文本转换为向量表示来实现语义相似度匹配。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">3</span><span class="token punctuation">,</span>
+
+                <span class="token number">1</span><span class="token punctuation">,</span>
+
+                <span class="token string">"常见的向量搜索算法包括 FAISS、Chroma、Pinecone 等，各有不同的性能特点。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">3</span><span class="token punctuation">,</span>
+
+                <span class="token number">2</span><span class="token punctuation">,</span>
+
+                <span class="token string">"向量搜索的效果很大程度上依赖于embedding模型的质量和索引构建策略。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">4</span><span class="token punctuation">,</span>
+
+                <span class="token number">0</span><span class="token punctuation">,</span>
+
+                <span class="token string">"提示工程是优化大模型表现的重要技术，包括设计有效的提示模板、上下文管理等。"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"良好的提示设计原则包括：清晰明确、提供示例、结构化输出格式等。"</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token string">"Agent 系统的提示设计需要考虑工具调用的策略指导和错误处理机制。"</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">:</span> FileChunk<span class="token punctuation">(</span>
+
+                <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token string">"系统提示词应该明确定义 Agent 的角色、能力边界和行为规范。"</span>
+
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+        <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;</span>
+
+  
+
+    <span class="token keyword">def</span> <span class="token function">search</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> kb_id<span class="token punctuation">:</span> int<span class="token punctuation">,</span> query<span class="token punctuation">:</span> str<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> List<span class="token punctuation">[</span>Dict<span class="token punctuation">]</span><span class="token punctuation">:</span>
+
+        <span class="token triple-quoted-string string">"""模拟语义搜索 - 基于关键词匹配"""</span>
+
+        query_lower <span class="token operator">=</span> query<span class="token punctuation">.</span>lower<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        results <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+  
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>file_id<span class="token punctuation">,</span> chunk_idx<span class="token punctuation">)</span><span class="token punctuation">,</span> chunk <span class="token keyword">in</span> self<span class="token punctuation">.</span>chunks<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+            content_lower <span class="token operator">=</span> chunk<span class="token punctuation">.</span>content<span class="token punctuation">.</span>lower<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+            <span class="token comment" spellcheck="true"># 简单的关键词匹配评分</span>
+
+            score <span class="token operator">=</span> <span class="token number">0</span>
+
+            keywords <span class="token operator">=</span> <span class="token punctuation">[</span>
+
+                <span class="token string">"rag"</span><span class="token punctuation">,</span>
+
+                <span class="token string">"agentic"</span><span class="token punctuation">,</span>
+
+                <span class="token string">"优缺点"</span><span class="token punctuation">,</span>
+
+                <span class="token string">"优点"</span><span class="token punctuation">,</span>
+
+                <span class="token string">"缺点"</span><span class="token punctuation">,</span>
+
+                <span class="token string">"llm"</span><span class="token punctuation">,</span>
+
+                <span class="token string">"检索"</span><span class="token punctuation">,</span>
+
+                <span class="token string">"生成"</span><span class="token punctuation">,</span>
+
+                <span class="token string">"向量"</span><span class="token punctuation">,</span>
+
+                <span class="token string">"搜索"</span><span class="token punctuation">,</span>
+
+            <span class="token punctuation">]</span>
+
+            <span class="token keyword">for</span> keyword <span class="token keyword">in</span> keywords<span class="token punctuation">:</span>
+
+                <span class="token keyword">if</span> keyword <span class="token keyword">in</span> query_lower <span class="token operator">and</span> keyword <span class="token keyword">in</span> content_lower<span class="token punctuation">:</span>
+
+                    score <span class="token operator">+=</span> <span class="token number">1</span>
+
+  
+
+            <span class="token keyword">if</span> score <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">or</span> any<span class="token punctuation">(</span>word <span class="token keyword">in</span> content_lower <span class="token keyword">for</span> word <span class="token keyword">in</span> query_lower<span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+                file_info <span class="token operator">=</span> next<span class="token punctuation">(</span>f <span class="token keyword">for</span> f <span class="token keyword">in</span> self<span class="token punctuation">.</span>files <span class="token keyword">if</span> f<span class="token punctuation">.</span>id <span class="token operator">==</span> file_id<span class="token punctuation">)</span>
+
+                results<span class="token punctuation">.</span>append<span class="token punctuation">(</span>
+
+                    <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+                        <span class="token string">"file_id"</span><span class="token punctuation">:</span> file_id<span class="token punctuation">,</span>
+
+                        <span class="token string">"chunk_index"</span><span class="token punctuation">:</span> chunk_idx<span class="token punctuation">,</span>
+
+                        <span class="token string">"filename"</span><span class="token punctuation">:</span> file_info<span class="token punctuation">.</span>filename<span class="token punctuation">,</span>
+
+                        <span class="token string">"score"</span><span class="token punctuation">:</span> score <span class="token operator">+</span> <span class="token number">0.5</span><span class="token punctuation">,</span>  <span class="token comment" spellcheck="true"># 基础分</span>
+
+                        <span class="token string">"preview"</span><span class="token punctuation">:</span> chunk<span class="token punctuation">.</span>content<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token number">100</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token string">"..."</span>
+
+                        <span class="token keyword">if</span> len<span class="token punctuation">(</span>chunk<span class="token punctuation">.</span>content<span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">100</span>
+
+                        <span class="token keyword">else</span> chunk<span class="token punctuation">.</span>content<span class="token punctuation">,</span>
+
+                    <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;</span>
+
+                <span class="token punctuation">)</span>
+
+  
+
+        <span class="token comment" spellcheck="true"># 按分数排序并返回前5个</span>
+
+        results<span class="token punctuation">.</span>sort<span class="token punctuation">(</span>key<span class="token operator">=</span><span class="token keyword">lambda</span> x<span class="token punctuation">:</span> x<span class="token punctuation">[</span><span class="token string">"score"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> reverse<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">return</span> results<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token number">5</span><span class="token punctuation">]</span>
+
+  
+
+    <span class="token keyword">def</span> <span class="token function">getFilesMeta</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> kb_id<span class="token punctuation">:</span> int<span class="token punctuation">,</span> file_ids<span class="token punctuation">:</span> List<span class="token punctuation">[</span>int<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> List<span class="token punctuation">[</span>Dict<span class="token punctuation">]</span><span class="token punctuation">:</span>
+
+        <span class="token triple-quoted-string string">"""获取文件元信息"""</span>
+
+        result <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+        <span class="token keyword">for</span> file_id <span class="token keyword">in</span> file_ids<span class="token punctuation">:</span>
+
+            file_info <span class="token operator">=</span> next<span class="token punctuation">(</span><span class="token punctuation">(</span>f <span class="token keyword">for</span> f <span class="token keyword">in</span> self<span class="token punctuation">.</span>files <span class="token keyword">if</span> f<span class="token punctuation">.</span>id <span class="token operator">==</span> file_id<span class="token punctuation">)</span><span class="token punctuation">,</span> None<span class="token punctuation">)</span>
+
+            <span class="token keyword">if</span> file_info<span class="token punctuation">:</span>
+
+                result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>
+
+                    <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+                        <span class="token string">"id"</span><span class="token punctuation">:</span> file_info<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+
+                        <span class="token string">"filename"</span><span class="token punctuation">:</span> file_info<span class="token punctuation">.</span>filename<span class="token punctuation">,</span>
+
+                        <span class="token string">"chunk_count"</span><span class="token punctuation">:</span> file_info<span class="token punctuation">.</span>chunk_count<span class="token punctuation">,</span>
+
+                        <span class="token string">"status"</span><span class="token punctuation">:</span> file_info<span class="token punctuation">.</span>status<span class="token punctuation">,</span>
+
+                    <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;</span>
+
+                <span class="token punctuation">)</span>
+
+        <span class="token keyword">return</span> result
+
+  
+
+    <span class="token keyword">def</span> <span class="token function">readFileChunks</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> kb_id<span class="token punctuation">:</span> int<span class="token punctuation">,</span> chunks<span class="token punctuation">:</span> List<span class="token punctuation">[</span>Dict<span class="token punctuation">[</span>str<span class="token punctuation">,</span> int<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> List<span class="token punctuation">[</span>Dict<span class="token punctuation">]</span><span class="token punctuation">:</span>
+
+        <span class="token triple-quoted-string string">"""读取具体的文件片段"""</span>
+
+        result <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+        <span class="token keyword">for</span> chunk_spec <span class="token keyword">in</span> chunks<span class="token punctuation">:</span>
+
+            file_id <span class="token operator">=</span> chunk_spec<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"fileId"</span><span class="token punctuation">)</span>
+
+            chunk_index <span class="token operator">=</span> chunk_spec<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"chunkIndex"</span><span class="token punctuation">)</span>
+
+  
+
+            chunk <span class="token operator">=</span> self<span class="token punctuation">.</span>chunks<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token punctuation">(</span>file_id<span class="token punctuation">,</span> chunk_index<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+            <span class="token keyword">if</span> chunk<span class="token punctuation">:</span>
+
+                result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>
+
+                    <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+                        <span class="token string">"file_id"</span><span class="token punctuation">:</span> file_id<span class="token punctuation">,</span>
+
+                        <span class="token string">"chunk_index"</span><span class="token punctuation">:</span> chunk_index<span class="token punctuation">,</span>
+
+                        <span class="token string">"content"</span><span class="token punctuation">:</span> chunk<span class="token punctuation">.</span>content<span class="token punctuation">,</span>
+
+                        <span class="token string">"filename"</span><span class="token punctuation">:</span> next<span class="token punctuation">(</span>
+
+                            f<span class="token punctuation">.</span>filename <span class="token keyword">for</span> f <span class="token keyword">in</span> self<span class="token punctuation">.</span>files <span class="token keyword">if</span> f<span class="token punctuation">.</span>id <span class="token operator">==</span> file_id
+
+                        <span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+                    <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;</span>
+
+                <span class="token punctuation">)</span>
+
+        <span class="token keyword">return</span> result
+
+  
+
+    <span class="token keyword">def</span> <span class="token function">listFilesPaginated</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> kb_id<span class="token punctuation">:</span> int<span class="token punctuation">,</span> page<span class="token punctuation">:</span> int<span class="token punctuation">,</span> page_size<span class="token punctuation">:</span> int<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> List<span class="token punctuation">[</span>Dict<span class="token punctuation">]</span><span class="token punctuation">:</span>
+
+        <span class="token triple-quoted-string string">"""分页列出文件"""</span>
+
+        start <span class="token operator">=</span> page <span class="token operator">*</span> page_size
+
+        end <span class="token operator">=</span> start <span class="token operator">+</span> page_size
+
+  
+
+        files_slice <span class="token operator">=</span> self<span class="token punctuation">.</span>files<span class="token punctuation">[</span>start<span class="token punctuation">:</span>end<span class="token punctuation">]</span>
+
+        <span class="token keyword">return</span> <span class="token punctuation">[</span>
+
+            <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+                <span class="token string">"id"</span><span class="token punctuation">:</span> f<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+
+                <span class="token string">"filename"</span><span class="token punctuation">:</span> f<span class="token punctuation">.</span>filename<span class="token punctuation">,</span>
+
+                <span class="token string">"chunk_count"</span><span class="token punctuation">:</span> f<span class="token punctuation">.</span>chunk_count<span class="token punctuation">,</span>
+
+                <span class="token string">"status"</span><span class="token punctuation">:</span> f<span class="token punctuation">.</span>status<span class="token punctuation">,</span>
+
+            <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;</span>
+
+            <span class="token keyword">for</span> f <span class="token keyword">in</span> files_slice
+
+        <span class="token punctuation">]</span>
+
+  
+  
+
+<span class="token comment" spellcheck="true"># 初始化模拟的知识库控制器</span>
+
+kb_controller <span class="token operator">=</span> MockKnowledgeBaseController<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+knowledge_base_id <span class="token operator">=</span> <span class="token number">1</span>  <span class="token comment" spellcheck="true"># 模拟的知识库ID</span>
+
+  
+  
+
+<span class="token comment" spellcheck="true"># 定义四个核心工具</span>
+
+@tool<span class="token punctuation">(</span><span class="token string">"query_knowledge_base"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">query_knowledge_base</span><span class="token punctuation">(</span>query<span class="token punctuation">:</span> str<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> str<span class="token punctuation">:</span>
+
+    <span class="token triple-quoted-string string">"""Query a knowledge base with semantic search"""</span>
+
+    results <span class="token operator">=</span> kb_controller<span class="token punctuation">.</span>search<span class="token punctuation">(</span>knowledge_base_id<span class="token punctuation">,</span> query<span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>results<span class="token punctuation">,</span> ensure_ascii<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> indent<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>
+
+  
+  
+
+@tool<span class="token punctuation">(</span><span class="token string">"get_files_meta"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">get_files_meta</span><span class="token punctuation">(</span>fileIds<span class="token punctuation">:</span> List<span class="token punctuation">[</span>int<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> str<span class="token punctuation">:</span>
+
+    <span class="token triple-quoted-string string">"""Get metadata for files in the current knowledge base."""</span>
+
+    <span class="token keyword">if</span> <span class="token operator">not</span> fileIds<span class="token punctuation">:</span>
+
+        <span class="token keyword">return</span> <span class="token string">"请提供文件ID数组"</span>
+
+    results <span class="token operator">=</span> kb_controller<span class="token punctuation">.</span>getFilesMeta<span class="token punctuation">(</span>knowledge_base_id<span class="token punctuation">,</span> fileIds<span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>results<span class="token punctuation">,</span> ensure_ascii<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> indent<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>
+
+  
+  
+
+@tool<span class="token punctuation">(</span><span class="token string">"read_file_chunks"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">read_file_chunks</span><span class="token punctuation">(</span>chunks<span class="token punctuation">:</span> List<span class="token punctuation">[</span>Dict<span class="token punctuation">[</span>str<span class="token punctuation">,</span> int<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> str<span class="token punctuation">:</span>
+
+    <span class="token triple-quoted-string string">"""Read content chunks from specified files in the current knowledge base."""</span>
+
+    <span class="token keyword">if</span> <span class="token operator">not</span> chunks<span class="token punctuation">:</span>
+
+        <span class="token keyword">return</span> <span class="token string">"请提供要读取的chunk信息数组"</span>
+
+    results <span class="token operator">=</span> kb_controller<span class="token punctuation">.</span>readFileChunks<span class="token punctuation">(</span>knowledge_base_id<span class="token punctuation">,</span> chunks<span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>results<span class="token punctuation">,</span> ensure_ascii<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> indent<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>
+
+  
+  
+
+@tool<span class="token punctuation">(</span><span class="token string">"list_files"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">list_files</span><span class="token punctuation">(</span>page<span class="token punctuation">:</span> int <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> pageSize<span class="token punctuation">:</span> int <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> str<span class="token punctuation">:</span>
+
+    <span class="token triple-quoted-string string">"""List all files in the current knowledge base. Returns file ID, filename, and chunk count."""</span>
+
+    results <span class="token operator">=</span> kb_controller<span class="token punctuation">.</span>listFilesPaginated<span class="token punctuation">(</span>knowledge_base_id<span class="token punctuation">,</span> page<span class="token punctuation">,</span> pageSize<span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>results<span class="token punctuation">,</span> ensure_ascii<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> indent<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span>
+
+  
+  
+
+<span class="token keyword">def</span> <span class="token function">create_agentic_rag_system</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token triple-quoted-string string">"""创建 Agentic RAG 系统"""</span>
+
+  
+
+    <span class="token comment" spellcheck="true"># 工具清单</span>
+
+    tools <span class="token operator">=</span> <span class="token punctuation">[</span>query_knowledge_base<span class="token punctuation">,</span> get_files_meta<span class="token punctuation">,</span> read_file_chunks<span class="token punctuation">,</span> list_files<span class="token punctuation">]</span>
+
+  
+
+    <span class="token comment" spellcheck="true"># 行为策略（系统提示）</span>
+
+    SYSTEM_PROMPT <span class="token operator">=</span> <span class="token triple-quoted-string string">"""你是一个 Agentic RAG 助手。请遵循以下策略逐步收集证据后回答：
+
+  
+
+1. 先用 query_knowledge_base 搜索相关内容，获得候选文件和片段线索
+
+2. 根据搜索结果，选择最相关的文件，可选择性使用 get_files_meta 查看详细文件信息
+
+3. 使用 read_file_chunks 精读最相关的2-3个片段内容作为证据
+
+4. 基于读取的具体片段内容组织答案
+
+5. 回答末尾用"引用："格式列出实际读取的fileId和chunkIndex
+
+  
+
+重要原则：
+
+- 不要编造信息，只基于实际读取的片段内容回答
+
+- 若证据不足，请说明并建议进一步搜索的方向
+
+- 优先选择评分高的搜索结果进行深入阅读
+
+"""</span>
+
+  
+
+    <span class="token comment" spellcheck="true"># 模型与 Agent</span>
+
+    llm <span class="token operator">=</span> ChatOpenAI<span class="token punctuation">(</span>
+
+        <span class="token comment" spellcheck="true"># model="gpt-3.5-turbo",  # 使用 OpenAI 默认模型便于测试</span>
+
+        temperature<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>
+
+        max_retries<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">,</span>
+
+        <span class="token comment" spellcheck="true"># 如需使用其他API，可配置 base_url</span>
+
+        base_url<span class="token operator">=</span><span class="token string">"https://api.siliconflow.cn/v1"</span><span class="token punctuation">,</span>
+
+        model<span class="token operator">=</span><span class="token string">"THUDM/glm-4-9b-chat"</span><span class="token punctuation">,</span>
+
+    <span class="token punctuation">)</span>
+
+  
+
+    agent <span class="token operator">=</span> create_react_agent<span class="token punctuation">(</span>llm<span class="token punctuation">,</span> tools<span class="token punctuation">,</span> prompt<span class="token operator">=</span>SYSTEM_PROMPT<span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> agent
+
+  
+  
+
+<span class="token keyword">def</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token triple-quoted-string string">"""主函数 - 演示 Agentic RAG 的工作流程"""</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"🚀 初始化 Agentic RAG 系统..."</span><span class="token punctuation">)</span>
+
+    agent <span class="token operator">=</span> create_agentic_rag_system<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+  
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n📚 模拟知识库包含以下文件："</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">for</span> file <span class="token keyword">in</span> kb_controller<span class="token punctuation">.</span>files<span class="token punctuation">:</span>
+
+        <span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">"  - &amp;#123;file.filename&amp;#125; (&amp;#123;file.chunk_count&amp;#125; chunks)"</span><span class="token punctuation">)</span>
+
+  
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n"</span> <span class="token operator">+</span> <span class="token string">"="</span> <span class="token operator">*</span> <span class="token number">80</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"💬 开始问答演示"</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"="</span> <span class="token operator">*</span> <span class="token number">80</span><span class="token punctuation">)</span>
+
+  
+
+    <span class="token comment" spellcheck="true"># 测试问题</span>
+
+    question <span class="token operator">=</span> <span class="token string">"请基于知识库，概述 RAG 的优缺点，并给出引用。"</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">"\n❓ 问题: &amp;#123;question&amp;#125;"</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\n🤔 Agent 思考与行动过程:"</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"-"</span> <span class="token operator">*</span> <span class="token number">50</span><span class="token punctuation">)</span>
+
+  
+
+    <span class="token comment" spellcheck="true"># 调用 Agent</span>
+
+    result <span class="token operator">=</span> agent<span class="token punctuation">.</span>invoke<span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"messages": [("user", question)]&amp;#125;)</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"======"</span><span class="token punctuation">)</span>
+
+    final_answer <span class="token operator">=</span> result<span class="token punctuation">[</span><span class="token string">"messages"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>content
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+
+  
+  
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+
+    main<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Cyan.</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://yukiiceeee.github.io/2025/10/18/xue-xi-build-an-agentic-rag-system/">https://yukiiceeee.github.io/2025/10/18/xue-xi-build-an-agentic-rag-system/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">Cyan.</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+                                    <span class="chip bg-color">学习笔记</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .twikoo-card {
+        margin: 1.5rem auto;
+    }
+
+    .twikoo-card .card-content {
+        padding: 20px;
+    }
+
+    #tcomments textarea {
+        box-sizing: border-box;
+        background: url("/") 100% 100% no-repeat;
+    }
+
+    #tcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #tcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #tcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #tcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #tcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #tcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #tcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #tcomments ul li {
+        list-style-type: disc;
+    }
+
+    #tcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #tcomments table,
+    th,
+    td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #tcomments table,
+    th,
+    td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n),
+    thead {
+        background-color: #fafafa;
+    }
+
+    #tcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #tcomments table td {
+        min-width: 80px;
+    }
+
+    #tcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #tcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #tcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #tcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #tcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #tcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #tcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #tcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #tcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #tcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #tcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #tcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #tcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #tcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #tcomments [type="checkbox"]:not(:checked),
+    [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #tcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #tcomments dfn {
+        font-style: italic;
+    }
+
+    #tcomments small {
+        font-size: 85%;
+    }
+
+    #tcomments cite {
+        font-style: normal;
+    }
+
+    #tcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #tcomments table,
+    th,
+    td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n),
+    thead {
+        background-color: #fafafa;
+    }
+
+    #tcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #tcomments table td {
+        min-width: 80px;
+    }
+
+    #tcomments [type="checkbox"]:not(:checked),
+    [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card twikoo-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div class="card-content" style="display: grid">
+        <div id="tcomments"></div>
+    </div>
+</div>
+
+<script src="/libs/twikoo/twikoo.all.min.js"></script>
+<script>
+    twikoo.init({
+        envId: 'https://mt-twikoo-repo.vercel.app/',
+        el: '#tcomments',
+        region: '',
+        path: ''
+    }).then(function () {
+        var tkInputs = document.querySelector('#twikoo').getElementsByTagName('input');
+        for (var tkInputsIndex = 0; tkInputsIndex < tkInputs.length; tkInputsIndex++) {
+            if (tkInputs[tkInputsIndex]) {
+                tkInputs[tkInputsIndex].classList.add('browser-default');
+            }
+        }
+    });
+</script>
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2025/10/20/lun-wen-mem0-building-production-ready-ai-agents-with-scalable-long-term-memory/">
+                    <div class="card-image">
+                        
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20240529084952905.png?imageSlim" class="responsive-img" alt="Mem0：Building Production-Ready AI Agents with Scalable Long-Term Memory">
+                        
+                        <span class="card-title">Mem0：Building Production-Ready AI Agents with Scalable Long-Term Memory</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Mem0 是 Agent Memory 领域的经典作，针对现有 Agent 系统依赖上下文短期记忆，而对长期记忆优化不足的问题，设计了一种记忆组织与维护架构。同时一并提出基于知识图谱的 Mem0g。
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2025-10-20
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            Cyan.
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+                        <span class="chip bg-color">论文笔记</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2025/10/16/sui-bi-bao-yan-jing-yan-tie/">
+                    <div class="card-image">
+                        
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/2024.jpg?imageSlim" class="responsive-img" alt="2025年（26届）四非CS保研经验帖">
+                        
+                        <span class="card-title">2025年（26届）四非CS保研经验帖</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            一切尘埃落定，三年的生活交上了一个答案。于是简单记了一个经验帖，总结了一下半年来的心路历程。总之，是时候在新的起点向前继续迈进了。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-10-16
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            Cyan.
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E9%9A%8F%E7%AC%94/">
+                        <span class="chip bg-color">随笔</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="2193335871"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2023-2025</span>
+            
+            <a href="/about" target="_blank">Cyan.</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/yukiiceeee" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:Yukiice27@outlook.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=849379190" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 849379190" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+    <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+    <script type="text/javascript" src="/js/fireworks.js"></script>
+
+    
+
+    
+    
+    
+        
+        <script type="text/javascript">
+            // 只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/libs/others/sakura.js"><\/script>');
+            }
+        </script>
+    
+
+    <script type="text/javascript">
+        //只在桌面版网页启用特效
+        var windowWidth = $(window).width();
+        if (windowWidth > 768) {
+            document.write('<script type="text/javascript" src="/js/sakura.js"><\/script>');
+        }
+        </script>
+
+    <script src="/js/cursor.js"></script>
+
+    <!--动态线条背景-->
+    <script type="text/javascript"
+    color="122 103 238" opacity='0.7' zIndex="-2" count="200" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js">
+    </script>
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+     
+        <script type="text/javascript">
+            // 只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/libs/others/star.js"><\/script>');
+            }
+        </script>
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+        <script type="text/javascript">
+            // 只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/libs/others/clicklove.js"><\/script>');
+            }
+        </script>
+    
+    
+    <script async src="https://unpkg.com/busuanzi.pure.js@2.3.0/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+    <script type="text/javascript">
+    	var OriginTitile=document.title,st;
+        document.addEventListener("visibilitychange",function(){
+            document.hidden?(document.title="ヽ(●-`Д´-)ノ你要玩捉迷藏嘛",clearTimeout(st)):(document.title="(Ő∀Ő3)ノ好哦！",st=setTimeout(function(){document.title=OriginTitile},3e3))
+        })
+    </script>
+</body>
+
+</html>

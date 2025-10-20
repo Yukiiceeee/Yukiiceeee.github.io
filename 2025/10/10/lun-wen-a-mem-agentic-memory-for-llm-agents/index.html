@@ -364,7 +364,7 @@
                 <h1 id="A-Mem：Agentic-Memory-for-LLM-Agents"><a href="#A-Mem：Agentic-Memory-for-LLM-Agents" class="headerlink" title="A-Mem：Agentic Memory for LLM Agents"></a>A-Mem：Agentic Memory for LLM Agents</h1><p>原文链接：<a target="_blank" rel="noopener" href="http://example.com/" title="Title">https://arxiv.org/abs/2502.12110</a></p>
 <p>论文主要提出了一种名为 A-MEM 的适用于 Agent 的主动式记忆系统，来尝试解决现有 LLM 代理记忆系统<strong>结构僵化、适应性不足</strong>的问题。</p>
 <h3 id="Background-Motivation"><a href="#Background-Motivation" class="headerlink" title="Background &amp; Motivation"></a>Background &amp; Motivation</h3><p>我们知道，Agent 的记忆一般分为短期记忆和长期记忆，短期记忆可通过维护上下文窗口提供，而<strong>长期记忆往往需要维护一个记忆存储库</strong>，在每次交互时对存储库里的记忆进行写入与调用。</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011220615.png" alt="Alt pic"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011220615.png"></p>
 <p>传统记忆系统一般会<strong>预定义存储结构、存储点、记忆关联。</strong> 例如，记忆存储格式固定为数据库 Table 结构或 Json 模版；硬性规定在特定对话轮次或步骤写入记忆；记忆之间彼此孤立或硬性定义其关联。这种记忆系统交互是线性且固定的，缺乏自主性，体现出如下缺陷：</p>
 <ul>
 <li><strong>灵活性差：</strong> 在更复杂开放的一些场景下，预定义的知识模式可能不能很好地匹配现有需求。</li>
@@ -408,7 +408,7 @@
 <li><strong>链接生成</strong>：自动寻找与已有记忆的关联并建立链接；</li>
 <li><strong>记忆进化</strong>：根据新记忆更新相关旧记忆的上下文或标签。</li>
 </ol>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011220549.png" alt="Alt pic"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011220549.png" alt="A-Mem 系统流程图"></p>
 <h4 id="原子笔记构建"><a href="#原子笔记构建" class="headerlink" title="原子笔记构建"></a>原子笔记构建</h4><p>对于每一个记忆单元可以表示为：$m_{i}&#x3D;{c_{i}, t_{i}, K_{i}, G_{i}, X_{i}, e_{i}, L_{i}}$</p>
 <ul>
 <li>$m_{i}$ ：第 i 个记忆笔记。</li>
@@ -437,14 +437,14 @@
 </ul>
 <p><strong>实验结果</strong>：</p>
 <p>在非 GPT 基础模型上，A-MEM 始终优于所有基线模型。<br>在 GPT-4-mini 上，A-MEM 的 F1 得分达到 45.85%，远超 MemGPT 的 25.52%</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223508.png" alt="Alt pic"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223508.png"></p>
 <p><strong>效率优势</strong>： A-MEM 在实现这些改进的同时，与 LoCoMo 和 MemGPT 相比，token 长度要求显著降低（约 1,200-2,500 个 token，而 LoCoMo 和 MemGPT 为 16,900 个 token）。</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223546.png" alt="Alt pic"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223546.png"></p>
 <p><strong>可视化证据</strong>： t-SNE 可视化表明，与基线系统相比，A-MEM 具有更连贯的聚类模式，验证了其记忆组织方法的有效性。</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223600.png" alt="Alt pic"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223600.png"></p>
 <p><strong>消融实验</strong>：链接生成（LG）和记忆演化（ME）模块对 A-MEM 的性能至关重要。</p>
 <p><strong>超参数分析</strong>：适中的 k 值（检索记忆的数量）在上下文丰富性和信息处理效率之间取得了最佳平衡。k 值持续增大，也会伴随效果下降。</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223617.png" alt="Alt pic"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251011223617.png"></p>
 <h3 id="My-Thoughts"><a href="#My-Thoughts" class="headerlink" title="My Thoughts"></a>My Thoughts</h3><p>A-Mem 的方法本身并不难理解，但其方法很有效。通过 A-Mem 得到的惊艳效果，可以看到仅仅基于传统 RAG 的方法引入外部数据库来存储记忆是远远不够的。可以从中提炼出关于 Agent 长期记忆的几个要点：</p>
 <ol>
 <li>记忆之间需要建立相互连接的关系（并非人为固定定义）；</li>

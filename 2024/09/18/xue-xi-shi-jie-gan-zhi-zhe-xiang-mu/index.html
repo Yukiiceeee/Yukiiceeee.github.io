@@ -379,7 +379,7 @@
 <blockquote>
 <p>图1. 项目核心流程图</p>
 </blockquote>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241008224920271.png?imageSlim" alt="image-20241008224920271"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241008224920271.png?imageSlim"></p>
 <p>图1.展示了项目的核心工作流程。整体流程如下所示：</p>
 <p><strong>【硬件部署】：</strong>项目原型机利用树莓派ZERO 2W作为前端处理单元，以Aluminum Heat Sink散热片和NCR18650B可充锂电芯集成了效果良好的供电系统与散热系统。通过嵌入到盲杖上的小型摄像头以及麦克风设备，树莓派可以随时接收并处理摄像头捕获到的场景图片、并将用户的问题提供给后端。</p>
 <p><strong>【上传图像、音频】：</strong>在获取到场景图片与用户提问音频后，树莓派作为处理单元，可将图像Web传输到服务器云端。</p>
@@ -408,7 +408,7 @@
 <blockquote>
 <p> 图3. Raspberry Pi Zero 2 W（左），Aluminum Heat Sink for Raspberry Pi（中）， ZeroPanasonic NCR18650B（右）外观图</p>
 </blockquote>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241008231116076.png?imageSlim" alt="image-20241008231116076"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241008231116076.png?imageSlim"></p>
 <p>我们按上述硬件配置组装、焊接线材，完成了第一代“视界感知者”的相关设计（PS：也可使用香橙派作为核心处理单元）。</p>
 <p>最初的“视界感知者”仍存在多数不足，如内部空间占用过大、扬声器声音过小、接触不稳定、散热难以保证等。</p>
 <p>Raspberry Pi Zero 2 W虽然性能较强，但其也有较大的发热问题存在，仅用Aluminum Heat Sink for Raspberry Pi Zero构建的散热模块部分难以保证其有效散热。设备在连续使用时间超过1h至1.5h后，会出现明显的过热导致反应卡顿等问题。</p>
@@ -440,7 +440,7 @@
 <blockquote>
 <p>图6. 软件功能流程示意图</p>
 </blockquote>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241010081733322.png?imageSlim" alt="image-20241010081733322"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241010081733322.png?imageSlim"></p>
 <h5 id="图像分类模型"><a href="#图像分类模型" class="headerlink" title="图像分类模型"></a>图像分类模型</h5><p>我们使用了百度飞桨AI Studio星河社区的通用图像分类模型。</p>
 <p>选取了Top1 Acc(%)表现最优的PP-HGNetV2_B6完成分类任务，并在后端调用获取其输出Label结果，返回到Dify工作流中，Label标签可进一步作为后续输入，辅助大模型整合信息输出场景与物体描述。</p>
 <p>具体的调用代码如下所示：</p>
@@ -592,7 +592,7 @@ label<span class="token punctuation">,</span> confidence <span class="token oper
 <blockquote>
 <p>图8. Dify工作流示意图</p>
 </blockquote>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241008230656410.png?imageSlim" alt="image-20241008230656410"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241008230656410.png?imageSlim"></p>
 <p>可以参考如下代码进行Dify工作流的调用：</p>
 <pre class=" language-python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">difiAPI</span><span class="token punctuation">(</span>input_image<span class="token punctuation">,</span>query<span class="token punctuation">)</span><span class="token punctuation">:</span>
     buffered <span class="token operator">=</span> BytesIO<span class="token punctuation">(</span><span class="token punctuation">)</span>
@@ -634,7 +634,7 @@ label<span class="token punctuation">,</span> confidence <span class="token oper
 <blockquote>
 <p>图9. Demo演示界面示意图</p>
 </blockquote>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241010083825467.png?imageSlim" alt="image-20241010083825467"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/image-20241010083825467.png?imageSlim"></p>
 <p><del>注：由于项目在飞桨平台部署后，连接稳定性相比硬件设备可能有限（飞桨平台服务器的限制），有时会存在较长的等待延迟，如果等待最终结果的时间过长，这并非是后端模块处理流程太慢的缘故。</del></p>
 <p>您可以使用如下代码构建我们的Demo演示前端：</p>
 <pre class=" language-python"><code class="language-python"><span class="token keyword">import</span> gradio <span class="token keyword">as</span> gr
