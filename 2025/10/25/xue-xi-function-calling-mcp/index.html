@@ -1,0 +1,1816 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Function Calling and MCP, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
+    <meta name="description" content="Function Calling 是让大模型具备工具调用能力的关键。通过 SFT 等 post-train 手段，我们可以让大模型遵循指令生成一个特定格式的 tools 调用文件（xml, json），并通过代码解析该文件来确定当前对话轮次要调用的 function 信息。而 MCP 对这一过程做了标准化，提供了统一的接口与服务。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>Function Calling and MCP | Cyan&#39;s Blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+
+
+    <!-- bg-cover style     -->
+
+
+
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
+
+
+
+
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
+
+
+
+
+    
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
+    
+
+
+
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Cyan&#39;s Blog</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+  <li>
+    <a href="javascript:;" class="waves-effect waves-light" onclick="switchNightMode()" title="深色/浅色模式" >
+      <i id="sum-moon-icon" class="fas fa-sun" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Cyan&#39;s Blog</div>
+        <div class="logo-desc">
+            
+            个人博客
+            
+        </div>
+    </div>
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251025135841.png')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Function Calling and MCP</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+                                <span class="chip bg-color">学习笔记</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2025-10-25
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    3.2k
+                </div>
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h2 id="Using-function-calling-simply"><a href="#Using-function-calling-simply" class="headerlink" title="Using function_calling simply"></a>Using function_calling simply</h2><p><code>function_calling</code> 允许我们在调用模型 API 构建 Agent 工作流时，<strong>能够自定义一些函数（这些函数可以执行并从外部获取相应的信息）以供模型使用</strong>。</p>
+<p>举例来说，假设我们有一个实时更新的数据库，我们希望模型在回复我们问题的时候能够实时获悉数据库当前的内容。此时我们可以编写一个预定义好的数据库内容获取函数作为 <code>tool</code>，并在调用模型 API 时传入该 <code>tool</code>，模型可以利用当前预定义好的函数，在回复过程中执行函数并获取其结果作为后续回复的依据。</p>
+<p>简单编写一个 Agent 示例以呈现 &#96;function_calling 的使用：</p>
+<pre class=" language-python"><code class="language-python"><span class="token keyword">from</span> openai <span class="token keyword">import</span> OpenAI
+
+<span class="token keyword">from</span> dotenv <span class="token keyword">import</span> dotenv_values
+
+<span class="token keyword">import</span> json
+
+  
+
+key_value <span class="token operator">=</span> dotenv_values<span class="token punctuation">(</span><span class="token string">".env"</span><span class="token punctuation">)</span>
+
+  
+
+client <span class="token operator">=</span> OpenAI<span class="token punctuation">(</span>
+
+    base_url<span class="token operator">=</span><span class="token string">"https://api.deepseek.com"</span><span class="token punctuation">,</span>
+
+    api_key<span class="token operator">=</span>key_value<span class="token punctuation">[</span><span class="token string">"API_KEY"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+
+<span class="token punctuation">)</span>
+
+  
+
+tools <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+    <span class="token string">"type"</span><span class="token punctuation">:</span><span class="token string">"function"</span><span class="token punctuation">,</span>
+
+    <span class="token string">"function"</span><span class="token punctuation">:</span> <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+        <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"get_current_weather"</span><span class="token punctuation">,</span>
+
+        <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"获取当前城市的天气情况"</span><span class="token punctuation">,</span>
+
+        <span class="token string">"parameters"</span><span class="token punctuation">:</span> <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+            <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"object"</span><span class="token punctuation">,</span>
+
+            <span class="token string">"properties"</span><span class="token punctuation">:</span> <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+                <span class="token string">"city"</span><span class="token punctuation">:</span> <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"type": "string", "description": "The city to get the weather for"&amp;#125;,</span>
+
+                <span class="token string">"country"</span><span class="token punctuation">:</span> <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"type": "string", "description": "The country to get the weather for"&amp;#125;</span>
+
+            <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;,</span>
+
+            <span class="token string">"required"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"city"</span><span class="token punctuation">,</span> <span class="token string">"country"</span><span class="token punctuation">]</span>
+
+        <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;</span>
+
+    <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;</span>
+
+<span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;,</span>
+
+<span class="token punctuation">]</span>
+
+  
+
+messages <span class="token operator">=</span> <span class="token punctuation">[</span>
+
+    <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"role": "user", "content": "北京现在的天气如何？"&amp;#125;</span>
+
+<span class="token punctuation">]</span>
+</code></pre>
+<p><code>tools</code> 是一个工具列表，这里预先定义好我们已有的所有函数，并在调用模型时传入。模型底层会解析这个工具列表，并在后续回复时传入到提示词上下文里。</p>
+<p>举例来说，在底层系统会构建一个这样的提示结构：</p>
+<pre class=" language-text"><code class="language-text">系统提示词: 你是一个有帮助的AI助手，可以调用工具来帮助用户。
+你可以使用以下工具：
+
+工具1: get_weather
+描述: 获取指定城市的天气信息
+参数:
+  - location (string): 城市名称 [必需]
+  - unit (string): 温度单位，可选值: celsius, fahrenheit
+
+工具2: get_stock_price
+描述: 获取股票当前价格
+参数:
+  - symbol (string): 股票代码 [必需]
+  - exchange (string): 交易所，可选值: NYSE, NASDAQ, SSE, SZSE
+
+用户输入: 北京天气怎么样？
+
+请根据用户需求决定是否调用工具。如果调用，请严格按照JSON格式输出函数名和参数。
+</code></pre>
+<p>接下来我们调用模型并获取模型的回复，模型的回复过程是一个循环过程。模型在收到用户 <code>query</code> 时，首先会自主判断回答当前的查询是否需要使用预定义好的函数来获取信息。判断完成后，模型首次回复会输出工具调用信息（如函数名，函数所需参数等）。</p>
+<p>接下来，代码会解析模型当前输出，并提取 <code>function_name</code> 等参数，映射到代码里预定义的函数并执行。接下来，将执行结果附加到下一个提示词里并输出。</p>
+<pre class=" language-python"><code class="language-python">
+<span class="token comment" spellcheck="true"># 这一步是调用模型，并返回工具调用信息</span>
+
+<span class="token comment" spellcheck="true"># response是模型针对messages的回复，其中包含了工具调用信息</span>
+
+<span class="token comment" spellcheck="true"># 后续将这个回复加入到新的messages中，并再次调用模型，直到模型不再返回工具调用信息</span>
+
+<span class="token comment" spellcheck="true"># 此时，模型返回的content就是最终的回答</span>
+
+response <span class="token operator">=</span> client<span class="token punctuation">.</span>chat<span class="token punctuation">.</span>completions<span class="token punctuation">.</span>create<span class="token punctuation">(</span>
+
+    model<span class="token operator">=</span><span class="token string">"deepseek-chat"</span><span class="token punctuation">,</span>
+
+    messages<span class="token operator">=</span>messages<span class="token punctuation">,</span>
+
+    tools<span class="token operator">=</span>tools<span class="token punctuation">,</span>
+
+    tool_choice<span class="token operator">=</span><span class="token string">"auto"</span><span class="token punctuation">,</span>
+
+<span class="token punctuation">)</span>
+
+  
+
+<span class="token comment" spellcheck="true"># 打印内容：工具调用信息</span>
+
+<span class="token comment" spellcheck="true"># 这里的tool_calls是一个列表，列表中每个元素是一个字典，字典中包含工具名称和工具参数</span>
+
+<span class="token comment" spellcheck="true"># 例如：</span>
+
+<span class="token comment" spellcheck="true"># [&amp;#123;'name': 'get_current_weather', 'arguments': '&amp;#123;"city": "北京", "country": "中国"&amp;#125;'&amp;#125;]</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>choices<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>message<span class="token punctuation">.</span>tool_calls<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">def</span> <span class="token function">get_current_weather</span><span class="token punctuation">(</span>city<span class="token punctuation">:</span> str<span class="token punctuation">,</span> country<span class="token punctuation">:</span> str<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token keyword">return</span> f<span class="token string">"The weather in &amp;#123;city&amp;#125;, &amp;#123;country&amp;#125; is sunny."</span>
+
+  
+
+tool_call <span class="token operator">=</span> response<span class="token punctuation">.</span>choices<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>message<span class="token punctuation">.</span>tool_calls<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+
+tool_name <span class="token operator">=</span> tool_call<span class="token punctuation">.</span>function<span class="token punctuation">.</span>name
+
+tool_args <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>tool_call<span class="token punctuation">.</span>function<span class="token punctuation">.</span>arguments<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>tool_name<span class="token punctuation">,</span> <span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>tool_args<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>tool_call<span class="token punctuation">.</span>id<span class="token punctuation">)</span>
+
+  
+
+function_call_result<span class="token operator">=</span>get_current_weather<span class="token punctuation">(</span>tool_args<span class="token punctuation">[</span><span class="token string">"location"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> tool_args<span class="token punctuation">[</span><span class="token string">"country"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>function_call_result<span class="token punctuation">)</span>
+
+  
+
+mesages <span class="token operator">=</span> messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span>response<span class="token punctuation">.</span>choices<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>message<span class="token punctuation">)</span>
+
+  
+
+messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;</span>
+
+    <span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"tool"</span><span class="token punctuation">,</span>
+
+    <span class="token string">"content"</span><span class="token punctuation">:</span> function_call_result<span class="token punctuation">,</span>
+
+    <span class="token string">"tool_call_id"</span><span class="token punctuation">:</span> tool_call<span class="token punctuation">.</span>id
+
+<span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#125;)</span>
+
+  
+
+res <span class="token operator">=</span> client<span class="token punctuation">.</span>chat<span class="token punctuation">.</span>completions<span class="token punctuation">.</span>create<span class="token punctuation">(</span>
+
+    model<span class="token operator">=</span><span class="token string">"deepseek-chat"</span><span class="token punctuation">,</span>
+
+    messages<span class="token operator">=</span>messages<span class="token punctuation">,</span>
+
+<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>choices<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>message<span class="token punctuation">.</span>content<span class="token punctuation">)</span>
+</code></pre>
+<p>由此往复，模型最终输出的结果就是在回复中途调用了预定义函数并获取了其执行过程的结果。</p>
+<h2 id="How-to-train-a-model-with-function-calling"><a href="#How-to-train-a-model-with-function-calling" class="headerlink" title="How to train a model with function_calling"></a>How to train a model with function_calling</h2><p>那么，如何让模型具备 <code>function_calling</code> 能力呢？</p>
+<p>我们知道，大模型的工作过程是一个又一个不断预测下一个 <code>token</code> 的概率，进而生成大量文本。其本身并不具备执行函数的能力。因此这个执行函数的操作实际上是在我们所编写的代码里完成的。而模型所要做的则是输出“<strong>当前回复所需的函数调用信息</strong>”的文本。</p>
+<p>因此，我们可以通过 SFT（监督微调）或 RLHF（人类反馈的强化学习微调）来使模型具备输出这种文本模式的能力。其关键就在于构建并处理相对应的数据，在后训练中使模型生成 xml 或 json 格式的函数调用信息文本。</p>
+<p>下面是一个数据集构建示例：</p>
+<pre class=" language-python"><code class="language-python"><span class="token triple-quoted-string string">"""
+
+    Fucntion Calling模型如何训练？
+
+    并不是让模型具备执行函数的能力，而是让模型学会输出包含函数调用信息的回复：
+
+    &amp;#123;函数名、函数参数...&amp;#125;
+
+    处理数据、训练模型、评估模型、部署模型...关键在于“数据如何制备”
+
+"""</span>
+
+  
+  
+
+<span class="token keyword">from</span> enum <span class="token keyword">import</span> Enum
+
+<span class="token keyword">from</span> functools <span class="token keyword">import</span> partial
+
+<span class="token keyword">import</span> pandas <span class="token keyword">as</span> pd
+
+<span class="token keyword">import</span> torch
+
+<span class="token keyword">import</span> json
+
+  
+
+<span class="token keyword">from</span> transformers <span class="token keyword">import</span> AutoModelForCausalLM<span class="token punctuation">,</span> AutoTokenizer<span class="token punctuation">,</span> set_seed
+
+<span class="token keyword">from</span> datasets <span class="token keyword">import</span> load_dataset
+
+<span class="token keyword">from</span> trl <span class="token keyword">import</span> SFTConfig<span class="token punctuation">,</span> SFTTrainer
+
+<span class="token keyword">from</span> peft <span class="token keyword">import</span> LoraConfig<span class="token punctuation">,</span> TaskType
+
+  
+
+seed <span class="token operator">=</span> <span class="token number">42</span>
+
+set_seed<span class="token punctuation">(</span>seed<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">import</span> os
+
+  
+
+<span class="token keyword">import</span> subprocess
+
+<span class="token keyword">import</span> os
+
+  
+
+<span class="token comment" spellcheck="true"># 这是 aistackdc 用于 Github/huggingface 下载加速的方式</span>
+
+result <span class="token operator">=</span> subprocess<span class="token punctuation">.</span>run<span class="token punctuation">(</span><span class="token string">'bash -c "source /etc/network/turbo &amp;&amp; env | grep proxy"'</span><span class="token punctuation">,</span> shell<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> capture_output<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> text<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+
+output <span class="token operator">=</span> result<span class="token punctuation">.</span>stdout
+
+<span class="token keyword">for</span> line <span class="token keyword">in</span> output<span class="token punctuation">.</span>splitlines<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token keyword">if</span> <span class="token string">'='</span> <span class="token keyword">in</span> line<span class="token punctuation">:</span>
+
+        var<span class="token punctuation">,</span> value <span class="token operator">=</span> line<span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">'='</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+
+        os<span class="token punctuation">.</span>environ<span class="token punctuation">[</span>var<span class="token punctuation">]</span> <span class="token operator">=</span> value
+
+  
+  
+
+model_name <span class="token operator">=</span> <span class="token string">"Qwen/Qwen2.5-0.5B-Instruct"</span>
+
+dataset_name <span class="token operator">=</span> <span class="token string">"Jofthomas/hermes-function-calling-thinking-V1"</span>
+
+tokenizer <span class="token operator">=</span> AutoTokenizer<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>model_name<span class="token punctuation">)</span>
+
+  
+
+<span class="token comment" spellcheck="true"># 备注：这里的 model</span>
+
+tokenizer<span class="token punctuation">.</span>chat_template <span class="token operator">=</span> <span class="token string">"&amp;#123;&amp;#123; bos_token &amp;#125;&amp;#125;&amp;#123;% if messages[0]['role'] == 'system' %&amp;#125;&amp;#123;&amp;#123; raise_exception('System role not supported') &amp;#125;&amp;#125;&amp;#123;% endif %&amp;#125;&amp;#123;% for message in messages %&amp;#125;&amp;#123;&amp;#123; '&lt;|im_start|>' + message['role'] + '\n' + message['content'] | trim + '&lt;|im_end|>\n' &amp;#125;&amp;#125;&amp;#123;% endfor %&amp;#125;&amp;#123;% if add_generation_prompt %&amp;#125;&amp;#123;&amp;#123;'&lt;|im_start|>assistant\n'&amp;#125;&amp;#125;&amp;#123;% endif %&amp;#125;"</span>
+
+  
+  
+
+<span class="token keyword">def</span> <span class="token function">preprocess</span><span class="token punctuation">(</span>sample<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    messages <span class="token operator">=</span> sample<span class="token punctuation">[</span><span class="token string">"messages"</span><span class="token punctuation">]</span>
+
+    first_message <span class="token operator">=</span> messages<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+
+  
+
+    <span class="token comment" spellcheck="true"># Instead of adding a system message, we merge the content into the first user message</span>
+
+    <span class="token keyword">if</span> first_message<span class="token punctuation">[</span><span class="token string">"role"</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">"system"</span><span class="token punctuation">:</span>
+
+        system_message_content <span class="token operator">=</span> first_message<span class="token punctuation">[</span><span class="token string">"content"</span><span class="token punctuation">]</span>
+
+        <span class="token comment" spellcheck="true"># Merge system content with the first user message</span>
+
+        messages<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"content"</span><span class="token punctuation">]</span> <span class="token operator">=</span> system_message_content <span class="token operator">+</span> <span class="token string">"Also, before making a call to a function take the time to plan the function to take. Make that thinking process between &lt;think>&amp;#123;your thoughts&amp;#125;&lt;/think>\n\n"</span> <span class="token operator">+</span> messages<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"content"</span><span class="token punctuation">]</span>
+
+        <span class="token comment" spellcheck="true"># Remove the system message from the conversation</span>
+
+        messages<span class="token punctuation">.</span>pop<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+
+  
+
+    <span class="token keyword">return</span> <span class="token operator">&amp;</span><span class="token comment" spellcheck="true">#123;"text": tokenizer.apply_chat_template(messages, tokenize=False)&amp;#125;</span>
+
+  
+  
+
+dataset <span class="token operator">=</span> load_dataset<span class="token punctuation">(</span>dataset_name<span class="token punctuation">)</span>
+
+dataset <span class="token operator">=</span> dataset<span class="token punctuation">.</span>rename_column<span class="token punctuation">(</span><span class="token string">"conversations"</span><span class="token punctuation">,</span> <span class="token string">"messages"</span><span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>preprocess<span class="token punctuation">(</span>dataset<span class="token punctuation">[</span><span class="token string">"train"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">def</span> <span class="token function">convert_model_to_assistant</span><span class="token punctuation">(</span>sample<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    messages <span class="token operator">=</span> sample<span class="token punctuation">[</span><span class="token string">"messages"</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">for</span> message <span class="token keyword">in</span> messages<span class="token punctuation">:</span>
+
+        <span class="token keyword">if</span> message<span class="token punctuation">[</span><span class="token string">"role"</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">"model"</span><span class="token punctuation">:</span>
+
+            message<span class="token punctuation">[</span><span class="token string">"role"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"assistant"</span>
+
+        <span class="token keyword">if</span> message<span class="token punctuation">[</span><span class="token string">"role"</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">"human"</span><span class="token punctuation">:</span>
+
+            message<span class="token punctuation">[</span><span class="token string">"role"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">"user"</span>
+
+    <span class="token keyword">return</span> sample
+
+  
+
+dataset <span class="token operator">=</span> dataset<span class="token punctuation">.</span>map<span class="token punctuation">(</span>convert_model_to_assistant<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>dataset<span class="token punctuation">[</span><span class="token string">'train'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+  
+
+dataset <span class="token operator">=</span> dataset<span class="token punctuation">.</span>map<span class="token punctuation">(</span>preprocess<span class="token punctuation">,</span> remove_columns<span class="token operator">=</span><span class="token string">"messages"</span><span class="token punctuation">)</span>
+
+dataset <span class="token operator">=</span> dataset<span class="token punctuation">[</span><span class="token string">"train"</span><span class="token punctuation">]</span><span class="token punctuation">.</span>train_test_split<span class="token punctuation">(</span><span class="token number">0.1</span><span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>dataset<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>dataset<span class="token punctuation">[</span><span class="token string">"train"</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">8</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"text"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+  
+
+<span class="token comment" spellcheck="true"># Sanity check</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">.</span>pad_token<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">.</span>eos_token<span class="token punctuation">)</span>
+
+  
+
+<span class="token keyword">class</span> <span class="token class-name">ChatmlSpecialTokens</span><span class="token punctuation">(</span>str<span class="token punctuation">,</span> Enum<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    tools <span class="token operator">=</span> <span class="token string">"&lt;tools>"</span>
+
+    eotools <span class="token operator">=</span> <span class="token string">"&lt;/tools>"</span>
+
+    think <span class="token operator">=</span> <span class="token string">"&lt;think>"</span>
+
+    eothink <span class="token operator">=</span> <span class="token string">"&lt;/think>"</span>
+
+    tool_call<span class="token operator">=</span><span class="token string">"&lt;tool_call>"</span>
+
+    eotool_call<span class="token operator">=</span><span class="token string">"&lt;/tool_call>"</span>
+
+    tool_response<span class="token operator">=</span><span class="token string">"&lt;tool_reponse>"</span>
+
+    eotool_response<span class="token operator">=</span><span class="token string">"&lt;/tool_reponse>"</span>
+
+    pad_token <span class="token operator">=</span> <span class="token string">"&lt;|endoftext|>"</span>
+
+    eos_token <span class="token operator">=</span> <span class="token string">"&lt;|im_end|>"</span>
+
+    @classmethod
+
+    <span class="token keyword">def</span> <span class="token function">list</span><span class="token punctuation">(</span>cls<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+        <span class="token keyword">return</span> <span class="token punctuation">[</span>c<span class="token punctuation">.</span>value <span class="token keyword">for</span> c <span class="token keyword">in</span> cls<span class="token punctuation">]</span>
+
+  
+
+tokenizer <span class="token operator">=</span> AutoTokenizer<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>
+
+        model_name<span class="token punctuation">,</span>
+
+        pad_token<span class="token operator">=</span>ChatmlSpecialTokens<span class="token punctuation">.</span>pad_token<span class="token punctuation">.</span>value<span class="token punctuation">,</span>
+
+        additional_special_tokens<span class="token operator">=</span>ChatmlSpecialTokens<span class="token punctuation">.</span>list<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token punctuation">)</span>
+
+tokenizer<span class="token punctuation">.</span>chat_template <span class="token operator">=</span> <span class="token string">"&amp;#123;&amp;#123; bos_token &amp;#125;&amp;#125;&amp;#123;% if messages[0]['role'] == 'system' %&amp;#125;&amp;#123;&amp;#123; raise_exception('System role not supported') &amp;#125;&amp;#125;&amp;#123;% endif %&amp;#125;&amp;#123;% for message in messages %&amp;#125;&amp;#123;&amp;#123; '&lt;|im_start|>' + message['role'] + '\n' + message['content'] | trim + '&lt;|im_end|>\n' &amp;#125;&amp;#125;&amp;#123;% endfor %&amp;#125;&amp;#123;% if add_generation_prompt %&amp;#125;&amp;#123;&amp;#123;'&lt;|im_start|>assistant\n'&amp;#125;&amp;#125;&amp;#123;% endif %&amp;#125;"</span>
+</code></pre>
+<h2 id="Function-calling-MCP"><a href="#Function-calling-MCP" class="headerlink" title="Function_calling &amp; MCP"></a>Function_calling &amp; MCP</h2><p><code>function calling</code> 和 <code>MCP (Model Context Protocol)</code> 都是用来实现模型与函数之间调用连接的。仅仅从工具调用这一点来说，两者其实没有本质上的区别。</p>
+<p>因为对于模型来说：<strong>做的事情都是一样的，如果 LLM 使用 Function Calling 会遇到问题，那么使用 MCP 也一样会遇到问题</strong>。</p>
+<pre class=" language-text"><code class="language-text">模型输入：可用的tools + 一个介绍的prompt，但是在prompt上可能有些差异；
+模型输出：需要用什么tools or 回复
+</code></pre>
+<p>这是因为 MCP 不是 <code>function calling</code> 的替代，而是基于它的统一的工具箱。</p>
+<h3 id="为什么需要-MCP？"><a href="#为什么需要-MCP？" class="headerlink" title="为什么需要 MCP？"></a>为什么需要 MCP？</h3><p>实际上在具体的工作场景下，往往我们希望模型调用的 <code>tools</code> 一般不仅仅是自主编写的简单函数工具，而大部分是一些外部工具的 API 服务（比如网页信息搜索，数据库访问等）。在 MCP 出现以前，单纯使用 <code>function calling</code> 的方式面临两大痛点：</p>
+<ul>
+<li><strong>接口碎片化</strong>：每个LLM使用不同的指令格式，每个工具API也有独特的数据结构，开发者需要为每个组合编写定制化连接代码；</li>
+<li><strong>开发低效</strong>：这种”一对一翻译”模式成本高昂且难以扩展，就像为每个外国客户雇佣专属翻译。</li>
+</ul>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251025135826.png"></p>
+<p>而 MCP 则采用了一种通用语言格式（JSON - RPC），一次学习就能与所有支持这种协议的工具进行交流。一个通用翻译器，不管什么 LLM，用上它就能使用工具 &#x2F; 数据了。</p>
+<p>它的关键价值在于标准化。不管是什么 <code>tools</code>，都必须通过统一的 MCP 协议暴露给模型。</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251025135841.png" alt="MCP 的功能理解（转自: 知乎@大模型入门学习）"></p>
+<p>在过去没有MCP时，大模型下发Function Call，Agent去执行翻译，直接连接到API去调用工具。因此，你得为每个API单独设置对应的调用模式，去单独定义工具列表和调用模式，这样Agent才知道怎么去翻译。而有了MCP后，只是很多API都可以直接通过供应商MCP Client一键下单了，Agent省力了。但大模型的Function Call没有任何变化。还是{tool: “买加啡”, “type”: “美式”}这个形式。</p>
+<h3 id="MCP-的工作原理"><a href="#MCP-的工作原理" class="headerlink" title="MCP 的工作原理"></a>MCP 的工作原理</h3><p>MCP 的架构主要有三部分：Host、Client、Server。</p>
+<p>Host 是运行 AI 应用的主程序（如 Claude Desktop，Agent程序等），Client 层嵌入在 host 里，负责管理连接和通信， Server 层则提供具体的工具实现。</p>
+<p>MCP 实现的通信是 Host 中的 Client &lt;-&gt; 外部的 Server 之间的双向通信。</p>
+<pre><code>举例来说，当模型判断需要调用某函数功能来获取结果时，需要先通过 MCP Client，使用统一格式向 MCP Server 发送 JSON-RPC 请求，Server 接收请求并解析参数后，返回结果给 Client。
+</code></pre>
+<p>这个过程最大的特点就是标准化。正常我们在编写 <code>function calling</code> 使模型具备工具调用能力时，我们需要手动编写工具并传入给模型。由于不同的 API 需求格式可能也会有所不同，倘若更换模型和平台，那么编写逻辑也要对应修改。</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/wps1.jpg" alt="MCP 与传统 function calling 的对比"></p>
+<p>而使用 MCP 的好处是，模型 API 调用工具时，都统一通过 MCP Client 向工具 Server 发送格式统一的请求，在不同场景时，只需统一使用 Client，即可向 Server 发送请求，而不必不断重写 <code>tools</code> 的调用逻辑。核心价值：</p>
+<ul>
+<li>工具复用（不必每次都重新造轮子）</li>
+<li>自动发现（通过 Client，而不必手写定义）</li>
+<li>标准化（统一的接口和格式规范）</li>
+<li>解耦（工具和应用分离）</li>
+</ul>
+<p>使用 MCP，Host 可以一次性连接多个 Server，并调用所有 Server 提供的 <code>tools</code>。</p>
+<p>一个 MCP 项目示例结构大致如下：</p>
+<pre class=" language-text"><code class="language-text">mcp_demo/
+├── mcp_server/
+│   ├── __init__.py
+│   └── email_server.py      # MCP服务器（提供邮件工具）
+├── mcp_client/
+│   ├── __init__.py
+│   └── client.py             # MCP客户端（连接服务器）
+├── agent.py                  # AI Agent（使用OpenAI + MCP）
+├── config.py                 # 配置文件
+├── requirements.txt          # 依赖
+└── run_demo.py              # 运行示例
+</code></pre>
+<pre><code>mcp_server 里是 server 类，提供 server 对应的工具列表和工具函数；
+mcp_clinet 里是 Client 类，提供与服务器的连接，转发调用请求并向服务器查找对应工具；
+Agent 层则编写具体的编排，以及工具调用逻辑：React、multi-agent...
+</code></pre>
+<h3 id="Thoughts"><a href="#Thoughts" class="headerlink" title="Thoughts"></a>Thoughts</h3><p><code>function calling</code> 能让模型具备判断是否、何时调用 <code>tools</code> 的能力，那么借鉴这种思路，能不能通过 SFT 等手段让一个模型具备判断“<strong>是否记忆当前消息，记忆什么内容</strong>”这样的能力呢？</p>
+<p>类似实体提取，假设模型在每一次对话回复完成时，进行一次对记忆的思考与实体提取，然后再在 Agent 工作流中维护一个记忆库，在 chat 过程中自主判断并保存实体记忆数据，是不是也可以做到？</p>
+<p>现在的 memory 都是我们自己去定义一个逻辑来记忆，感觉比较死板。因为假如我们希望 LLM 和人一样具备记忆的能力，那么是否记忆当前内容应该也要让其自己决定，而非每一次对话或者几轮对话后再统一去做 mem 操作（比如，我们可以自主决定是否要记忆一个手机验证码，是否要记忆今天吃的饭菜等等）。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">Cyan.</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://yukiiceeee.github.io/2025/10/25/xue-xi-function-calling-mcp/">https://yukiiceeee.github.io/2025/10/25/xue-xi-function-calling-mcp/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">Cyan.</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+                                    <span class="chip bg-color">学习笔记</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .twikoo-card {
+        margin: 1.5rem auto;
+    }
+
+    .twikoo-card .card-content {
+        padding: 20px;
+    }
+
+    #tcomments textarea {
+        box-sizing: border-box;
+        background: url("/") 100% 100% no-repeat;
+    }
+
+    #tcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #tcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #tcomments a {
+        padding: 0 2px;
+        color: #4cbf30;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    #tcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #tcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #tcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #tcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #tcomments ul li {
+        list-style-type: disc;
+    }
+
+    #tcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #tcomments table,
+    th,
+    td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #tcomments table,
+    th,
+    td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n),
+    thead {
+        background-color: #fafafa;
+    }
+
+    #tcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #tcomments table td {
+        min-width: 80px;
+    }
+
+    #tcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #tcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #tcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #tcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #tcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #tcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #tcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #tcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #tcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #tcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #tcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #tcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #tcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #tcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #tcomments [type="checkbox"]:not(:checked),
+    [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #tcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #tcomments dfn {
+        font-style: italic;
+    }
+
+    #tcomments small {
+        font-size: 85%;
+    }
+
+    #tcomments cite {
+        font-style: normal;
+    }
+
+    #tcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #tcomments table,
+    th,
+    td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n),
+    thead {
+        background-color: #fafafa;
+    }
+
+    #tcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #tcomments table td {
+        min-width: 80px;
+    }
+
+    #tcomments [type="checkbox"]:not(:checked),
+    [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+</style>
+
+<div class="card twikoo-card" data-aos="fade-up">
+    <div class="comment_headling" style="font-size: 20px; font-weight: 700; position: relative; padding-left: 20px; top: 15px; padding-bottom: 5px;">
+        <i class="fas fa-comments fa-fw" aria-hidden="true"></i>
+        <span>评论</span>
+    </div>
+    <div class="card-content" style="display: grid">
+        <div id="tcomments"></div>
+    </div>
+</div>
+
+<script src="/libs/twikoo/twikoo.all.min.js"></script>
+<script>
+    twikoo.init({
+        envId: 'https://mt-twikoo-repo.vercel.app/',
+        el: '#tcomments',
+        region: '',
+        path: ''
+    }).then(function () {
+        var tkInputs = document.querySelector('#twikoo').getElementsByTagName('input');
+        for (var tkInputsIndex = 0; tkInputsIndex < tkInputs.length; tkInputsIndex++) {
+            if (tkInputs[tkInputsIndex]) {
+                tkInputs[tkInputsIndex].classList.add('browser-default');
+            }
+        }
+    });
+</script>
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2025/10/25/xue-xi-function-calling-mcp/">
+                    <div class="card-image">
+                        
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251025135841.png" class="responsive-img" alt="Function Calling and MCP">
+                        
+                        <span class="card-title">Function Calling and MCP</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Function Calling 是让大模型具备工具调用能力的关键。通过 SFT 等 post-train 手段，我们可以让大模型遵循指令生成一个特定格式的 tools 调用文件（xml, json），并通过代码解析该文件来确定当前对话轮次要调用的 function 信息。而 MCP 对这一过程做了标准化，提供了统一的接口与服务。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-10-25
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            Cyan.
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+                        <span class="chip bg-color">学习笔记</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2025/10/20/lun-wen-mem0-building-production-ready-ai-agents-with-scalable-long-term-memory/">
+                    <div class="card-image">
+                        
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251019220421.png" class="responsive-img" alt="Mem0：Building Production-Ready AI Agents with Scalable Long-Term Memory">
+                        
+                        <span class="card-title">Mem0：Building Production-Ready AI Agents with Scalable Long-Term Memory</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            Mem0 是 Agent Memory 领域的经典作，针对现有 Agent 系统依赖上下文短期记忆，而对长期记忆优化不足的问题，设计了一种记忆组织与维护架构。同时一并提出基于知识图谱的 Mem0g。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-10-20
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            Cyan.
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+                        <span class="chip bg-color">论文笔记</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="2193335871"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="/libs/aplayer/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2023-2025</span>
+            
+            <a href="/about" target="_blank">Cyan.</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/yukiiceeee" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:Yukiice27@outlook.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=849379190" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 849379190" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 白天和黑夜主题 -->
+<div class="stars-con">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>  
+</div>
+
+<script>
+    function switchNightMode() {
+        $('<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"></div></div>').appendTo($('body')),
+        setTimeout(function () {
+            $('body').hasClass('DarkMode') 
+            ? ($('body').removeClass('DarkMode'), localStorage.setItem('isDark', '0'), $('#sum-moon-icon').removeClass("fa-sun").addClass('fa-moon')) 
+            : ($('body').addClass('DarkMode'), localStorage.setItem('isDark', '1'), $('#sum-moon-icon').addClass("fa-sun").removeClass('fa-moon')),
+            
+            setTimeout(function () {
+            $('.Cuteen_DarkSky').fadeOut(1e3, function () {
+                $(this).remove()
+            })
+            }, 2e3)
+        })
+    }
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+    <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+    <script type="text/javascript" src="/js/fireworks.js"></script>
+
+    
+
+    
+    
+    
+        
+        <script type="text/javascript">
+            // 只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/libs/others/sakura.js"><\/script>');
+            }
+        </script>
+    
+
+    <script type="text/javascript">
+        //只在桌面版网页启用特效
+        var windowWidth = $(window).width();
+        if (windowWidth > 768) {
+            document.write('<script type="text/javascript" src="/js/sakura.js"><\/script>');
+        }
+        </script>
+
+    <script src="/js/cursor.js"></script>
+
+    <!--动态线条背景-->
+    <script type="text/javascript"
+    color="122 103 238" opacity='0.7' zIndex="-2" count="200" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js">
+    </script>
+
+    <!-- 雪花特效 -->
+    
+
+    <!-- 鼠标星星特效 -->
+     
+        <script type="text/javascript">
+            // 只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/libs/others/star.js"><\/script>');
+            }
+        </script>
+    
+
+     
+        <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+        <script src="/libs/others/TencentCaptcha.js"></script>
+        <button id="TencentCaptcha" data-appid="xxxxxxxxxx" data-cbfn="callback" type="button" hidden></button>
+    
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+        <script type="text/javascript">
+            // 只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/libs/others/clicklove.js"><\/script>');
+            }
+        </script>
+    
+    
+    <script async src="https://unpkg.com/busuanzi.pure.js@2.3.0/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+    <script type="text/javascript">
+    	var OriginTitile=document.title,st;
+        document.addEventListener("visibilitychange",function(){
+            document.hidden?(document.title="ヽ(●-`Д´-)ノ你要玩捉迷藏嘛",clearTimeout(st)):(document.title="(Ő∀Ő3)ノ好哦！",st=setTimeout(function(){document.title=OriginTitile},3e3))
+        })
+    </script>
+</body>
+
+</html>
