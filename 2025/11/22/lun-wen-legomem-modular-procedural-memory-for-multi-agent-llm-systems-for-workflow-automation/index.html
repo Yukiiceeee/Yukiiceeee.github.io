@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="Mem-α: Learning Memory Construction via Reinforcement Learning, HTML,CSS,JavaScript,JQuery,React,Vue,js等">
-    <meta name="description" content="论文提出了Mem-α，一个用强化学习搭建的智能体记忆框架，用以解决直接使用语言模型处理工具所带来的信息丢失、效率低下等问题。传统方法过于依赖预设指令与工具，Mem-α通过交互与反馈，采用GRPO训练智能体有效管理复杂记忆系统。">
+    <meta name="description" content="论文提出了LEGOMem，一个用于为Multi-Agent架构设计的模块化记忆系统。通过对多智能体系统中的各类角色设计模块化记忆，提高整个系统的持续协调与规划能力。">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -290,7 +290,7 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102195543.png')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251123222430.png')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
@@ -317,13 +317,9 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                    <div class="article-tag">
-                        
-                            <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
-                                <span class="chip bg-color">论文笔记</span>
-                            </a>
-                        
-                    </div>
+                          <div class="article-tag">
+                            <span class="chip bg-color">无标签</span>
+                          </div>
                     
                 </div>
                 <div class="col s5 right-align">
@@ -335,7 +331,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2025-11-01
+                    2025-11-22
                 </div>
                 
 
@@ -344,7 +340,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    2.1k
+                    2.6k
                 </div>
                 
 
@@ -361,88 +357,85 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>原文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2509.25911">https://arxiv.org/abs/2509.25911</a></p>
-<h3 id="Background-Motivation"><a href="#Background-Motivation" class="headerlink" title="Background &amp; Motivation"></a>Background &amp; Motivation</h3><p>现有记忆系统大多依赖预设指令和固定工具集，未经训练即可优化记忆构建，如 Mem0，MemGPT，MIRIX 等。然而，模型本身缺乏判断存储内容、结构设计及更新时机的内在能力，手动调整提示方案难以应对所有场景，模型泛化性较差——不知道该存储什么信息、如何组织、以及何时更新。</p>
-<p><strong>Mem-α</strong> 提供了一个全新的解决思路：通过<strong>强化学习</strong>让模型自己学会如何管理记忆，训练智能体掌握有效的内存管理策略。</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102191351.png"></p>
-<p>如上图所示，在管理三层记忆系统（核心记忆、情景记忆、语义记忆）时：</p>
+                <p>原文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2510.04851">https://arxiv.org/abs/2510.04851</a></p>
+<p>本文提出<strong>LEGOMem</strong>，一个面向多智能体系统的<strong>模块化过程记忆框架</strong>，旨在通过结构化的记忆构建、检索与分配机制，提升系统的规划、协调与执行能力。</p>
+<h3 id="Background-Motivation"><a href="#Background-Motivation" class="headerlink" title="Background &amp; Motivation"></a>Background &amp; Motivation</h3><p>现在基于 LLM 的智能体被广泛应用于自动化复杂多步骤工作流，如文档编辑、邮件处理和日程安排等。<strong>多智能体系统</strong>逐渐成为主流架构，一般由一个中心<strong>协调器</strong>负责任务规划与分发，多个<strong>任务智能体</strong>负责执行具体子任务。</p>
+<p>论文指出，现有的大多数多智能体系统是<strong>无状态的</strong>：每次任务都从头开始执行，不利用历史执行经验。这限制了系统在复杂工作流中持续学习和提升的能力。而<strong>面向单智能体的记忆机制可能无法有效泛化到多智能体系统上</strong>。</p>
+<p>多智能体系统相比单智能体，在记忆这一方面主要面临的问题有三点：</p>
 <ul>
-<li><p><strong>未训练的模型</strong>：尝试调用两个工具：<code>memory_update</code>（更新核心记忆）和 <code>memory_insert</code>（插入情景记忆），但在更新<strong>核心记忆</strong>时失败了，模型虽然试图使用工具，但选择能力和信息提炼能力很弱，导致记忆结构不完整、信息高度压缩和丢失——模型不知道应该把哪些核心信息提炼出来。</p>
-</li>
-<li><p><strong>Mem-α 训练后</strong>：能够正确地在各个记忆层级存储相应信息，模型学会了如何有效地使用工具，并能够构建一个<strong>结构清晰、信息丰富、分类明确</strong>的记忆系统。</p>
-</li>
+<li><strong>缺乏过程记忆</strong>：无法从成功的历史轨迹中提取可复用的任务分解与执行模式。</li>
+<li><strong>角色记忆不匹配</strong>：协调器需要高层次规划记忆，而任务智能体需要具体工具使用记忆。</li>
+<li><strong>记忆检索粒度不灵活</strong>：现有方法如 Synapse 和 AWM 主要面向单智能体，多智能体系统中不同角色的记忆需求不同，记忆粒度也不一致，适应性不足。</li>
 </ul>
-<h3 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h3><p>Mem-α 的核心洞察是：<strong>记忆管理是一个可以通过强化学习优化的序列决策问题</strong>。与传统方法的本质区别在于，利用 RL，模型不再依赖人工设计的规则，而是在实践中探索最优的记忆管理策略。</p>
-<h4 id="Memory-Architecture"><a href="#Memory-Architecture" class="headerlink" title="Memory Architecture"></a>Memory Architecture</h4><p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102191835.png"></p>
-<p>Mem-α 使用三层记忆系统架构：</p>
+<h3 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h3><p><strong>LEGOMem 的核心思想是</strong>：将成功的工作流轨迹像乐高积木一样，分解成标准化的、可重用的记忆模块，并在执行新任务时，将这些模块灵活地分配给系统中不同角色的智能体，以增强其规划和执行能力。</p>
+<p>它的方法流程主要分为两个阶段：</p>
+<h4 id="阶段一：离线记忆构建"><a href="#阶段一：离线记忆构建" class="headerlink" title="阶段一：离线记忆构建"></a><strong>阶段一：离线记忆构建</strong></h4><p>这个阶段的目标是从成功的任务执行轨迹中，提炼出结构化的记忆单元。</p>
 <ol>
-<li><strong>核心记忆（Core Memory）</strong>：存储用户的基本、持久信息，内容是角色、偏好、目标等长期稳定的特征。容量 512 tokens，精炼且关键。</li>
-<li><strong>情景记忆（Episodic Memory）</strong>：记录具体事件和经历，内容是带时间戳的活动历史，以列表形式存储，如 “9:15 在咖啡馆遇见 Alice”，捕捉发生的事&amp;何时发生。</li>
-<li><strong>语义记忆（Semantic Memory）</strong>：存储结构化知识和事实，内容是概念、规则、专业知识、操作指南。是事实陈述，不依赖特定时间或情境，长期有用。</li>
-</ol>
-<p>针对每种记忆类型，系统提供三类操作，<strong>插入（insert）</strong>、<strong>更新（update）</strong>、<strong>删除（delete）</strong>，老三样。</p>
-<h4 id="Framework"><a href="#Framework" class="headerlink" title="Framework"></a>Framework</h4><p>Mem-α 将记忆构建建模为一个顺序决策过程，输入是信息块序列，以及评估问题集。</p>
-<ul>
-<li><strong>状态（State）</strong>：在处理第 <code>t</code> 个信息块时，状态是当前的信息块 <code>c_t</code> 和截至此时积累的记忆状态 <code>M_&#123;t-1&#125;</code>。</li>
-<li><strong>动作（Action）</strong>：智能体可以执行的动作 <code>a_t</code> 是一个<strong>操作序列</strong>，例如 <code>a_t = (memory_insert(...), memory_update(...))</code>。这意味着模型在看完一个信息块后，可以执行多个记忆操作来更新记忆。</li>
-<li><strong>策略（Policy）</strong>：由语言模型参数化的策略 <code>π(a_t | c_t, M_&#123;t-1&#125;)</code>，它根据当前状态决定要执行哪些记忆操作。</li>
-<li><strong>奖励（Reward）</strong>：智能体在处理完<strong>整个</strong>对话序列后，才会根据其构建的最终记忆 <code>M_n</code> 的质量获得奖励。这个奖励是延迟的，迫使智能体必须为长远目标（最终回答好问题）而规划记忆策略。</li>
+<li><strong>输入</strong>：成功完成的任务日志。日志记录了从协调器生成计划、分配任务，到各个任务智能体调用工具、获取观察结果的全过程。</li>
+<li><strong>记忆单元提取</strong>：使用LLM将原始日志转化为两种标准化的记忆单元：<ul>
+<li><strong>完整任务记忆</strong>以及<strong>子任务记忆</strong>。前者包含任务的全局视角，为协调器配置，包含协调器指定的步骤计划、子任务执行序列、任务最终输出。任务关键事项总结等。后者聚焦于单个 Agent 的具体操作，包含具体执行步骤，环境返回的结果观察摘要等。</li>
 </ul>
-<p>对于 Reward，Mem-α 设计了<strong>四个互补的奖励信号</strong>：</p>
+</li>
+<li><strong>记忆存储与索引</strong>：<ul>
+<li>所有记忆单元被存入一个向量数据库（如 FAISS）。对于<strong>完整任务记忆</strong>，使用<strong>任务描述</strong>的嵌入向量进行索引；对于<strong>子任务记忆</strong>（在 Dynamic 和 QueryRewrite 变体中），会为<strong>每个类型的任务智能体</strong>建立独立的子记忆库，并使用<strong>子任务描述</strong>的嵌入向量进行索引。</li>
+</ul>
+</li>
+</ol>
+<h4 id="阶段二：在线记忆增强推理"><a href="#阶段二：在线记忆增强推理" class="headerlink" title="阶段二：在线记忆增强推理"></a><strong>阶段二：在线记忆增强推理</strong></h4><p>当有新任务输入时，系统会检索并分配相关记忆，引导智能体执行。</p>
 <ol>
-<li><strong>正确性奖励（r₁）</strong>：<strong>这是最重要的奖励</strong>。在所有信息块处理完毕后，使用一个固定的 RAG 流程，基于最终记忆 <code>M_n</code> 来回答一系列问题 <code>Q</code>。答案的准确率（如 F1 分数）就是 <code>r₁</code>。这直接优化了记忆的最终目标——支持准确的信息检索。</li>
-<li><strong>工具调用格式奖励（r₂）</strong>：确保模型生成的工具调用格式正确、能成功执行。如果格式错误，操作就无法进行，这是学习的基础。</li>
-<li><strong>压缩奖励（r₃）</strong>：鼓励模型用更精炼的语言存储信息，提高记忆效率。<code>r₃ = 1 - (记忆总长度 / 输入总长度)</code>。</li>
-<li><strong>记忆内容奖励（r₄）</strong>：确保每次记忆操作在<strong>语义上</strong>是合理的。例如，是否把事件正确地存入了情景记忆，把事实存入了语义记忆。这个奖励由一个“法官”模型（如 Qwen2.5-32B）根据预定义的规则来判断。</li>
+<li><strong>记忆检索与分配</strong>：<ul>
+<li><strong>协调器</strong>会根据新任务的描述，从全局记忆库中检索最相似的 K 个<strong>完整任务记忆</strong>。这为协调器提供了“前人”是如何分解和解决类似任务的完整蓝图。<strong>任务智能体</strong>则根据其不同的变体，分配不同记忆：<ul>
+<li><strong>Vanilla LEGOMem</strong>： 直接从协调器检索到的完整任务记忆中，“拆出”对应的<strong>子任务记忆</strong>，静态地预分配给各任务智能体。</li>
+<li><strong>LEGOMem-Dynamic</strong>： 不预分配。当协调器动态生成一个子任务并分配给某个智能体（如<code>A_i</code>）时，系统实时地以该<strong>子任务描述</strong>为查询，在<code>A_i</code>的专属子记忆库中检索最相关的记忆。</li>
+<li><strong>LEGOMem-QueryRewrite</strong>： 在任务开始前，先用一个LLM根据检索到的完整任务记忆，为新任务草拟一个步骤计划 <code>π_draft</code>，然后基于这个计划中的每个<strong>预期子任务描述</strong>，提前为各个智能体检索好相关子任务记忆。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>记忆增强的执行循环</strong>：<ul>
+<li>协调器利用获得的完整任务记忆进行<strong>初始规划</strong>和<strong>动态规划</strong>（包括重新规划）。</li>
+</ul>
+</li>
 </ol>
-<p>整个训练流程如下图所示，可以分为两个阶段：</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102195543.png"></p>
-<ol>
-<li><strong>采样与交互</strong>：从数据集中采样一个完整的对话流（数据集的多个对话数据，一个batch批次的对话数据这样），然后 agent 逐步阅读对话块，根据当前状态（当前块+当前记忆）选择动作（记忆操作），并更新记忆状态。生成三种记忆；</li>
-<li><strong>评估与奖励</strong>：生成到最终记忆，使用 RAG 让一个冻结的 LLM 基于这个最终记忆（包含三部分），针对用户的 queries 做检索增强。根据这次回答的结果指标，计算出<strong>一个综合奖励</strong> <code>R</code>；</li>
-<li><strong>策略优化</strong>：通过 GRPO 算法，将总奖励 <code>R</code> 回溯分配给整个动作序列中的每一步。通过梯度上升，更新 Agent 的策略模型参数，使其未来更倾向于做出能获得高奖励的决策。</li>
-<li>重复这个操作，最终训练得到模型。</li>
-<li><strong>测试</strong>：部署训练好的Agent，它负责在真实对话中<strong>自主构建记忆</strong>，而后续的问答任务则由一个固定的RAG系统基于这些记忆来完成。</li>
-</ol>
-<p>对于总奖励 <code>R</code>，定义为 $R&#x3D;r1​+r2,t​+βr3​+γr4,t​$</p>
-<p>累积多个对话序列（K条轨迹），然后使用 GRPO 算法计算群组相对优势，紧接着更新模型参数。</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102204947.png"></p>
+<p>整个流程如下图所示：</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251123222430.png"></p>
+<p>论文为了探究子任务检索粒度对多智能体系统的影响，提出了上文所述的对于任务智能体的三种变体。<strong>LEGOMem-Dynamic</strong> 和 <strong>LEGOMem-QueryRewrite</strong> 的工作流程如下图所示。</p>
+<p>后续实验显示，当仅使用任务代理级记忆且任务代理采用小型语言模型时，LEGOMem-Dynamic 和 LEGOMem-QueryRewrite 的性能均优于标准 LEGOMem 。</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251123223849.png"></p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251123224335.png"></p>
+<h3 id="Experiment-Results"><a href="#Experiment-Results" class="headerlink" title="Experiment &amp; Results"></a>Experiment &amp; Results</h3><ul>
+<li><strong>数据集</strong>：OfficeBench，包含300个办公自动化任务，分为L1（单应用）、L2（双应用）、L3（多应用）三个难度级别。<strong>评估指标</strong>为任务成功率。</li>
+<li><strong>智能体配置</strong>：<ul>
+<li>分为三个配置：**(1) LLM 团队<strong>：全部使用 GPT-4o；</strong>(2) 混合团队<strong>：协调器用 GPT-4o，任务智能体用 GPT-4o-mini；</strong>(3) SLM 团队**：全部使用GPT-4o-mini</li>
+</ul>
+</li>
+<li><strong>基线方法</strong>：No Memory、Synapse（全轨迹记忆）、AWM（子任务序列记忆）</li>
+</ul>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251123224254.png"></p>
+<p>可以看到，<strong>所有 LEGOMem 变体均显著优于基线</strong>，平均提升约12-13%的成功率。- <strong>轻量版 LEGOMem 表现最佳</strong>，说明模块化记忆结构本身已足够有效。并且使用 LEGOMem 后，SLM 团队甚至能超越无记忆的 LLM 团队。</p>
+<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251123224514.png"></p>
+<p>而在 LEGOMem 框架中，记忆究竟是为<strong>协调器</strong>更重要，还是为<strong>任务智能体</strong>更重要？论文在<strong>相同的任务</strong>（OfficeBench 基准）和<strong>相同的智能体团队</strong>（全 LLM 团队）下，只改变记忆的分配方式做了消融研究。评估指标：</p>
 <ul>
-<li><p><code>C ∼ P(C)</code>：从所有可能的对话流分布中采样一个具体的对话 <code>C</code></p>
-</li>
-<li><p><code>A ∼ π_old(·|C, M₀)</code>：用<strong>旧的策略</strong> <code>π_old</code> 根据对话 <code>C</code> 和初始空记忆 <code>M₀</code> 采样出一系列动作 <code>A</code></p>
-</li>
-<li><p>对对话中的<strong>每一个时间步</strong> <code>t</code> 进行求和，在<strong>组内的多个轨迹</strong>上进行平均（<code>G</code> 是组的大小），在<strong>单个时间步内的多个子动作</strong>上进行平均（<code>|a_t|</code> 是第 <code>t</code> 步执行的子动作数量）。</p>
-</li>
-<li><p><strong>分子</strong>：<strong>新策略</strong> <code>π_θ</code> 在给定状态下选择动作 <code>a_&#123;t,j&#125;</code> 的概率</p>
-</li>
-<li><p><strong>分母</strong>：<strong>旧策略</strong> <code>π_old</code> 在相同状态下选择相同动作的概率</p>
-</li>
+<li><strong>(a) 平均执行步骤数</strong>：完成一个任务需要多少个操作步骤（如工具调用）。<strong>步骤越少，代表效率越高</strong>。</li>
+<li><strong>(b) 平均步骤失败率</strong>：智能体发出的操作指令中，出错（如调用错误工具、参数错误）的比例。<strong>失败率越低，代表执行可靠性越高</strong>。</li>
 </ul>
-<h3 id="Experiment"><a href="#Experiment" class="headerlink" title="Experiment"></a>Experiment</h3><h4 id="Main-Result"><a href="#Main-Result" class="headerlink" title="Main Result"></a>Main Result</h4><p>实验在 MemoryAgentBench 测试集上进行全面评估，对比了多个基线方法：长上下文模型（Long-Context）、检索增强生成（RAG）、记忆增强智能体（MemAgent、MEM1）。</p>
-<p><strong>关键发现</strong>：Mem-α 的训练完全基于最长 30k tokens 的样本，但在平均长度超过 300k tokens 的测试集上表现出色，展现了 <strong>10 倍以上的长度泛化能力</strong>。</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102203946.png"></p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102204014.png"></p>
+<p>可以看到，对于所有难度级别（L1-L3）的任务，<strong>任何形式的记忆都比没有记忆更高效</strong>（步骤更少）。<strong>仅协调器记忆</strong> 的表现远优于 <strong>仅任务智能体记忆</strong>，并且非常接近 <strong>完整LEGOMem</strong> 的效果。</p>
+<p>因此，<strong>协调器记忆主导效率提升</strong>，它通过优化宏观规划来减少不必要的步骤；而任务智能体记忆在复杂场景下作为补充，通过提升局部执行精度来进一步优化效率。</p>
+<p>与步骤数类似，<strong>任何形式的记忆都显著降低了步骤失败率</strong>，使执行过程更加稳定可靠。<strong>仅协调器记忆</strong> 在降低失败率方面效果非常显著，而 <strong>仅任务智能体记忆</strong> 的效果相对较弱。</p>
+<p>因此，<strong>协调器记忆通过避免规划错误来提升可靠性，而任务智能体记忆通过避免操作错误来提升可靠性。两者结合，实现了最鲁棒的执行。</strong></p>
+<h3 id="My-Thoughts"><a href="#My-Thoughts" class="headerlink" title="My Thoughts"></a>My Thoughts</h3><p>首先这篇文章感觉实验论文就不太充分，主对比验证实验只做了一组。另外对比的基线方法也是只有简单的单 Agent 记忆构建方法，没有对比一些比较新的 Agent 记忆框架方法（比如 Mem0,、A-Mem 等）。数据集也不充分。</p>
+<p>而且方法设计也很简单，感觉应该和 RAG 进行一下对比，看看是不是构建记忆阶段的记忆在真正发挥作用，不然又是一篇没啥意义的文章，还不如用静态 RAG 去做。就实验 Benchmark 来看，我感觉 RAG 没准效果更好，，</p>
+<p>而且我感觉这篇文章根本不太涉及记忆更新啊，记忆库是在离线阶段一次性构建的，之后在整个实验过程中是<strong>静态的</strong>。它不具备在线更新或自我演进的能力。记忆库的规模和质量完全依赖于初始的“训练集”，推理过程不继续更新，感觉有点鸡肋。</p>
+<p>还有一点就是，LEGOMEM 的记忆库完全由<strong>成功的任务轨迹</strong>构建。然而从失败中汲取教训同样至关重要，当前的框架无法避免重复掉入同一个陷阱，这点是之前谷歌那篇 ReasoningBank 探讨过的，我感觉比较有道理。</p>
+<p>不过对于 Multi-Agent 的记忆设计来说，还是有一些学习价值的。首先就是多智能体系统里的 Agent 往往有不同的角色设计，感觉就很类似 MIRIX 那篇文章的思路（把记忆智能体拆成多个角色设计），所以在各种多智能体场景里，记忆 Agent 的设计又千变万化，很多换着玩的方法。</p>
 <ul>
-<li><strong>全任务优越性能</strong>：Mem-α 在所有指标上显著超越现有基线方法。在 MemoryAgentBench（表 2）上，我们观察到在精确检索（AR）和长期理解（LRU）任务上取得了特别显著的改进，展现出对未见分布的强大泛化能力。</li>
-<li><strong>高效的记忆压缩</strong>：与 Long-Context 和 RAG-Top2 相比，Mem-α 将记忆占用减少了约 50%，在保持高性能的同时显著降低了内存开销。</li>
-<li><strong>强大的长度泛化能力</strong>：尽管训练仅使用了平均长度小于 20K tokens 的文档，Mem-α 成功泛化到超过 400K tokens 的文档（在 MemoryAgentBench 的 Multi-Doc 数据集中最长达 474K），展现了训练框架在极端长度外推上的鲁棒性。</li>
+<li><p>我大概想到一个比较简单的思路设计：在现有的 Multi-Agent 框架里，单独设计一个记忆智能体参与到多个智能体的交互之中，它相当于扮演“协调者”的角色，只不过是负责协调 memory 分配而不是任务的分配。那么这个 memory agent 就可以单门设计，通过 RL 或者别的一些方法都可以。</p>
+</li>
+<li><p>另外就是结合<strong>成功与失败</strong>，构建一个包含“正例”和“反例”的双重记忆库。在规划或执行时，系统不仅检索“应该怎么做”，也检索“需要避免什么”。协调器可以据此评估计划的风险，任务智能体可以避免常见的工具使用误区。</p>
+</li>
+<li><p>而且，多智能体系统的优点不是体现在智能体的协作联系吗？那是不是也可以设计一种方法，允许一个任务智能体在遇到困难时，主动向其他智能体（甚至是同类型智能体）的“个人经验库”发起查询？</p>
+</li>
 </ul>
-<h4 id="Ablation-Result"><a href="#Ablation-Result" class="headerlink" title="Ablation Result"></a>Ablation Result</h4><ul>
-<li>消融强化学习（使用 RL 方法与否）</li>
-</ul>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102212743.png"></p>
-<ul>
-<li>消融 RL 超参数</li>
-</ul>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102204543.png"></p>
-<p>针对消融研究，可以得到如下结论：</p>
-<ol>
-<li>记忆内容奖励(γ)对有效学习至关重要——将γ设为0会导致性能急剧下降，因为模型无法掌握有效的记忆构建策略，最终形成无法支持下游任务的无序记忆表征。</li>
-<li>压缩率奖励(β)具有任务依赖性。在保持γ&#x3D;0.1的情况下，增加β会导致记忆长度缩短，但性能会相应下降。</li>
-</ol>
-<p>最后针对 RL 训练前后，论文还有一些实际案例对比：</p>
-<p><img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102204714.png"></p>
 
                 
             </div>
@@ -469,7 +462,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://yukiiceeee.github.io/2025/11/01/lun-wen-mem-a-learning-memory-construction-via-reinforcement-learning/">https://yukiiceeee.github.io/2025/11/01/lun-wen-mem-a-learning-memory-construction-via-reinforcement-learning/</a>
+                    <a href="https://yukiiceeee.github.io/2025/11/22/lun-wen-legomem-modular-procedural-memory-for-multi-agent-llm-systems-for-workflow-automation/">https://yukiiceeee.github.io/2025/11/22/lun-wen-legomem-modular-procedural-memory-for-multi-agent-llm-systems-for-workflow-automation/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -506,11 +499,7 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            
-                                <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
-                                    <span class="chip bg-color">论文笔记</span>
-                                </a>
-                            
+                            <span class="chip bg-color">无标签</span>
                         </div>
                     
                 </div>
@@ -861,9 +850,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2025/11/22/lun-wen-legomem-modular-procedural-memory-for-multi-agent-llm-systems-for-workflow-automation/">
                     <div class="card-image">
@@ -880,9 +870,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2025-11-22
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-11-22
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-user fa-fw"></i>
@@ -891,6 +881,7 @@
                         </span>
                     </div>
                 </div>
+
                 
             </div>
         </div>
@@ -901,23 +892,23 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2025/10/28/lun-wen-memorybench-a-benchmark-for-memory-and-continual-learning-in-llm-systems/">
+                <a href="/2025/11/01/lun-wen-mem-a-learning-memory-construction-via-reinforcement-learning/">
                     <div class="card-image">
                         
-                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102153324.png" class="responsive-img" alt="MemoryBench">
+                        <img src="https://cyan-1314223569.cos.ap-beijing.myqcloud.com/test/Pasted%20image%2020251102195543.png" class="responsive-img" alt="Mem-α: Learning Memory Construction via Reinforcement Learning">
                         
-                        <span class="card-title">MemoryBench</span>
+                        <span class="card-title">Mem-α: Learning Memory Construction via Reinforcement Learning</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            论文旨在解决现有大模型系统在持续学习、记忆机制评估上的空白。已有bench主要关注模型对长文本的理解能力，缺乏实际反馈，无法衡量系统从长期交互中持续改进的能力。为此，论文通过“LLM-as-user”批量生成反馈日志并检验系统吸收反馈、更新记忆后的持续表现。
+                            论文提出了Mem-α，一个用强化学习搭建的智能体记忆框架，用以解决直接使用语言模型处理工具所带来的信息丢失、效率低下等问题。传统方法过于依赖预设指令与工具，Mem-α通过交互与反馈，采用GRPO训练智能体有效管理复杂记忆系统。
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2025-10-28
+                                <i class="far fa-clock fa-fw icon-date"></i>2025-11-01
                             </span>
                         <span class="publish-author">
                             
